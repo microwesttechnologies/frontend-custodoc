@@ -1,0 +1,42 @@
+<div class="w-full h-screen flex flex-column w-screen  align-items-start justify-content-center">
+    
+  <div class="flex flex-row w-3 justify-content-center" style="background-color: aqua;" *ngFor="let item of items">
+      <div class="flex flex-row bg-primary w-7 h-7rem p-2 m-0 border-round	">
+          <div class="flex flex-column align-items-center justify-content-center p-0 w-6">
+              <p-avatar 
+              [icon]="item.icon" 
+              size="xlarge" 
+              shape="circle" />
+            </div>
+            <div class="flex flex-column align-items-center justify-content-center p-0 w-6">
+                <p class="m-0">{{item.label}}</p>
+                <h2 class="m-0"><span class="text-4xl font-bold">{{item.acuracy}}</span></h2>
+            </div> 
+        </div>  
+    </div>
+
+
+    <div class="card">
+        <p-table [value]="products" [tableStyle]="{ 'min-width': '50rem' }">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>Code</th>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Quantity</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-product>
+                <tr>
+                    <td>{{ product.code }}</td>
+                    <td>{{ product.name }}</td>
+                    <td>{{ product.category }}</td>
+                    <td>{{ product.quantity }}</td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+
+</div>
+
+    
