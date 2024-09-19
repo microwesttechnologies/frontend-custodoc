@@ -1,11 +1,19 @@
 body{
     margin-top:20px;
-    background:#FAFAFA;
 }
+
+.background-dash {
+background-color: #fafafa;
+}
+
 .order-card {
     color: #fff;
 }
 
 
+.p-datatable-thead > tr {
+    background-color: var(--primary-color);
+    color: white;
+}
 
 
