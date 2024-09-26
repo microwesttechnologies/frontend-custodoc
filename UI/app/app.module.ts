@@ -6,6 +6,9 @@ import { AppComponent } from './app.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { SidebarComponent } from 'UI/components/sidebar/sidebar.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { GetUserAuthUseCase } from 'Core/Domain/UseCase/GetUserAuthUseCase';
+import { HttpClientModule } from '@angular/common/http';
+import { GetAllUserUseCases } from 'Core/Domain/UseCase/GetAllUserUseCase';
 
 @NgModule({
   declarations: [
@@ -16,9 +19,10 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     AppRoutingModule,
     ReactiveFormsModule,
     SidebarComponent,
-    BrowserAnimationsModule
+    BrowserAnimationsModule,
+    HttpClientModule 
     ],
-  providers: [],
+  providers: [GetUserAuthUseCase, GetAllUserUseCases],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

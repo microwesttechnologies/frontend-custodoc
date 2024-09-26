@@ -21,8 +21,9 @@
           </div>
       
           
-            <div class="flex gap-3 mt-4">
+            <div class="flex flex-column justify-content-center align-items-center mt-4">
               <p-button class="btn-login" [disabled]=!loginForm.valid label="Iniciar Sesión" type="submit" class="w-full" styleClass="w-full"></p-button>
+              <span *ngIf="messageError" style="color: red;" >Credenciales incorrectas</span>
             </div>
 
         </form>

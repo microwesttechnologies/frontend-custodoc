@@ -6,6 +6,6 @@
     <app-card class="card-item" *ngFor="let item of items" [icon]="item.icon" [label]="item.label" [acuracy]="item.acuracy"></app-card>
   </div>
   <div class="w-full mt-4 mb-4">
-    <app-table [labelRow]="labelRow"></app-table>
+    <app-table [items]="user" [user]="user"></app-table>
   </div>
 </div>

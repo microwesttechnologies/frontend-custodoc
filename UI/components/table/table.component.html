@@ -1,14 +1,13 @@
 <div class="card">
   <p-table
-    #dt1
-    [value]="customers"
-    dataKey="id"
-    [rows]="10"
-    [rowsPerPageOptions]="[10, 25, 50]"
-    [loading]="loading"
-    [paginator]="true"
-    [globalFilterFields]="['name', 'country.name']"
-  >
+  #dt1
+  [value]="user"
+  dataKey="id"
+  [rows]="10"
+  [rowsPerPageOptions]="[10, 25, 50]"
+  [paginator]="true"
+  [globalFilterFields]="filterFields"
+>
     <ng-template pTemplate="caption">
       <div class="flex">
         <H1>Pacientes</H1>
@@ -27,23 +26,17 @@
 
     <ng-template pTemplate="header">
       <tr>
-        <th *ngFor="let label of labelRow">
-          <div class="flex align-items-center">
-            {{label.label}}
-          </div>
-        </th>
+        <th *ngFor="let prop of getProperties(user[0])">{{ prop }}</th>
       </tr>
     </ng-template>
     
 
-    <ng-template pTemplate="body" let-customer>
+    <ng-template pTemplate="body" let-item>
       <tr>
-        <td>{{ customer.name }}</td>
-        <td>
-          <span class="ml-1 vertical-align-middle">{{ customer.country.name }}</span>
-        </td>
+        <td *ngFor="let prop of getProperties(item)">{{ item[prop] }}</td>
       </tr>
     </ng-template>
+
 
     <ng-template pTemplate="emptymessage">
       <tr>
