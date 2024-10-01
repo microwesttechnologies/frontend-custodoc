@@ -28,7 +28,8 @@ export class TableComponent implements OnChanges {
   @ViewChild('dt1') dt1!: Table;
   @Input() labelRow:  any = [];
   @Input() items!:    any[];
-  @Input() user!:     any[];
+  @Input() itemsTable!:     any[];
+  @Input() nameTable!:string;
   representatives!:   any[];
   searchValue:        string | undefined;
   loading:            boolean = true;
@@ -37,8 +38,8 @@ export class TableComponent implements OnChanges {
   constructor() {}
   
   ngOnChanges(changes: SimpleChanges): void {
-    if (this.user && this.user.length > 0) {
-      this.filterFields = Object.keys(this.user[0]);
+    if (this.itemsTable && this.itemsTable.length > 0) {
+      this.filterFields = Object.keys(this.itemsTable[0]);
     }
   }
   
