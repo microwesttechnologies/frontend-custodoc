@@ -1,0 +1,21 @@
+<div class="background-dash w-full pl-8 pr-8  flex flex-column align-items-start justify-content-start">
+    <div class="w-full flex flex-column align-items-start justify-content-start ">
+      <h1>Hola, {{userName}}</h1>
+    </div>
+    
+    <div class="flex w-full justify-content-start align-content-center flex-row mb-4">
+      <app-card class="card-item" *ngFor="let item of items" [icon]="item.icon" [label]="item.label" [acuracy]="item.acuracy"></app-card>
+    </div>
+    
+    <div class="w-full mt-4 mb-4">
+      <app-table 
+      [items]="itemsTable"  
+      [nameTable]="nameTable" 
+      [itemsTable]="itemsTable" 
+      [labelBtn]="labelBtn"
+      [descriptionModal]="descriptionModal"
+      [titleModal]="titleModal"
+      [inputsModal]="inputsModal" 
+      ></app-table>
+    </div>
+  </div>

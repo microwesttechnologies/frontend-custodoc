@@ -48,7 +48,12 @@ export class LoginComponent implements OnInit {
             this.userName = response.name;
             localStorage.setItem('userRole', this.userRole);
             localStorage.setItem('userName', this.userName);
-            this.router.navigate(['/dashboard']);
+            if (this.userRole === "medico" || this.userRole === "cargue" ) {
+              this.router.navigate(['/history']);
+            } else {
+              this.router.navigate(['/company']);
+              
+            }
             console.log(this.userRole, this.userName);
           } else {
             this.messageError = "Credenciales incorrectas";
