@@ -1,0 +1,15 @@
+<div class="w-full flex flex-column align-items-start justify-content-start">
+  <h1>Hola, {{ userService.user?.name }}</h1>
+</div>
+
+<div
+  class="flex w-full justify-content-start align-content-center flex-row mb-4"
+>
+  <app-card
+    class="card-item"
+    *ngFor="let item of items"
+    [icon]="item.icon"
+    [label]="item.label"
+    [acuracy]="item.acuracy"
+  ></app-card>
+</div>

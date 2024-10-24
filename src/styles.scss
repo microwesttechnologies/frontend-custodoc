@@ -1,1 +1,105 @@
-/* You can add global styles to this file, and also import other style files */
+@import "primeng/resources/themes/lara-light-blue/theme.css";
+@import "primeng/resources/primeng.min.css";
+@import "primeflex/primeflex.css";
+@import "primeicons/primeicons.css";
+
+@import "styles/core/typography";
+@import "styles/core/utilities";
+@import "styles/core/variables";
+
+@import url("https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap");
+
+* {
+  box-sizing: border-box;
+  outline: none;
+  &::after,
+  &::before {
+    box-sizing: inherit;
+  }
+}
+
+body,
+html {
+  font-family: $font-family-base;
+  background: #fafbfc;
+  min-height: 100vh;
+  overflow: hidden;
+  height: 100vh;
+  padding: 0;
+  margin: 0;
+}
+
+.lato-thin {
+  font-family: $font-family-base;
+  font-weight: 100;
+  font-style: normal;
+}
+
+.lato-light {
+  font-family: $font-family-base;
+  font-weight: 300;
+  font-style: normal;
+}
+
+.lato-regular {
+  font-family: $font-family-base;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.lato-bold {
+  font-family: $font-family-base;
+  font-weight: 700;
+  font-style: normal;
+}
+
+.lato-black {
+  font-family: $font-family-base;
+  font-weight: 900;
+  font-style: normal;
+}
+
+.lato-thin-italic {
+  font-family: $font-family-base;
+  font-weight: 100;
+  font-style: italic;
+}
+
+.lato-light-italic {
+  font-family: $font-family-base;
+  font-weight: 300;
+  font-style: italic;
+}
+
+.lato-regular-italic {
+  font-family: $font-family-base;
+  font-weight: 400;
+  font-style: italic;
+}
+
+.lato-bold-italic {
+  font-family: $font-family-base;
+  font-weight: 700;
+  font-style: italic;
+}
+
+.lato-black-italic {
+  font-family: $font-family-base;
+  font-weight: 900;
+  font-style: italic;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.full-width input {
+  width: 100%;
+}
+
+:root {
+  --primary-color: #004358;
+  --primary-color-text: #ffffff;
+  --primary-background: #ececec;
+  --button-bg-color: var(--primary-color);
+}

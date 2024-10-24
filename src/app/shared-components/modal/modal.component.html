@@ -1,0 +1,76 @@
+<p-dialog
+  header="{{ title }}"
+  [modal]="true"
+  [visible]="true"
+  [position]="position"
+  [style]="{ width: '40rem' }"
+  (visibleChange)="closeModal()"
+>
+  <span class="p-text-secondary block mb-5">
+    {{ description }}
+  </span>
+
+  <form [formGroup]="formGroup">
+    <div *ngFor="let field of listFields">
+      <div class="flex flex-column align-items-start mb-3">
+        <label for="{{ field.key }}" class="font-semibold">
+          {{ field.label }}
+        </label>
+        @if(!field?.type){
+        <input
+          [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid(field.key) }"
+          [formControlName]="field.key"
+          class="flex-auto w-full"
+          autocomplete="off"
+          [id]="field.key"
+          pInputText
+        />
+        }@else if(field.type === 'autocomplete'){
+        <p-autoComplete
+          [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid(field.key) }"
+          (completeMethod)="search($event, field)"
+          [suggestions]="field.dataFilter!"
+          [field]="field.keyAutoComplete"
+          [formControlName]="field.key"
+        ></p-autoComplete>
+        }@else if(field.type === 'textarea'){
+        <textarea
+          [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid(field.key) }"
+          [formControlName]="field.key"
+          pInputTextarea
+          rows="5"
+        >
+        </textarea>
+        }@else if(field.type === 'select'){
+        <p-dropdown
+          [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid(field.key) }"
+          [optionLabel]="field.keyAutoComplete"
+          [formControlName]="field.key"
+          [options]="field.data"
+          class="flex-auto w-full"
+        >
+        </p-dropdown>
+        }
+      </div>
+    </div>
+
+    @if(withFile){
+
+    <p-fileUpload
+      mode="basic"
+      chooseLabel="Choose"
+      chooseIcon="pi pi-upload"
+      name="demo[]"
+      url="https://www.primefaces.org/cdn/api/upload.php"
+      maxFileSize="1000000"
+    />
+    <!-- (onUpload)="onUpload()" -->
+    <!-- (onSelect)="onFileSelected($event)" -->
+    }
+  </form>
+
+  <div class="flex justify-content-end gap-2">
+    <p-button severity="danger" label="Cancelar" (click)="closeModal()" />
+    <p-button label="Guardar" (click)="onSubmit()" />
+  </div>
+</p-dialog>

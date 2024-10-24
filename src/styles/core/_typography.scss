@@ -1,0 +1,351 @@
+@import './variables';
+
+$listStyleTypography: (
+  primary: (
+    font-size: (
+      xs: 0.5rem,
+      2xs: 0.625rem,
+      3xs: 0.75rem,
+      sm: 0.875rem,
+      2sm: 0.9375rem,
+      md: 1rem,
+      lg: 1.125rem,
+      2lg: 1.25rem,
+      3lg: 1.5rem,
+      xl: 2.125rem,
+      2xl: 3rem,
+      3xl: 3.75rem,
+      4xl: 6rem,
+    ),
+    line-height: (
+      xs: 0.6875rem,
+      2xs: 0.875rem,
+      3xs: 1.0625rem,
+      sm: 1.25rem,
+      2sm: 1.3125rem,
+      md: 1.375em,
+      lg: 1.5625rem,
+      2lg: 1.75rem,
+      3lg: 2rem,
+      xl: 2.5625rem,
+      2xl: 3.625em,
+      3xl: 4.5rem,
+      4xl: 7.1875em,
+    ),
+    font-weight: (
+      light: 300,
+      normal: 400,
+      medium: 500,
+      bold: 700,
+    ),
+    letter-spacing: (
+      sm: 0.00625rem,
+      md: 0.009375rem,
+      lg: 0.015625rem,
+      xl: 0.025rem,
+      2xl: 0.03125rem,
+      3xl: 0.078125rem,
+      4xl: 0.09375rem,
+    ),
+    font-family: (
+      main: Roboto,
+    ),
+  ),
+);
+
+$listStyleTypographyCombined: (
+  primary: (
+    headline: (
+      xlarge: (
+        font-family: main,
+        font-weight: medium,
+        font-size: 4xl,
+        line-height: 4xl,
+      ),
+      large: (
+        font-family: main,
+        font-weight: medium,
+        font-size: 3xl,
+        line-height: 3xl,
+      ),
+      medium: (
+        font-family: main,
+        font-weight: bold,
+        font-size: 2xl,
+        line-height: 2xl,
+      ),
+      small: (
+        font-family: main,
+        font-weight: medium,
+        font-size: xl,
+        line-height: xl,
+        letter-spacing: lg,
+      ),
+      xsmall: (
+        font-family: main,
+        font-weight: normal,
+        font-size: 3lg,
+        line-height: 3lg,
+        letter-spacing: md,
+      ),
+    ),
+    title: (
+      large: (
+        font-family: main,
+        font-weight: medium,
+        font-size: 3lg,
+        line-height: 3lg,
+        letter-spacing: md,
+      ),
+      medium: (
+        font-family: main,
+        font-weight: medium,
+        font-size: 2lg,
+        line-height: 2lg,
+      ),
+      small: (
+        font-family: main,
+        font-weight: medium,
+        font-size: lg,
+        line-height: lg,
+      ),
+    ),
+    subtitle: (
+      xlarge: (
+        font-family: main,
+        font-weight: medium,
+        font-size: md,
+        line-height: md,
+        letter-spacing: md,
+      ),
+      large: (
+        font-family: main,
+        font-weight: medium,
+        font-size: sm,
+        line-height: sm,
+        letter-spacing: md,
+      ),
+      medium: (
+        font-family: main,
+        font-weight: medium,
+        font-size: 3xs,
+        line-height: 3xs,
+        letter-spacing: xl,
+      ),
+      small: (
+        font-family: main,
+        font-weight: medium,
+        font-size: 2xs,
+        line-height: 2xs,
+        letter-spacing: xl,
+      ),
+    ),
+    body: (
+      large: (
+        font-family: main,
+        font-weight: normal,
+        font-size: md,
+        line-height: md,
+        letter-spacing: 2xl,
+      ),
+      medium: (
+        font-family: main,
+        font-weight: normal,
+        font-size: sm,
+        line-height: sm,
+        letter-spacing: lg,
+      ),
+    ),
+    button: (
+      large: (
+        font-family: main,
+        font-weight: medium,
+        font-size: 2sm,
+        line-height: 2sm,
+        letter-spacing: 3xl,
+      ),
+      medium: (
+        font-family: main,
+        font-weight: medium,
+        font-size: sm,
+        line-height: sm,
+        letter-spacing: 3xl,
+      ),
+    ),
+    caption: (
+      large: (
+        font-family: main,
+        font-weight: normal,
+        font-size: 3xs,
+        line-height: 3xs,
+        letter-spacing: xl,
+      ),
+      medium: (
+        font-family: main,
+        font-weight: normal,
+        font-size: 2xs,
+        line-height: 2xs,
+        letter-spacing: lg,
+      ),
+      small: (
+        font-family: main,
+        font-weight: normal,
+        font-size: xs,
+        line-height: xs,
+        letter-spacing: xl,
+      ),
+    ),
+    overline: (
+      medium: (
+        font-family: main,
+        font-weight: normal,
+        font-size: 2xs,
+        line-height: 2xs,
+        letter-spacing: 4xl,
+      ),
+    ),
+  ),
+);
+
+/**
+  Get the specific measure value for an attribute from the typography map.
+  @param {String} $attribute - The name of the attribute (e.g., font-size).
+  @param {String} $measure - The specific measure key (e.g., md, lg).
+  @param {String} $typography - The typography variant (default is 'primary').
+  @return {String} The value of the measure.
+*/
+@function get-measure-value($attribute, $measure, $typography: primary) {
+  $measures: map-get(map-get($listStyleTypography, $typography), $attribute);
+
+  @if $measures == null {
+    @error "Attribute `#{$attribute}` not found for typography `#{$typography}`.";
+  }
+
+  @if not map-has-key($measures, $measure) {
+    @error "Measure `#{$measure}` not found for attribute `#{$attribute}`.";
+  }
+
+  @return map-get($measures, $measure);
+}
+
+/**
+  Apply a specific typography attribute based on measure.
+  @param {String} $attribute - The attribute to apply (e.g., font-size).
+  @param {String} $measure - The measure key (e.g., md, lg).
+  @param {String} $typography - The typography variant (default is 'primary').
+*/
+@mixin apply-attribute-typography($attribute, $measure, $typography: primary) {
+  #{$attribute}: get-measure-value($attribute, $measure, $typography);
+}
+
+/**
+  Apply the styles for a given typography option.
+  @param {String} $property - The first level of the typography map (e.g., headline).
+  @param {String} $attribute - The second level of the typography map (e.g., xlarge).
+  @param {String} $color - validate default color (default, null).
+  @param {String} $typography - The typography variant (default is 'primary').
+*/
+@mixin apply-values-typography-by-property(
+  $property,
+  $attribute,
+  $color: default,
+  $typography: primary
+) {
+  $styles: map-get(
+    map-get($listStyleTypographyCombined, $typography),
+    $property
+  );
+
+  @if $styles == null {
+    @error "Property `#{$property}` not found for typography `#{$typography}`.";
+  }
+
+  $styleProperties: map-get($styles, $attribute);
+
+  @if $styleProperties == null {
+    @error "Attribute `#{$attribute}` not found for property `#{$property}`.";
+  }
+
+  @each $styleAttribute, $measure in $styleProperties {
+    @include apply-attribute-typography($styleAttribute, $measure, $typography);
+  }
+
+  @if ($color == default) {
+    color: #333333;
+  } @else if($color) {
+    color: $color;
+  }
+}
+
+/**
+  Generate CSS classes for a specific attribute and optional states.
+  @param {String} $attribute - The attribute to generate classes for (e.g., font-size).
+  @param {List} $states - Optional states (e.g., hover, focus, active).
+  @param {String} $typography - The typography variant (default is 'primary').
+*/
+@mixin generate-classes-by-attribute(
+  $attribute,
+  $states: (),
+  $typography: primary
+) {
+  @each $measure
+    in map-keys(map-get(map-get($listStyleTypography, $typography), $attribute))
+  {
+    @if length($states) > 0 {
+      .#{$attribute}-#{$measure} {
+        @each $state in $states {
+          &-#{$state} {
+            &:#{$state} {
+              @include apply-attribute-typography(
+                $attribute,
+                $measure,
+                $typography
+              );
+            }
+          }
+        }
+      }
+    } @else {
+      .#{$attribute}-#{$measure} {
+        @include apply-attribute-typography($attribute, $measure, $typography);
+      }
+    }
+  }
+}
+
+/**
+  Generate combined typography styles based on $listStyleTypographyCombined.
+  The class names will follow the pattern "font-{firstElement}-{secondElement}".
+   @param {String} $typography - The typography variant (default is 'primary').
+*/
+@mixin generate-combined-typography-classes($typography: primary) {
+  @if map-has-key($listStyleTypographyCombined, $typography) {
+    @each $property,
+      $styles in map-get($listStyleTypographyCombined, $typography)
+    {
+      @each $attribute, $styleProperties in $styles {
+        .font-#{$property}-#{$attribute} {
+          @each $measure, $value in $styleProperties {
+            @include apply-attribute-typography($measure, $value, $typography);
+          }
+          color: #333333;
+        }
+      }
+    }
+  }
+}
+
+/**
+  Generate all typography classes within the parent typography class.
+  @param {String} $typography - The typography variant (default is 'primary').
+*/
+@mixin generate-typography-classes($typography: primary) {
+  .#{$typography}-typography {
+    @include generate-combined-typography-classes();
+
+    // Generate classes for all attributes
+    @each $attribute in map-keys(map-get($listStyleTypography, primary)) {
+      @include generate-classes-by-attribute($attribute);
+    }
+  }
+}
