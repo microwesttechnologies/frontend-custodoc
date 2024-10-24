@@ -21,7 +21,7 @@ export class AuthInterceptor implements HttpInterceptor {
     return next.handle(req).pipe(
       catchError((error: HttpErrorResponse) => {
         if (error.status === 401) {
-          window.localStorage.removeItem('token');
+          window.localStorage.removeItem('access_token');
           this.router.navigate(['/login']);
         }
 

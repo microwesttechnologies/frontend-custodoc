@@ -1,3 +1,7 @@
+import { TypesDocument } from './types-document.model';
+import { Company } from './company.model';
+import { Rol } from './rol.model';
+
 export interface User {
   iss?: string;
   iat?: number;
@@ -11,8 +15,11 @@ export interface User {
   name: string;
   phone: string;
   email: string;
-  id_role: number;
+  id_rol: number | Rol;
   state: number;
-  id_company: number;
-  id_document: string;
+  id_company: Company | number;
+  id_document: TypesDocument | string;
+  name_company?: string;
+  name_type_document?: string;
+  name_rol?: string;
 }

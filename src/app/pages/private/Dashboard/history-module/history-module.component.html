@@ -3,13 +3,15 @@
 >
   <div class="w-full mt-4 mb-4">
     <app-table
-      [items]="itemsTable"
       [nameTable]="nameTable"
       [itemsTable]="itemsTable"
       [labelBtn]="labelBtn"
       [descriptionModal]="descriptionModal"
       [titleModal]="titleModal"
       [listFields]="listFields"
+      (saveData)="createDocument($event)"
+      [(modalVisible)]="modalVisible"
+      [withFile]="true"
     ></app-table>
   </div>
 </div>

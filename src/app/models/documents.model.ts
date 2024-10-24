@@ -1,4 +1,4 @@
-export interface HistoryDocuments {
+export interface Document {
   id_history: number;
   identification: string;
   name: string;
@@ -6,4 +6,5 @@ export interface HistoryDocuments {
   description: string;
   created_at: Date;
   updated_at: Date;
+  name_customer?: string;
 }

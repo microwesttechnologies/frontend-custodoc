@@ -1,15 +1,16 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { environment } from '../../../environments/environment';
+import { environment } from 'src/environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { headerAuthorization } from '../local/helper.service';
-import { Customer } from '../../models/customer.model';
+import { Customer } from 'src/app/models/customer.model';
+import { GenericResponse } from 'src/app/models/global.model';
 
 @Injectable({
   providedIn: 'root',
 })
-export class CustomersService {
-  private readonly apiUrl = `${environment.apiUrl}customers`;
+export class CustomerService {
+  private readonly apiUrl = `${environment.apiUrl}customer`;
 
   constructor(private http: HttpClient) {}
 
@@ -17,8 +18,8 @@ export class CustomersService {
     return this.http.get<Customer[]>(this.apiUrl, headerAuthorization());
   }
 
-  createCustomer(customer: Customer): Observable<Customer[]> {
-    return this.http.post<Customer[]>(
+  createCustomer(customer: Customer): Observable<GenericResponse> {
+    return this.http.post<GenericResponse>(
       this.apiUrl,
       customer,
       headerAuthorization()

@@ -11,45 +11,55 @@
   </span>
 
   <form [formGroup]="formGroup">
-    <div *ngFor="let field of listFields">
+    <div *ngFor="let key of listFields | getObjectProperties">
       <div class="flex flex-column align-items-start mb-3">
-        <label for="{{ field.key }}" class="font-semibold">
-          {{ field.label }}
+        <label for="{{ key }}" class="font-semibold">
+          {{ listFields[key].label }}
         </label>
-        @if(!field?.type){
+        @if(!listFields[key]?.type){
         <input
-          [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid(field.key) }"
-          [formControlName]="field.key"
-          class="flex-auto w-full"
+          [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid(key) }"
+          [formControlName]="key"
           autocomplete="off"
-          [id]="field.key"
+          class="w-full"
+          [id]="key"
           pInputText
         />
-        }@else if(field.type === 'autocomplete'){
-        <p-autoComplete
-          [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid(field.key) }"
-          (completeMethod)="search($event, field)"
-          [suggestions]="field.dataFilter!"
-          [field]="field.keyAutoComplete"
-          [formControlName]="field.key"
-        ></p-autoComplete>
-        }@else if(field.type === 'textarea'){
+        }@else if(listFields[key].type === 'autocomplete'){
+        <p-dropdown
+          [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid(key) }"
+          [optionLabel]="listFields[key].keyAutoComplete"
+          [options]="listFields[key].dataFilter!"
+          [formControlName]="key"
+          [showClear]="true"
+          [filter]="true"
+          class="w-full"
+        ></p-dropdown>
+        }@else if(listFields[key].type === 'textarea'){
         <textarea
-          [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid(field.key) }"
-          [formControlName]="field.key"
+          [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid(key) }"
+          [formControlName]="key"
           pInputTextarea
+          class="w-full"
           rows="5"
         >
         </textarea>
-        }@else if(field.type === 'select'){
+        }@else if(listFields[key].type === 'select'){
         <p-dropdown
-          [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid(field.key) }"
-          [optionLabel]="field.keyAutoComplete"
-          [formControlName]="field.key"
-          [options]="field.data"
-          class="flex-auto w-full"
+          [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid(key) }"
+          [optionLabel]="listFields[key].keyAutoComplete"
+          [options]="listFields[key].data"
+          [formControlName]="key"
+          class="w-full"
         >
         </p-dropdown>
+        }@else if(listFields[key].type === 'password'){
+        <p-password
+          [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid(key) }"
+          [formControlName]="key"
+          [toggleMask]="true"
+          class="w-full"
+        ></p-password>
         }
       </div>
     </div>
@@ -63,9 +73,8 @@
       name="demo[]"
       url="https://www.primefaces.org/cdn/api/upload.php"
       maxFileSize="1000000"
+      (onSelect)="onFileSelected($event)"
     />
-    <!-- (onUpload)="onUpload()" -->
-    <!-- (onSelect)="onFileSelected($event)" -->
     }
   </form>
 

@@ -3,13 +3,14 @@
 >
   <div class="w-full mt-4 mb-4">
     <app-table
-      [items]="itemsTable"
       [nameTable]="nameTable"
       [itemsTable]="itemsTable"
       [labelBtn]="labelBtn"
       [descriptionModal]="descriptionModal"
       [titleModal]="titleModal"
       [listFields]="listFields"
+      (saveData)="createCustomer($event.form)"
+      [(modalVisible)]="modalVisible"
     ></app-table>
   </div>
 </div>

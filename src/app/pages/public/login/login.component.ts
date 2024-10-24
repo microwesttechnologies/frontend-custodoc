@@ -5,8 +5,8 @@ import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { FloatLabelModule } from 'primeng/floatlabel';
-import { UsersService } from '../../../services/external/Users.service';
-import { SharedModule } from '../../../shared-components/shared.module';
+import { UserService } from 'src/app/services/external/user.service';
+import { SharedModule } from 'src/app/shared-components/shared.module';
 
 @Component({
   selector: 'app-login',
@@ -26,7 +26,7 @@ export class LoginComponent implements OnInit {
   loginForm!: FormGroup;
   messageError: string = '';
 
-  private readonly usersUseCases = inject(UsersService);
+  private readonly userService = inject(UserService);
   private readonly fb = inject(FormBuilder);
 
   ngOnInit(): void {
@@ -40,7 +40,7 @@ export class LoginComponent implements OnInit {
     if (this.loginForm.valid) {
       const { username, password } = this.loginForm.value;
 
-      this.usersUseCases.login(username, password).subscribe({
+      this.userService.login(username, password).subscribe({
         next: (response) => {
           if (response.status) {
             window.localStorage.setItem('access_token', `${response.token}`);

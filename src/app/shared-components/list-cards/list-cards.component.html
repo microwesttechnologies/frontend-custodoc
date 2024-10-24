@@ -1,15 +1,19 @@
-<div class="w-full flex flex-column align-items-start justify-content-start">
-  <h1>Hola, {{ userService.user?.name }}</h1>
-</div>
+<h1>Hola, {{ userLocalService.user?.name }}</h1>
 
 <div
-  class="flex w-full justify-content-start align-content-center flex-row mb-4"
+  class="list-cards"
+  [ngStyle]="{
+    'grid-template-columns':
+      'repeat(' +
+      (globalService.detailCompany | getObjectProperties).length +
+      ',1fr)'
+  }"
 >
   <app-card
     class="card-item"
-    *ngFor="let item of items"
-    [icon]="item.icon"
-    [label]="item.label"
-    [acuracy]="item.acuracy"
+    *ngFor="let key of globalService.detailCompany | getObjectProperties"
+    [icon]="getValueByKey(key).icon"
+    [label]="getValueByKey(key).label"
+    [amount]="getValueByKey(key).amount"
   ></app-card>
 </div>

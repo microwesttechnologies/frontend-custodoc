@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
-import { SidebarComponent } from '../../../shared-components/sidebar/sidebar.component';
-import { SharedModule } from '../../../shared-components/shared.module';
-import { ListCardsComponent } from '../../../shared-components/list-cards/list-cards.component';
+import { SidebarComponent } from 'src/app/shared-components/sidebar/sidebar.component';
+import { SharedModule } from 'src/app/shared-components/shared.module';
+import { ListCardsComponent } from 'src/app/shared-components/list-cards/list-cards.component';
 
 @Component({
   selector: 'app-dashboard',

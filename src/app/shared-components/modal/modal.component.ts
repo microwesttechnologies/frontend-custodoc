@@ -10,19 +10,17 @@ import { MessageService } from 'primeng/api';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
-import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  Validators,
-} from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { FileUploadModule } from 'primeng/fileupload';
 import { ToastModule } from 'primeng/toast';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 
-import { ListFields } from '../../models/modal.model';
+import { ListFields } from 'src/app/models/modal.model';
 import { SharedModule } from '../shared.module';
 import { DropdownModule } from 'primeng/dropdown';
+import { PasswordModule } from 'primeng/password';
+import { GetObjectPropertiesPipe } from 'src/app/pipes/get-object-properties.pipe';
+import { isObjectValidator } from 'src/app/services/local/helper.service';
 
 @Component({
   selector: 'app-modal',
@@ -35,17 +33,19 @@ import { DropdownModule } from 'primeng/dropdown';
     FileUploadModule,
     DropdownModule,
     ToastModule,
+    PasswordModule,
     SharedModule,
+    GetObjectPropertiesPipe,
   ],
   templateUrl: './modal.component.html',
   styleUrls: ['./modal.component.scss'],
   providers: [MessageService],
 })
 export class ModalComponent implements OnInit {
-  @Input() withFile: boolean = false;
+  @Input() withFile!: boolean;
   @Input() description: string = '';
   @Input() title: string = '';
-  @Input() listFields: ListFields[] = [];
+  @Input() listFields!: ListFields;
 
   position:
     | 'right'
@@ -58,7 +58,7 @@ export class ModalComponent implements OnInit {
     | 'bottomleft'
     | 'bottomright' = 'center';
   @Output() modalClosed = new EventEmitter<void>();
-  @Output() saveData = new EventEmitter<{ data: FormGroup; file?: File }>();
+  @Output() saveData = new EventEmitter<{ form: FormGroup; file?: File }>();
 
   public selectedFile?: File;
   public formGroup!: FormGroup;
@@ -70,14 +70,21 @@ export class ModalComponent implements OnInit {
     this.formGroup = this.createForm();
   }
 
-  createForm(): FormGroup {
+  private createForm(): FormGroup {
     const group = this.formBuilder.group({});
 
-    this.listFields.forEach((field) => {
-      const validators = field.required ? [Validators.required] : [];
+    Object.keys(this.listFields).forEach((key) => {
+      const validators = this.listFields[key].required
+        ? [Validators.required]
+        : [];
+
+      if (['select', 'autocomplete'].includes(this.listFields[key].type!)) {
+        validators.push(isObjectValidator);
+      }
+
       group.addControl(
-        field.key,
-        this.formBuilder.control(field.value, validators)
+        key,
+        this.formBuilder.control(this.listFields[key].value, validators)
       );
     });
 
@@ -95,65 +102,19 @@ export class ModalComponent implements OnInit {
     }
   }
 
-  search(event: any, field: ListFields) {
-    const query = event.query as string;
-
-    field.dataFilter = field.data?.filter((item) =>
-      item[field.keyAutoComplete as string]
-        .toLowerCase()
-        .includes(query.toLowerCase())
-    );
-  }
-
   isFieldInvalid(key: string): boolean {
     return (this.formGroup.get(key)?.invalid &&
       this.formGroup.get(key)?.touched) as boolean;
   }
 
-  // onUpload() {
-  //   this.numberIdentification = 1024494633;
-  //   if (this.selectedFile && this.numberIdentification) {
-  //     const formData = new FormData();
-  //     formData.append('documento', this.selectedFile, this.selectedFile.name);
-  //     formData.append('identidad', this.numberIdentification.toString()); // Convertir a string
-
-  //     // this.uploadDocumentService.uploadDocument(formData).subscribe(
-  //     //   (response: any) => {
-  //     //     this.messageService.add({
-  //     //       severity: 'success',
-  //     //       summary: 'Éxito',
-  //     //       detail: response.message,
-  //     //     });
-  //     //     this.uploadedFilePath = response.path;
-  //     //     console.log('Ruta del archivo:', response.path);
-  //     //     this.closeModal();
-  //     //   },
-  //     //   (error: any) => {
-  //     //     console.error('Error al subir el documento:', error);
-  //     //     this.messageService.add({
-  //     //       severity: 'error',
-  //     //       summary: 'Error',
-  //     //       detail:
-  //     //         'Error al subir el documento.' + (error.error.message || ''),
-  //     //     });
-  //     //   }
-  //     // );
-  //   } else {
-  //     this.messageService.add({
-  //       severity: 'warn',
-  //       summary: 'Advertencia',
-  //       detail:
-  //         'Por favor selecciona un archivo y proporciona el número de identificación.',
-  //     });
-  //   }
-  // }
-
   onSubmit(): void {
     this.formGroup.markAllAsTouched();
-    console.log(this.formGroup.value);
-    if (this.formGroup.valid) {
+    if (
+      this.formGroup.valid &&
+      (!this.withFile || (this.withFile && this.selectedFile))
+    ) {
       this.saveData.emit({
-        data: this.formGroup,
+        form: this.formGroup,
         file: this.selectedFile,
       });
     }

@@ -1,11 +1,19 @@
 import { Component, Input, inject } from '@angular/core';
 import { AvatarModule } from 'primeng/avatar';
 import { ButtonModule } from 'primeng/button';
-import { SharedModule } from '../../../../shared-components/shared.module';
-import { TableComponent } from '../../../../shared-components/table/table.component';
-import { ModalComponent } from '../../../../shared-components/modal/modal.component';
-import { ListFields } from '../../../../models/modal.model';
-import { TypesDocumentService } from '../../../../services/external/TypesDocument.service';
+import { SharedModule } from 'src/app/shared-components/shared.module';
+import { TableComponent } from 'src/app/shared-components/table/table.component';
+import { ModalComponent } from 'src/app/shared-components/modal/modal.component';
+import { ListFields } from 'src/app/models/modal.model';
+import { TypesDocumentService } from 'src/app/services/external/types-document.service';
+import { CompanyService } from 'src/app/services/external/company.service';
+import { UserLocalService } from 'src/app/services/local/user.service';
+import { CustomerService } from 'src/app/services/external/customer.service';
+import { FormGroup } from '@angular/forms';
+import { Customer } from 'src/app/models/customer.model';
+import { Company } from 'src/app/models/company.model';
+import { TypesDocument } from 'src/app/models/types-document.model';
+import { GlobalService } from 'src/app/services/external/global.service';
 
 @Component({
   selector: 'app-customers-module',
@@ -26,79 +34,129 @@ export class CustomersModuleComponent {
   @Input() showForm: boolean = false;
 
   itemsTable: any[] = [];
-  roleUser: string = '';
   nameTable: string = '';
-  userName: string = '';
-  totalCompanias: number = 0;
   titleModal: string = '';
   descriptionModal: string = '';
-  listFields: ListFields[] = [];
+  listFields!: ListFields;
+  modalVisible = false;
 
-  private typesDocumentService = inject(TypesDocumentService);
+  private readonly typesDocumentService = inject(TypesDocumentService);
+  private readonly userLocalService = inject(UserLocalService);
+  private readonly customerService = inject(CustomerService);
+  private readonly companyService = inject(CompanyService);
+  private readonly globalService = inject(GlobalService);
 
   ngOnInit(): void {
-    this.titleModal = 'Crear usuario';
-    this.descriptionModal = 'En este modulo podras crear usuarios';
-    this.listFields = [
-      {
+    this.titleModal = 'Crear cliente';
+    this.descriptionModal = 'En este modulo podras crear clientes';
+    this.listFields = {
+      name: {
         label: 'Nombre',
-        key: 'userName',
         required: true,
       },
-      {
+      id_document: {
         label: 'Tipo de documento',
-        key: 'typeDocument',
+        keyAutoComplete: 'name',
+        required: true,
         type: 'select',
-        keyAutoComplete:'name',
-        required: true,
       },
-      {
+      identification: {
         label: 'Numero de documento',
-        key: 'numberDocument',
         required: true,
       },
-      {
+      phone: {
         label: 'Numero telefonico',
-        key: 'phone',
         required: true,
       },
-      {
+      email: {
         label: 'Correo electronico',
-        key: 'emailUser',
         required: true,
       },
-    ];
-    this.nameTable = 'Usuarios';
-    this.labelBtn = 'Crear Usuario';
+    };
+
+    if ((this.userLocalService.user.id_rol as number) === 1) {
+      this.listFields = {
+        ...this.listFields,
+        id_company: {
+          required: true,
+          keyAutoComplete: 'name',
+          type: 'autocomplete',
+          label: 'Compañia',
+        },
+      };
+
+      this.getAllCompanies();
+    }
+
+    this.nameTable = 'Clientes';
+    this.labelBtn = 'Crear cliente';
 
     this.getAllTypesDocument();
+    this.getAllCustomers();
+  }
 
-    // try {
-    //   const companyResponse = await firstValueFrom(
-    //     this.getAllUserUseCase.getAllUser()
-    //   );
+  private getAllCustomers(): void {
+    this.customerService.getAllCustomers().subscribe({
+      next: (customers) => {
+        this.itemsTable = [
+          ...customers.map((customer) => {
+            let dataTable: any = {
+              Identificación: customer.identification,
+              'Tipo documento': customer.name_type_document,
+              Nombre: customer.name,
+              Email: customer.email,
+              Telefono: customer.phone,
+            };
 
-    //   const companyData =
-    //     companyResponse?.map((user: User) => ({
-    //       id: user.id,
-    //       Nombre: user.nameUser,
-    //       Correo: user.emailUser,
-    //     })) || [];
+            if (this.userLocalService.user.id_rol === 1) {
+              dataTable = {
+                ...dataTable,
+                Compañia: customer.name_company,
+              };
+            }
 
-    //   this.itemsTable = [...companyData];
-    //   this.totalCompanias = companyData.length;
+            return dataTable;
+          }),
+        ];
 
-    //   this.cdr.detectChanges();
-    // } catch (error) {
-    //   console.error('Error al obtener usuarios:', error);
-    // }
+        this.globalService.detailCompany.customers.amount = customers.length;
+      },
+    });
   }
 
   private getAllTypesDocument(): void {
     this.typesDocumentService.getAllTypesDocument().subscribe({
       next: (response) => {
-        this.listFields[1].data = response;
+        this.listFields['id_document'].data = response;
       },
+    });
+  }
+
+  private getAllCompanies(): void {
+    this.companyService.getAllCompanies().subscribe({
+      next: (companies) => {
+        this.listFields['id_company'].data = companies;
+        this.listFields['id_company'].dataFilter = companies;
+      },
+    });
+  }
+
+  public createCustomer(customerForm: FormGroup) {
+    const customer = { ...customerForm.value } as Customer;
+
+    if (this.userLocalService.user.id_rol === 1) {
+      customer.id_company = (customer.id_company as Company).id_company;
+    }
+    customer.id_document = (customer.id_document as TypesDocument).id_document;
+
+    this.customerService.createCustomer(customer).subscribe({
+      next: (response) => {
+        if (response.status) {
+          this.modalVisible = false;
+          this.getAllCustomers();
+        }
+      },
+      error: (error) => {},
     });
   }
 }

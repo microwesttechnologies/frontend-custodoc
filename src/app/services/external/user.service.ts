@@ -1,16 +1,16 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { environment } from '../../../environments/environment';
+import { environment } from 'src/environments/environment';
 import { HttpClient } from '@angular/common/http';
-import { GenericResponse } from '../../models/global.model';
-import { User } from '../../models/User.Model';
+import { GenericResponse } from 'src/app/models/global.model';
+import { User } from 'src/app/models/user.model';
 import { headerAuthorization } from '../local/helper.service';
 
 @Injectable({
   providedIn: 'root',
 })
-export class UsersService {
-  private readonly apiUrl = `${environment.apiUrl}users`;
+export class UserService {
+  private readonly apiUrl = `${environment.apiUrl}user`;
 
   constructor(private http: HttpClient) {}
 
@@ -21,12 +21,20 @@ export class UsersService {
     });
   }
 
+  logout(): Observable<GenericResponse> {
+    return this.http.get<GenericResponse>(`${environment.apiUrl}logout`,headerAuthorization());
+  }
+
   getAllUsers(): Observable<User[]> {
     return this.http.get<User[]>(this.apiUrl, headerAuthorization());
   }
 
-  createUser(user: User): Observable<User[]> {
-    return this.http.post<User[]>(this.apiUrl, user, headerAuthorization());
+  createUser(user: User): Observable<GenericResponse> {
+    return this.http.post<GenericResponse>(
+      this.apiUrl,
+      user,
+      headerAuthorization()
+    );
   }
 
   getAllById(id_user: number): Observable<User> {

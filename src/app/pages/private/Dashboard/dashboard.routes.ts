@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { DashboardComponent } from './dashboard.component';
-import { AuthGuard } from '../../../guards/auth.guard';
+import { AuthGuard } from 'src/app/guards/auth.guard';
 
 export const DASHBOARD_ROUTES: Routes = [
   {
@@ -16,7 +16,7 @@ export const DASHBOARD_ROUTES: Routes = [
           ),
       },
       {
-        path: 'history',
+        path: 'documents',
         loadComponent: () =>
           import('./history-module/history-module.component').then(
             (c) => c.HistoryModuleComponent
@@ -36,7 +36,7 @@ export const DASHBOARD_ROUTES: Routes = [
             (c) => c.CustomersModuleComponent
           ),
       },
-      { path: '', redirectTo: 'company', pathMatch: 'full' },
+      { path: '', redirectTo: 'documents', pathMatch: 'full' },
     ],
   },
 ];

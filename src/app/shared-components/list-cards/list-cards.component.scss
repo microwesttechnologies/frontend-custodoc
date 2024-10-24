@@ -1,5 +1,4 @@
-.card {
-    background-color: var(--primary-color);
-    color: rgb(255, 255, 255);
-    width: 20rem;
+.list-cards {
+  display: grid;
+  gap: 1rem;
 }

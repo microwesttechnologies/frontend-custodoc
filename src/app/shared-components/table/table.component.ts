@@ -13,7 +13,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { InputIconModule } from 'primeng/inputicon';
 import { IconFieldModule } from 'primeng/iconfield';
 import { ModalComponent } from '../modal/modal.component';
-import { ListFields } from '../../models/modal.model';
+import { ListFields } from 'src/app/models/modal.model';
 import { SharedModule } from '../shared.module';
 import { FormGroup } from '@angular/forms';
 
@@ -35,9 +35,8 @@ import { FormGroup } from '@angular/forms';
 export class TableComponent implements OnChanges {
   @ViewChild('dt1') dt1!: Table;
   @Input() labelRow: any = [];
-  @Input() items!: any[];
   @Input() itemsTable!: any[];
-  @Input() listFields!: ListFields[];
+  @Input() listFields!: ListFields;
   @Input() descriptionModal!: string;
   @Input() titleModal!: string;
   @Input() nameTable!: string;
@@ -45,8 +44,9 @@ export class TableComponent implements OnChanges {
   @Input() routerBtn: string = '';
   @Input() showForm!: boolean;
   @Input() modalVisible!: boolean;
+  @Input() withFile!: boolean;
 
-  @Output() saveData = new EventEmitter<{ data: FormGroup; file?: File }>();
+  @Output() saveData = new EventEmitter<{ form: FormGroup; file?: File }>();
   @Output() modalVisibleChange = new EventEmitter<boolean>();
 
   representatives!: any[];

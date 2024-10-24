@@ -1,12 +1,21 @@
-import { ChangeDetectorRef, Component, Input } from '@angular/core';
+import { UserLocalService } from 'src/app/services/local/user.service';
+import { Component, inject, Input } from '@angular/core';
 import { AvatarModule } from 'primeng/avatar';
 import { ButtonModule } from 'primeng/button';
-import { firstValueFrom } from 'rxjs';
-import { SharedModule } from '../../../../shared-components/shared.module';
-import { CardComponent } from '../../../../shared-components/card/card.component';
-import { TableComponent } from '../../../../shared-components/table/table.component';
-import { ModalComponent } from '../../../../shared-components/modal/modal.component';
-import { ListFields } from '../../../../models/modal.model';
+import { SharedModule } from 'src/app/shared-components/shared.module';
+import { CardComponent } from 'src/app/shared-components/card/card.component';
+import { TableComponent } from 'src/app/shared-components/table/table.component';
+import { ModalComponent } from 'src/app/shared-components/modal/modal.component';
+import { ListFields } from 'src/app/models/modal.model';
+import { TypesDocumentService } from 'src/app/services/external/types-document.service';
+import { UserService } from 'src/app/services/external/user.service';
+import { CompanyService } from 'src/app/services/external/company.service';
+import { FormGroup } from '@angular/forms';
+import { User } from 'src/app/models/user.model';
+import { Company } from 'src/app/models/company.model';
+import { TypesDocument } from 'src/app/models/types-document.model';
+import { Rol } from 'src/app/models/rol.model';
+import { GlobalService } from 'src/app/services/external/global.service';
 
 @Component({
   selector: 'app-users-module',
@@ -28,64 +37,147 @@ export class UsersModuleComponent {
   @Input() showForm: boolean = false;
 
   itemsTable: any[] = [];
-  roleUser: string = '';
   nameTable: string = '';
-  userName: string = '';
-  totalCompanias: number = 0;
   titleModal: string = '';
   descriptionModal: string = '';
-  listFields: ListFields[] = [];
+  listFields!: ListFields;
+  modalVisible = false;
 
-  constructor() {}
+  private readonly typesDocumentService = inject(TypesDocumentService);
+  private readonly userLocalService = inject(UserLocalService);
+  private readonly companyService = inject(CompanyService);
+  private readonly globalService = inject(GlobalService);
+  private readonly userService = inject(UserService);
 
   ngOnInit(): void {
     this.titleModal = 'Crear usuario';
     this.descriptionModal = 'En este modulo podras crear usuarios';
-    this.listFields = [
-      {
+
+    this.listFields = {
+      name: {
         label: 'Nombre',
-        key: 'userName',
+        required: true,
       },
-      {
+      id_document: {
         label: 'Tipo de documento',
-        key: 'typeDocument',
+        keyAutoComplete: 'name',
+        required: true,
+        type: 'select',
       },
-      {
+      identification: {
         label: 'Numero de documento',
-        key: 'numberDocument',
+        required: true,
       },
-      {
+      phone: {
         label: 'Numero telefonico',
-        key: 'phone',
+        required: true,
       },
-      {
+      email: {
         label: 'Correo electronico',
-        key: 'emailUser',
+        required: true,
       },
-    ];
-    this.roleUser = localStorage.getItem('userRole') ?? '';
-    this.userName = localStorage.getItem('userName') ?? '';
+      password: {
+        label: 'Contraseña',
+        type: 'password',
+        required: true,
+      },
+      id_rol: {
+        label: 'Rol',
+        required: true,
+        keyAutoComplete: 'name',
+        type: 'select',
+        data: [{ id_rol: 3, name: 'Empleado' }],
+      },
+    };
 
-    // try {
-    //   const companyResponse = await firstValueFrom(
-    //     this.getAllUserUseCase.getAllUser()
-    //   );
+    if (this.userLocalService.user?.id_rol === 1) {
+      this.listFields = {
+        ...this.listFields,
+        id_company: {
+          required: true,
+          keyAutoComplete: 'name',
+          type: 'autocomplete',
+          label: 'Compañia',
+        },
+      };
 
-    //   const companyData =
-    //     companyResponse?.map((user: User) => ({
-    //       id: user.id,
-    //       Nombre: user.nameUser,
-    //       Correo: user.emailUser,
-    //     })) || [];
+      this.listFields['id_rol'].data?.unshift({
+        id_rol: 2,
+        name: 'Administrador',
+      });
 
-    //   this.itemsTable = [...companyData];
-    //   this.totalCompanias = companyData.length;
-    //   this.nameTable = 'Usuarios';
-    //   this.labelBtn = 'Crear Usuario';
+      this.getAllCompanies();
+    }
 
-    //   this.cdr.detectChanges();
-    // } catch (error) {
-    //   console.error('Error al obtener usuarios:', error);
-    // }
+    this.nameTable = 'Usuarios';
+    this.labelBtn = 'Crear usuarios';
+
+    this.getAllTypesDocument();
+    this.getAllUsers();
+  }
+
+  private getAllUsers(): void {
+    this.userService.getAllUsers().subscribe({
+      next: (users) => {
+        this.itemsTable = [
+          ...users.map((customer) => {
+            let dataTable: any = {
+              Identificación: customer.identification,
+              'Tipo documento': customer.name_type_document,
+              Nombre: customer.name,
+              Email: customer.email,
+              Telefono: customer.phone,
+            };
+
+            if (this.userLocalService.user.id_rol === 1) {
+              dataTable = {
+                ...dataTable,
+                Compañia: customer.name_company,
+              };
+            }
+
+            return dataTable;
+          }),
+        ];
+
+        this.globalService.detailCompany.users.amount = users.length;
+      },
+    });
+  }
+
+  private getAllTypesDocument(): void {
+    this.typesDocumentService.getAllTypesDocument().subscribe({
+      next: (response) => {
+        this.listFields['id_document'].data = response;
+      },
+    });
+  }
+
+  private getAllCompanies(): void {
+    this.companyService.getAllCompanies().subscribe({
+      next: (companies) => {
+        this.listFields['id_company'].data = companies;
+        this.listFields['id_company'].dataFilter = companies;
+      },
+    });
+  }
+
+  public createUser(userForm: FormGroup) {
+    const user = { ...userForm.value } as User;
+    if (this.userLocalService.user.id_rol === 1) {
+      user.id_company = (user.id_company as Company).id_company;
+    }
+    user.id_document = (user.id_document as TypesDocument).id_document;
+    user.id_rol = (user.id_rol as Rol).id_rol;
+
+    this.userService.createUser(user).subscribe({
+      next: (response) => {
+        if (response.status) {
+          this.modalVisible = false;
+          this.getAllUsers();
+        }
+      },
+      error: (error) => {},
+    });
   }
 }

@@ -1,12 +1,16 @@
-import { ChangeDetectorRef, Component, Input } from '@angular/core';
+import { Component, inject, Input } from '@angular/core';
 import { AvatarModule } from 'primeng/avatar';
 import { ButtonModule } from 'primeng/button';
-import { firstValueFrom } from 'rxjs';
-import { SharedModule } from '../../../../shared-components/shared.module';
-import { CardComponent } from '../../../../shared-components/card/card.component';
-import { TableComponent } from '../../../../shared-components/table/table.component';
-import { ModalComponent } from '../../../../shared-components/modal/modal.component';
-import { ListFields } from '../../../../models/modal.model';
+import { SharedModule } from 'src/app/shared-components/shared.module';
+import { CardComponent } from 'src/app/shared-components/card/card.component';
+import { TableComponent } from 'src/app/shared-components/table/table.component';
+import { ModalComponent } from 'src/app/shared-components/modal/modal.component';
+import { ListFields } from 'src/app/models/modal.model';
+import { GlobalService } from 'src/app/services/external/global.service';
+import { DocumentService } from 'src/app/services/external/document.service';
+import { FormGroup } from '@angular/forms';
+import { CustomerService } from 'src/app/services/external/customer.service';
+import { Customer } from 'src/app/models/customer.model';
 
 @Component({
   selector: 'app-history-module',
@@ -29,59 +33,94 @@ export class HistoryModuleComponent {
   @Input() showForm: boolean = false;
 
   itemsTable: any[] = [];
-  roleUser: string = '';
   nameTable: string = '';
-  userName: string = '';
-  totalCompanias: number = 0;
   titleModal: string = '';
   descriptionModal: string = '';
-  listFields: ListFields[] = [];
+  listFields!: ListFields;
+  modalVisible = false;
+
+  private readonly documentsService = inject(DocumentService);
+  private readonly customerService = inject(CustomerService);
+  private readonly globalService = inject(GlobalService);
 
   ngOnInit(): void {
-    this.titleModal = 'Crear documento';
-    this.descriptionModal = 'En este modulo podras crear documentos';
-    this.listFields = [
-      {
+    this.titleModal = 'Agregar documento';
+    this.descriptionModal = 'En este modulo podras agregar documentos';
+
+    this.listFields = {
+      name: {
         label: 'Nombre del documento',
-        key: 'nameDocument',
+        required: true,
       },
-      {
+      identification: {
         label: 'Usuario',
-        key: 'userName',
+        required: true,
+        keyAutoComplete: 'name',
+        type: 'autocomplete',
       },
-      {
-        label: 'N° Identidad',
-        key: 'numberIdentification',
+      description: {
+        label: 'Descipción',
+        type: 'textarea',
       },
-      {
-        label: 'Descripcion',
-        key: 'description',
+    };
+
+    this.nameTable = 'Documents';
+    this.labelBtn = 'Agregar documento';
+
+    this.getAllCustomers();
+    this.getAllDocuments();
+  }
+
+  private getAllCustomers(): void {
+    this.customerService.getAllCustomers().subscribe({
+      next: (customers) => {
+        this.listFields['identification'].dataFilter = customers;
+        this.listFields['identification'].data = customers;
       },
-    ];
-    this.roleUser = localStorage.getItem('userRole') ?? '';
-    this.userName = localStorage.getItem('userName') ?? '';
+    });
+  }
 
-    // try {
-    //   const companyResponse = await firstValueFrom(
-    //     this.usersUseCases.getAllHistoryUsers()
-    //   );
+  private getAllDocuments(): void {
+    this.documentsService.getAllDocuments().subscribe({
+      next: (documents) => {
+        this.itemsTable = [
+          ...documents.map((document) => {
+            return {
+              Id: document.id_history,
+              Nombre: document.name,
+              'Identificación cliente': document.identification,
+              'Nombre cliente': document.name_customer,
+              Descripción: document.description,
+              Archivo: '',
+            };
+          }),
+        ];
 
-    //   const companyData =
-    //     companyResponse?.map((history: HistoryUser) => ({
-    //       id: history.id,
-    //       Nombre: history.nameDocument,
-    //       Descripcion: history.description,
-    //       Ruta: history.routeDocument,
-    //     })) || [];
+        this.globalService.detailCompany.documents.amount = documents.length;
+      },
+    });
+  }
 
-    //   this.itemsTable = [...companyData];
-    //   this.totalCompanias = companyData.length;
-    //   this.nameTable = 'Documentos';
-    //   this.labelBtn = 'Crear Documento';
+  public createDocument(data: { form: FormGroup; file?: File }): void {
+    const formData = new FormData();
 
-    //   this.cdr.detectChanges();
-    // } catch (error) {
-    //   console.error('Error al obtener usuarios:', error);
-    // }
+    Object.entries(data.form.value).forEach((elm: any[]) => {
+      formData.append(
+        elm[0],
+        elm[0] === 'identification'
+          ? (elm[1] as Customer).identification
+          : elm[1] || ''
+      );
+    });
+    formData.append('file', data.file!);
+
+    this.documentsService.createDocument(formData).subscribe({
+      next: (response) => {
+        if (response.status) {
+          this.getAllDocuments();
+          this.modalVisible = false;
+        }
+      },
+    });
   }
 }

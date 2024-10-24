@@ -1,16 +1,16 @@
 import { Component, Input, inject } from '@angular/core';
 import { AvatarModule } from 'primeng/avatar';
 import { ButtonModule } from 'primeng/button';
-import { CardComponent } from '../../../../shared-components/card/card.component';
-import { ModalComponent } from '../../../../shared-components/modal/modal.component';
-import { TableComponent } from '../../../../shared-components/table/table.component';
-import { SharedModule } from '../../../../shared-components/shared.module';
-import { CompanyService } from '../../../../services/external/Company.service';
-import { Company } from '../../../../models/company.model';
-import { UserService } from '../../../../services/local/user.service';
-import { ListFields } from '../../../../models/modal.model';
+import { CardComponent } from 'src/app/shared-components/card/card.component';
+import { ModalComponent } from 'src/app/shared-components/modal/modal.component';
+import { TableComponent } from 'src/app/shared-components/table/table.component';
+import { SharedModule } from 'src/app/shared-components/shared.module';
+import { Company } from 'src/app/models/company.model';
+import { ListFields } from 'src/app/models/modal.model';
 import { FormGroup } from '@angular/forms';
 import { MessageService } from 'primeng/api';
+import { CompanyService } from 'src/app/services/external/company.service';
+import { GlobalService } from 'src/app/services/external/global.service';
 
 @Component({
   selector: 'app-company-module',
@@ -33,13 +33,10 @@ export class CompanyModuleComponent {
   @Input() showForm: boolean = false;
 
   itemsTable: any[] = [];
-  roleUser: string = '';
   nameTable: string = '';
-  userName: string = '';
-  totalCompanias: number = 0;
   titleModal: string = '';
   descriptionModal: string = '';
-  listFields: ListFields[] = [];
+  listFields!: ListFields;
   modalVisible = false;
 
   items = [
@@ -51,56 +48,46 @@ export class CompanyModuleComponent {
 
   private readonly messageService = inject(MessageService);
   private readonly companyService = inject(CompanyService);
-  public readonly userService = inject(UserService);
+  private readonly globalService = inject(GlobalService);
 
   ngOnInit() {
     this.titleModal = 'Crear compañia';
     this.descriptionModal = 'En este modulo podras crear compañias';
-    this.listFields = [
-      {
+    this.listFields = {
+      name: {
         label: 'Nombre empresa',
-        key: 'name',
         required: true,
       },
-      {
+      nit: {
         label: 'NIT',
-        key: 'nit',
         required: true,
       },
-      {
+      type: {
         label: 'Tipo',
-        key: 'type',
         required: true,
       },
-      {
+      country: {
         label: 'Pais',
-        key: 'country',
         required: true,
       },
-      {
+      city: {
         label: 'Ciudad',
-        key: 'city',
         required: true,
       },
-      {
+      address: {
         label: 'Direccion',
-        key: 'address',
         required: true,
       },
-      {
+      phone: {
         label: 'Telefono',
-        key: 'phone',
         required: true,
       },
-    ];
+    };
+
+    this.nameTable = 'Compañías';
+    this.labelBtn = 'Crear Compañia';
 
     this.getAllCompanies();
-
-    this.messageService.add({
-      severity: 'success',
-      summary: 'Éxito',
-      detail: 'Compañía agregada exitosamente',
-    });
   }
 
   private getAllCompanies(): void {
@@ -114,9 +101,7 @@ export class CompanyModuleComponent {
           Telefono: company.phone,
         }));
 
-        this.totalCompanias = companies.length;
-        this.nameTable = 'Compañías';
-        this.labelBtn = 'Crear Compañia';
+        this.globalService.detailCompany.company!.amount = companies.length;
       },
     });
   }
