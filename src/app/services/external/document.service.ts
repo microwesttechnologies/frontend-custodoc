@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { headerAuthorization } from '../local/helper.service';
@@ -18,11 +18,20 @@ export class DocumentService {
     return this.http.get<Document[]>(this.apiUrl, headerAuthorization());
   }
 
-  createDocument(document:FormData): Observable<GenericResponse> {
+  createDocument(document: FormData): Observable<GenericResponse> {
     return this.http.post<GenericResponse>(
       this.apiUrl,
       document,
       headerAuthorization()
     );
+  }
+
+  getFile(id_history: number): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/getFile/${id_history}`, {
+      headers: new HttpHeaders({
+        Authorization: 'Bearer ' + localStorage.getItem('access_token'),
+      }),
+      responseType: 'blob',
+    });
   }
 }

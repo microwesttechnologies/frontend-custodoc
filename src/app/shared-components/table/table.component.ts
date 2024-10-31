@@ -3,9 +3,11 @@ import {
   EventEmitter,
   Input,
   OnChanges,
+  OnDestroy,
   Output,
   SimpleChanges,
   ViewChild,
+  inject,
 } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { Table, TableModule } from 'primeng/table';
@@ -16,6 +18,9 @@ import { ModalComponent } from '../modal/modal.component';
 import { ListFields } from 'src/app/models/modal.model';
 import { SharedModule } from '../shared.module';
 import { FormGroup } from '@angular/forms';
+import { DocumentService } from 'src/app/services/external/document.service';
+import { SafeUrlPipe } from 'src/app/pipes/safe-url.pipe';
+import { DialogModule } from 'primeng/dialog';
 
 @Component({
   selector: 'app-table',
@@ -27,12 +32,14 @@ import { FormGroup } from '@angular/forms';
     InputIconModule,
     IconFieldModule,
     SharedModule,
+    DialogModule,
     ModalComponent,
+    SafeUrlPipe,
   ],
   templateUrl: './table.component.html',
   styleUrls: ['./table.component.scss'],
 })
-export class TableComponent implements OnChanges {
+export class TableComponent implements OnChanges, OnDestroy {
   @ViewChild('dt1') dt1!: Table;
   @Input() labelRow: any = [];
   @Input() itemsTable!: any[];
@@ -53,8 +60,9 @@ export class TableComponent implements OnChanges {
   searchValue: string | undefined;
   loading: boolean = true;
   filterFields: string[] = [];
+  fileUrl: string = '';
 
-  constructor() {}
+  private readonly documentService = inject(DocumentService);
 
   ngOnChanges(changes: SimpleChanges): void {
     if (this.itemsTable && this.itemsTable.length > 0) {
@@ -82,5 +90,25 @@ export class TableComponent implements OnChanges {
   onModalClosed() {
     this.modalVisible = false; // Cerrar el modal al recibir el evento
     this.modalVisibleChange.emit(this.modalVisible);
+  }
+
+  previewFile(item: any) {
+    this.documentService.getFile(item?.Id).subscribe({
+      next: (file) => {
+        this.fileUrl = URL.createObjectURL(file);
+      },
+      error: (err) => {
+        console.error(err);
+      },
+    });
+  }
+
+  cleanFileUrl() {
+    URL.revokeObjectURL(this.fileUrl);
+    this.fileUrl = '';
+  }
+
+  ngOnDestroy(): void {
+    this.cleanFileUrl();
   }
 }

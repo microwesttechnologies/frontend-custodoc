@@ -39,7 +39,18 @@
 
     <ng-template pTemplate="body" let-item>
       <tr>
-        <td *ngFor="let prop of getProperties(item)">{{ item[prop] }}</td>
+        <td *ngFor="let prop of getProperties(item)">
+          @if(prop === 'Archivo'){
+          <p-button
+            (click)="previewFile(item)"
+            label="Ver archivo"
+            [raised]="true"
+          ></p-button>
+
+          }@else{
+          {{ item[prop] }}
+          }
+        </td>
       </tr>
     </ng-template>
 
@@ -60,4 +71,22 @@
     [withFile]="withFile"
   ></app-modal>
   }
+
+  <p-dialog
+    header="Previsualizar archivo"
+    [modal]="true"
+    [visible]="!!fileUrl"
+    position="center"
+    [style]="{ width: '40rem' }"
+    (visibleChange)="cleanFileUrl()"
+  >
+    @if(fileUrl){
+    <iframe
+      [src]="fileUrl | safeUrl"
+      frameborder="0"
+      height="500px"
+      width="100%"
+    ></iframe>
+    }
+  </p-dialog>
 </div>
