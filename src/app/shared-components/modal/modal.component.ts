@@ -21,6 +21,7 @@ import { DropdownModule } from 'primeng/dropdown';
 import { PasswordModule } from 'primeng/password';
 import { GetObjectPropertiesPipe } from 'src/app/pipes/get-object-properties.pipe';
 import { isObjectValidator } from 'src/app/services/local/helper.service';
+import { InputTextareaModule } from 'primeng/inputtextarea';
 
 @Component({
   selector: 'app-modal',
@@ -34,6 +35,7 @@ import { isObjectValidator } from 'src/app/services/local/helper.service';
     DropdownModule,
     ToastModule,
     PasswordModule,
+    InputTextareaModule,
     SharedModule,
     GetObjectPropertiesPipe,
   ],
