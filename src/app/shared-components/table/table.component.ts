@@ -21,6 +21,7 @@ import { FormGroup } from '@angular/forms';
 import { DocumentService } from 'src/app/services/external/document.service';
 import { SafeUrlPipe } from 'src/app/pipes/safe-url.pipe';
 import { DialogModule } from 'primeng/dialog';
+import { UserLocalService } from 'src/app/services/local/user.service';
 
 @Component({
   selector: 'app-table',
@@ -62,6 +63,7 @@ export class TableComponent implements OnChanges, OnDestroy {
   filterFields: string[] = [];
   fileUrl: string = '';
 
+  public readonly userLocalService = inject(UserLocalService);
   private readonly documentService = inject(DocumentService);
 
   ngOnChanges(changes: SimpleChanges): void {

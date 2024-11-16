@@ -22,12 +22,14 @@
             placeholder="Search keyword"
           />
         </p-iconField>
+        @if(userLocalService?.user?.id_rol !== 3){
         <p-button
           class="ml-4"
           (click)="openModal()"
           label="{{ labelBtn }}"
           [raised]="true"
         ></p-button>
+        }
       </div>
     </ng-template>
 

@@ -22,57 +22,23 @@ import { UserService } from 'src/app/services/external/user.service';
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.scss',
 })
-export class SidebarComponent implements OnInit {
+export class SidebarComponent {
   @ViewChild('sidebarRef') sidebarRef!: Sidebar;
 
   public sidebarVisible: boolean = false;
 
-  public menuItems: any[] = [
-    {
-      label: 'Administracion de documentos',
-      icon: '',
-      items: [{ label: 'Documentos', icon: 'pi pi-file', link: '/documents' }],
-    },
-  ];
-
   public userLocalService = inject(UserLocalService);
-  private userService = inject(UserService);
-
-  ngOnInit(): void {
-    if ([1, 2].includes(this.userLocalService.user.id_rol as number)) {
-      this.menuItems.unshift({
-        label: 'Administracion de usuarios',
-        icon: '',
-        items: [
-          { label: 'Empleados', icon: 'pi pi-users', link: '/users' },
-          { label: 'Clientes', icon: 'pi pi-user', link: '/customers' },
-        ],
-      });
-      if (this.userLocalService.user.id_rol === 1) {
-        this.menuItems.unshift({
-          label: 'Administracion de compañias',
-          icon: '',
-          items: [
-            { label: 'Compañias', icon: 'pi pi-building', link: '/company' },
-          ],
-        });
-      }
-    } else if (this.userLocalService.user.id_rol === 3) {
-      this.menuItems.unshift({
-        label: 'Administracion de usuarios',
-        icon: '',
-        items: [{ label: 'Clientes', icon: 'pi pi-user', link: '/customers' }],
-      });
-    }
-  }
+  private readonly userService = inject(UserService);
 
   logout(): void {
-    this.userService.logout().subscribe({ next: (response) => {
-      if(response.status){
-        window.localStorage.removeItem('access_token');
-        window.location.reload();
-      }
-    } });
+    this.userService.logout().subscribe({
+      next: (response) => {
+        if (response.status) {
+          window.localStorage.removeItem('access_token');
+          window.location.reload();
+        }
+      },
+    });
   }
 
   closeCallback(e: any): void {

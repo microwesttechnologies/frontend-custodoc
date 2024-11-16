@@ -86,7 +86,10 @@ export class UsersModuleComponent {
         required: true,
         keyAutoComplete: 'name',
         type: 'select',
-        data: [{ id_rol: 3, name: 'Empleado' }],
+        data: [
+          { id_rol: 3, name: 'Médico' },
+          { id_rol: 4, name: 'Cargador de archivos' },
+        ],
       },
     };
 

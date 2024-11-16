@@ -1,31 +1,70 @@
-import { Injectable, signal, inject } from '@angular/core';
-import { Router } from '@angular/router';
+import { Injectable, inject } from '@angular/core';
+import {
+  ActivatedRouteSnapshot,
+  Router,
+  RouterStateSnapshot,
+} from '@angular/router';
 import { jwtDecode } from 'jwt-decode';
 import { UserLocalService } from '../services/local/user.service';
 import { isTokenExpired } from '../services/local/helper.service';
+import { UserService } from '../services/external/user.service';
+import { catchError, map, Observable, of } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthGuard {
   private readonly userLocalService = inject(UserLocalService);
+  private readonly userService = inject(UserService);
   private readonly router = inject(Router);
 
-  canActivate(): boolean {
+  canActivate(
+    route: ActivatedRouteSnapshot,
+    state: RouterStateSnapshot
+  ): Observable<boolean> {
     const token = window.localStorage.getItem('access_token');
-    if (token) {
-      this.userLocalService.user = jwtDecode(token);
+    if (!token) {
+      this.router.navigate(['/login']);
+      return of(false);
     }
 
-    if (token && !isTokenExpired(this.userLocalService.user)) {
-      // Si el token existe y NO ha expirado, permite el acceso
-      return true;
+    this.userLocalService.user = jwtDecode(token);
+
+    if (isTokenExpired(this.userLocalService.user)) {
+      window.localStorage.removeItem('access_token');
+      this.router.navigate(['/login']);
+      return of(false);
     }
 
-    // Si no hay token o ha expirado, redirige al login y borra el token
-    window.localStorage.removeItem('access_token');
-    this.router.navigate(['/login']);
+    return this.userService.getRoutesByRole().pipe(
+      map((response: any) => {
+        this.userLocalService.allowedRouteIds = response?.allowedRouteIds;
+        this.userLocalService.menuSidebar = response?.menu;
 
-    return false;
+        const moduleId = route.data['id'];
+
+        if (this.userLocalService.allowedRouteIds.includes(moduleId)) {
+          return true;
+        }
+        // Redirigir al primer módulo permitido en el menú
+        if (this.userLocalService.menuSidebar?.length > 0) {
+          const firstPath =
+            this.userLocalService.menuSidebar[0].items[0]?.path || '/';
+          this.router.navigate([firstPath]);
+          return true;
+        }
+
+        // Si no hay rutas permitidas, cerrar sesión
+        window.localStorage.removeItem('access_token');
+        this.router.navigate(['/login']);
+        return false;
+      }),
+      catchError((error) => {
+        console.error('Error al validar permisos:', error);
+        window.localStorage.removeItem('access_token');
+        this.router.navigate(['/login']);
+        return of(false);
+      })
+    );
   }
 }

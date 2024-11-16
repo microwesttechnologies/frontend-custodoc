@@ -6,10 +6,11 @@ export const DASHBOARD_ROUTES: Routes = [
   {
     path: '',
     component: DashboardComponent,
-    canActivate: [AuthGuard],
     children: [
       {
-        path: 'company',
+        path: 'companies',
+        data: { id: 2 },
+        canActivate: [AuthGuard],
         loadComponent: () =>
           import('./company-module/company-module.component').then(
             (c) => c.CompanyModuleComponent
@@ -17,6 +18,8 @@ export const DASHBOARD_ROUTES: Routes = [
       },
       {
         path: 'documents',
+        data: { id: 7 },
+        canActivate: [AuthGuard],
         loadComponent: () =>
           import('./history-module/history-module.component').then(
             (c) => c.HistoryModuleComponent
@@ -24,6 +27,8 @@ export const DASHBOARD_ROUTES: Routes = [
       },
       {
         path: 'users',
+        data: { id: 4 },
+        canActivate: [AuthGuard],
         loadComponent: () =>
           import('./users-module/users-module.component').then(
             (c) => c.UsersModuleComponent
@@ -31,12 +36,14 @@ export const DASHBOARD_ROUTES: Routes = [
       },
       {
         path: 'customers',
+        data: { id: 5 },
+        canActivate: [AuthGuard],
         loadComponent: () =>
           import('./customers-module/customers-module.component').then(
             (c) => c.CustomersModuleComponent
           ),
       },
-      { path: '', redirectTo: 'documents', pathMatch: 'full' },
+      { path: '', redirectTo: 'companies', pathMatch: 'full' },
     ],
   },
 ];

@@ -21,8 +21,18 @@ export class UserService {
     });
   }
 
+  getRoutesByRole(): Observable<User[]> {
+    return this.http.get<User[]>(
+      `${environment.apiUrl}getRoutesByRole`,
+      headerAuthorization()
+    );
+  }
+
   logout(): Observable<GenericResponse> {
-    return this.http.get<GenericResponse>(`${environment.apiUrl}logout`,headerAuthorization());
+    return this.http.get<GenericResponse>(
+      `${environment.apiUrl}logout`,
+      headerAuthorization()
+    );
   }
 
   getAllUsers(): Observable<User[]> {

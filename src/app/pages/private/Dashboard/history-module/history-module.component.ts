@@ -53,7 +53,7 @@ export class HistoryModuleComponent {
         required: true,
       },
       identification: {
-        label: 'Usuario',
+        label: 'Cliente',
         required: true,
         keyAutoComplete: 'name',
         type: 'autocomplete',
