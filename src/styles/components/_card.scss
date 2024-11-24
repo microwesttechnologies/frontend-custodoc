@@ -1,0 +1,8 @@
+@import "../core/theme";
+
+.secondary-card {
+  background: get-theme-value(theme, secondary, background);
+  box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.08);
+  border-radius: 0.625rem;
+  padding: 1.5rem;
+}

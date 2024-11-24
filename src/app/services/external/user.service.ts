@@ -39,6 +39,13 @@ export class UserService {
     return this.http.get<User[]>(this.apiUrl, headerAuthorization());
   }
 
+  getAllRankingUsers(): Observable<any[]> {
+    return this.http.get<any[]>(
+      `${this.apiUrl}/getAllRankingUsers`,
+      headerAuthorization()
+    );
+  }
+
   createUser(user: User): Observable<GenericResponse> {
     return this.http.post<GenericResponse>(
       this.apiUrl,

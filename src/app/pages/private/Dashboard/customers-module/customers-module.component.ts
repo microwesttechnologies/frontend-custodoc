@@ -1,133 +1,136 @@
-import { Component, Input, inject } from '@angular/core';
-import { AvatarModule } from 'primeng/avatar';
-import { ButtonModule } from 'primeng/button';
+import { Component, inject } from '@angular/core';
 import { SharedModule } from 'src/app/shared-components/shared.module';
-import { TableComponent } from 'src/app/shared-components/table/table.component';
 import { ModalComponent } from 'src/app/shared-components/modal/modal.component';
-import { ListFields } from 'src/app/models/modal.model';
 import { TypesDocumentService } from 'src/app/services/external/types-document.service';
 import { CompanyService } from 'src/app/services/external/company.service';
 import { UserLocalService } from 'src/app/services/local/user.service';
 import { CustomerService } from 'src/app/services/external/customer.service';
-import { FormGroup } from '@angular/forms';
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  Validators,
+} from '@angular/forms';
 import { Customer } from 'src/app/models/customer.model';
 import { Company } from 'src/app/models/company.model';
 import { TypesDocument } from 'src/app/models/types-document.model';
 import { GlobalService } from 'src/app/services/external/global.service';
+import { TooltipDirective } from 'src/app/directives/tooltip.directive';
+import { NavbarComponent } from 'src/app/shared-components/navbar/navbar.component';
+import { TableComponent } from 'src/app/shared-components/table/table.component';
+import {
+  validateFormField,
+  validateLimitText,
+} from 'src/app/services/local/helper.service';
+import { NotificationService } from 'src/app/shared-components/notification/notification.service';
+import { HttpErrorResponse } from '@angular/common/http';
+import { InputComponent } from 'src/app/shared-components/form/input/input.component';
+import { SelectComponent } from 'src/app/shared-components/form/select/select.component';
+import { AutoCompleteComponent } from 'src/app/shared-components/form/autocomplete/autocomplete.component';
 
 @Component({
   selector: 'app-customers-module',
   standalone: true,
   imports: [
-    AvatarModule,
-    SharedModule,
+    AutoCompleteComponent,
+    TooltipDirective,
+    SelectComponent,
+    NavbarComponent,
+    InputComponent,
     TableComponent,
-    ButtonModule,
     ModalComponent,
+    SharedModule,
   ],
   templateUrl: './customers-module.component.html',
   styleUrl: './customers-module.component.scss',
 })
 export class CustomersModuleComponent {
-  @Input() labelBtn: string = '';
-  @Input() routerBtn: string = '';
-  @Input() showForm: boolean = false;
+  public typesDocument: TypesDocument[] = [];
+  public customers: Customer[] = [];
+  public companies: Company[] = [];
 
-  itemsTable: any[] = [];
-  nameTable: string = '';
-  titleModal: string = '';
-  descriptionModal: string = '';
-  listFields!: ListFields;
-  modalVisible = false;
+  public idCustomerSelected?: string;
+  public customerForm!: FormGroup;
+
+  public gridHeaderColumns =
+    '10rem 10rem minmax(10rem, 1fr) minmax(10rem, 1fr) 10rem';
+  public nameFilter = '';
+
+  public listStatus = {
+    disabledAcceptButton: false,
+    savingCustomer: false,
+    loadingTable: true,
+    showModal: false,
+  };
+
+  public validateLimitText = validateLimitText;
+  public validateFormField = validateFormField;
 
   private readonly typesDocumentService = inject(TypesDocumentService);
-  private readonly userLocalService = inject(UserLocalService);
+  private readonly notificationService = inject(NotificationService);
   private readonly customerService = inject(CustomerService);
   private readonly companyService = inject(CompanyService);
   private readonly globalService = inject(GlobalService);
+  private readonly formBuilder = inject(FormBuilder);
+  public userLocalService = inject(UserLocalService);
 
   ngOnInit(): void {
-    this.titleModal = 'Crear cliente';
-    this.descriptionModal = 'En este modulo podras crear clientes';
-    this.listFields = {
-      name: {
-        label: 'Nombre',
-        required: true,
-      },
-      id_document: {
-        label: 'Tipo de documento',
-        keyAutoComplete: 'name',
-        required: true,
-        type: 'select',
-      },
-      identification: {
-        label: 'Numero de documento',
-        required: true,
-      },
-      phone: {
-        label: 'Numero telefonico',
-        required: true,
-      },
-      email: {
-        label: 'Correo electronico',
-        required: true,
-      },
-    };
-
-    if ((this.userLocalService.user.id_rol as number) === 1) {
-      this.listFields = {
-        ...this.listFields,
-        id_company: {
-          required: true,
-          keyAutoComplete: 'name',
-          type: 'autocomplete',
-          label: 'Compañia',
-        },
-      };
-
-      this.getAllCompanies();
-    }
-
-    this.nameTable = 'Clientes';
-    this.labelBtn = 'Crear cliente';
+    this.initForm();
 
     this.getAllTypesDocument();
     this.getAllCustomers();
+
+    if (this.userLocalService.user?.id_rol === 1) {
+      this.gridHeaderColumns += ' minmax(10rem, 1fr)';
+
+      this.getAllCompanies();
+
+      this.customerForm.addControl(
+        'id_company',
+        new FormControl('', [Validators.required])
+      );
+    }
+  }
+
+  private initForm(): void {
+    this.customerForm = this.formBuilder.group({
+      name: new FormControl('', [Validators.required]),
+      id_document: new FormControl('', [Validators.required]),
+      identification: new FormControl('', [Validators.required]),
+      email: new FormControl('', [Validators.required]),
+      phone: new FormControl('', [Validators.required]),
+    });
   }
 
   private getAllCustomers(): void {
+    this.listStatus.loadingTable = true;
     this.customerService.getAllCustomers().subscribe({
       next: (customers) => {
-        this.itemsTable = [
-          ...customers.map((customer) => {
-            let dataTable: any = {
-              Identificación: customer.identification,
-              'Tipo documento': customer.name_type_document,
-              Nombre: customer.name,
-              Email: customer.email,
-              Telefono: customer.phone,
-            };
-
-            if (this.userLocalService.user.id_rol === 1) {
-              dataTable = {
-                ...dataTable,
-                Compañia: customer.name_company,
-              };
-            }
-
-            return dataTable;
-          }),
-        ];
-
-        this.globalService.detailCompany.customers.amount = customers.length;
+        this.customers = customers;
+        this.listStatus.loadingTable = false;
+      },
+      error: (error: HttpErrorResponse) => {
+        this.notificationService.showNotification(
+          'Lo sentimos, ha ocurrido un error al consultar los clientes',
+          'danger',
+          10000
+        );
+        this.listStatus.loadingTable = false;
       },
     });
   }
 
   private getAllTypesDocument(): void {
     this.typesDocumentService.getAllTypesDocument().subscribe({
-      next: (response) => {
-        this.listFields['id_document'].data = response;
+      next: (typesDocument) => {
+        this.typesDocument = typesDocument;
+      },
+      error: (error: HttpErrorResponse) => {
+        this.notificationService.showNotification(
+          'Lo sentimos, ha ocurrido un error al consultar los tipos de documento',
+          'danger',
+          10000
+        );
       },
     });
   }
@@ -135,28 +138,84 @@ export class CustomersModuleComponent {
   private getAllCompanies(): void {
     this.companyService.getAllCompanies().subscribe({
       next: (companies) => {
-        this.listFields['id_company'].data = companies;
-        this.listFields['id_company'].dataFilter = companies;
+        this.companies = companies;
+      },
+      error: (error: HttpErrorResponse) => {
+        this.notificationService.showNotification(
+          'Lo sentimos, ha ocurrido un error al consultar las compañias',
+          'danger',
+          10000
+        );
       },
     });
   }
 
-  public createCustomer(customerForm: FormGroup) {
-    const customer = { ...customerForm.value } as Customer;
+  public openModalCreateCustomer() {
+    this.listStatus.disabledAcceptButton = false;
+    this.listStatus.showModal = true;
+    this.customerForm.reset();
+  }
 
-    if (this.userLocalService.user.id_rol === 1) {
-      customer.id_company = (customer.id_company as Company).id_company;
+  public createCustomer() {
+    this.customerForm.markAllAsTouched();
+    if (this.customerForm.valid) {
+      const customer = { ...this.customerForm.value } as Customer;
+
+      this.listStatus.savingCustomer = true;
+
+      this.customerService.createCustomer(customer).subscribe({
+        next: (response) => {
+          if (response.status) {
+            this.getAllCustomers();
+            this.notificationService.showNotification(
+              'Cliente agregado exitosamente',
+              'success'
+            );
+            this.listStatus.showModal = false;
+            this.globalService.detailCompany.customers.amount =
+              this.globalService.detailCompany.customers?.amount + 1;
+          } else {
+            this.notificationService.showNotification(
+              response.message!,
+              'danger'
+            );
+          }
+          this.listStatus.savingCustomer = false;
+        },
+        error: (error) => {
+          this.listStatus.savingCustomer = false;
+          this.notificationService.showNotification(
+            'Lo sentimos, no se pudo crear el cliente',
+            'danger'
+          );
+        },
+      });
     }
-    customer.id_document = (customer.id_document as TypesDocument).id_document;
+  }
 
-    this.customerService.createCustomer(customer).subscribe({
-      next: (response) => {
-        if (response.status) {
-          this.modalVisible = false;
-          this.getAllCustomers();
-        }
-      },
-      error: (error) => {},
-    });
+  public closeModal(): void {
+    this.listStatus.showModal = false;
+    this.idCustomerSelected = undefined;
+  }
+
+  public setUpdateCustomer(customer: Customer) {
+    if ([1, 2].includes(this.userLocalService.user?.id_rol as number)) {
+      this.idCustomerSelected = customer.identification;
+
+      Object.keys(this.customerForm.value).forEach((key) =>
+        this.customerForm
+          .get(key)
+          ?.setValue(customer[key as keyof typeof customer])
+      );
+
+      this.customerForm.markAllAsTouched();
+      this.listStatus.showModal = true;
+      this.listStatus.disabledAcceptButton = true;
+      this.notificationService.showNotification(
+        'Metodo de actualización en desarrollo',
+        'success',
+        100000
+      );
+    }
   }
 }

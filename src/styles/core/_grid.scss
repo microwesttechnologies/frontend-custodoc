@@ -1,0 +1,40 @@
+@use 'sass:math';
+
+// Clase para las filas del grid
+.row {
+  display: flex; // Habilita el layout flexbox
+  flex-wrap: wrap; // Permite que los elementos hijos se envuelvan en una nueva fila
+  margin-right: -#{math.div($gutter-width, 2)}; // Ajusta los gutters a la derecha
+  margin-left: -#{math.div($gutter-width, 2)}; // Ajusta los gutters a la izquierda
+}
+
+// Clase base para las columnas
+.col {
+  padding-right: math.div($gutter-width, 2); // Espaciado a la derecha
+  padding-left: math.div($gutter-width, 2); // Espaciado a la izquierda
+}
+
+// Genera clases para columnas con proporciones específicas
+@for $i from 1 through $total-columns {
+  // Clase base .col-{n}, donde {n} es el número de columnas
+  .col-#{$i} {
+    flex: 0 0 calc(100% / #{$total-columns} * #{$i}); // Calcula el ancho proporcional
+    max-width: calc(100% / #{$total-columns} * #{$i}); // Limita el ancho al valor calculado
+  }
+
+  // Genera clases responsivas para cada breakpoint
+  @each $breakpoint, $min-width in $breakpoints {
+    @include respond-to($breakpoint) {
+      .col-#{$breakpoint}-#{$i} {
+        flex: 0 0 calc(100% / #{$total-columns} * #{$i});
+        max-width: calc(100% / #{$total-columns} * #{$i});
+      }
+    }
+  }
+}
+
+.col-auto {
+  flex: 1; // Todas las columnas ocupan espacio igual por defecto
+  padding-right: math.div($gutter-width, 2); // Espaciado a la derecha
+  padding-left: math.div($gutter-width, 2); // Espaciado a la izquierda
+}

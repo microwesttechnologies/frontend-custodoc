@@ -1,0 +1,127 @@
+@import "../core/typography";
+@import "../core/theme";
+
+.primary-form-field {
+  & label {
+    @include apply-values-typography-by-property(body, medium);
+    display: block;
+
+    &:nth-of-type(1) {
+      margin: 0 0 0.3rem 0.5rem;
+    }
+
+    &:nth-of-type(2) {
+      margin: 0.3rem 0 0 0.5rem;
+    }
+  }
+
+  & textarea {
+    padding: 0.75rem;
+  }
+
+  & .primary-input,
+  & .container-input {
+    transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out,
+      border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    background-color: transparent;
+    border-radius: 0.375rem;
+    border-style: solid;
+    border-width: 1px;
+    appearance: none;
+    outline: none;
+    resize: none;
+    width: 100%;
+
+    &:not(textarea) {
+      padding: 0 0.75rem;
+      height: 2.625rem;
+    }
+
+    @include apply-values-typography-by-property(body, medium, default);
+
+    &:-webkit-autofill,
+    &:-webkit-autofill:hover,
+    &:-webkit-autofill:focus {
+      transition: background-color 5000s ease-in-out 0s;
+      -webkit-box-shadow: 0 0 0px 1000px
+        get-theme-value(theme, primary, transparent) inset;
+      -moz-box-shadow: 0 0 0px 1000px
+        get-theme-value(theme, primary, transparent) inset;
+      box-shadow: 0 0 0px 1000px get-theme-value(theme, primary, transparent)
+        inset;
+      -webkit-text-fill-color: get-theme-value(theme, primary, color);
+    }
+
+    & input {
+      @include apply-values-typography-by-property(body, medium, default);
+      background-color: transparent;
+      appearance: none;
+      outline: none;
+      border: none;
+      width: 100%;
+    }
+  }
+
+  &:not(.invalid-form-field) {
+    & label {
+      color: get-theme-value(theme, primary, color);
+    }
+
+    & .primary-input,
+    & .container-input {
+      border-color: get-theme-value(theme, primary, border);
+      &:focus-within,
+      &:hover,
+      &:focus,
+      &:active {
+        background-color: get-theme-value(theme, secondary, background);
+        border-color: get-theme-value(palette, secondary, background);
+      }
+    }
+  }
+
+  &.valid-form-field {
+    & .primary-input,
+    & .container-input {
+      background-color: get-theme-value(theme, primary, transparent);
+    }
+  }
+
+  &.invalid-form-field {
+    & label {
+      color: get-theme-value(status, danger, background);
+    }
+
+    & .primary-input,
+    & .container-input {
+      border-color: get-theme-value(status, danger, background);
+    }
+  }
+
+  &-file {
+    border: 1px dashed get-theme-value(palette, tertiary, background);
+    transition: background-color 0.3s ease-in-out;
+    border-radius: 0.3125rem;
+    justify-content: center;
+    align-items: center;
+    padding: 0.75rem;
+    cursor: pointer;
+    display: flex;
+
+    & p {
+      transition: color 0.3s ease-in-out;
+    }
+
+    &:hover {
+      background-color: get-theme-value(palette, tertiary, background);
+
+      & p {
+        color: get-theme-value(theme, secondary, background);
+      }
+    }
+
+    & input {
+      display: none;
+    }
+  }
+}

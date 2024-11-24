@@ -1,12 +1,5 @@
-::ng-deep {
-  .p-dropdown {
-    width: 100%;
-  }
+@import "src/styles/core/_mixins.scss";
 
-  .p-password {
-    width: 100%;
-    & input {
-      width: 100%;
-    }
-  }
-}
+@include generate-styles("ml", "margin-left", rem, 100, 100);
+
+@include generate-styles("w", "width", rem, 1000, 1000);

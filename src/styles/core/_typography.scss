@@ -1,4 +1,4 @@
-@import './variables';
+@import "./theme";
 
 $listStyleTypography: (
   primary: (
@@ -28,14 +28,14 @@ $listStyleTypography: (
       2lg: 1.75rem,
       3lg: 2rem,
       xl: 2.5625rem,
-      2xl: 3.625em,
+      2xl: 1.75em,
       3xl: 4.5rem,
       4xl: 7.1875em,
     ),
     font-weight: (
       light: 300,
       normal: 400,
-      medium: 500,
+      medium: 600,
       bold: 700,
     ),
     letter-spacing: (
@@ -48,7 +48,7 @@ $listStyleTypography: (
       4xl: 0.09375rem,
     ),
     font-family: (
-      main: Roboto,
+      main: $font-family-base,
     ),
   ),
 );
@@ -60,25 +60,21 @@ $listStyleTypographyCombined: (
         font-family: main,
         font-weight: medium,
         font-size: 4xl,
-        line-height: 4xl,
       ),
       large: (
         font-family: main,
         font-weight: medium,
         font-size: 3xl,
-        line-height: 3xl,
       ),
       medium: (
         font-family: main,
         font-weight: bold,
         font-size: 2xl,
-        line-height: 2xl,
       ),
       small: (
         font-family: main,
         font-weight: medium,
         font-size: xl,
-        line-height: xl,
         letter-spacing: lg,
       ),
       xsmall: (
@@ -271,7 +267,7 @@ $listStyleTypographyCombined: (
   }
 
   @if ($color == default) {
-    color: #333333;
+    color: get-theme-value(theme, primary, color);
   } @else if($color) {
     color: $color;
   }
@@ -328,7 +324,7 @@ $listStyleTypographyCombined: (
           @each $measure, $value in $styleProperties {
             @include apply-attribute-typography($measure, $value, $typography);
           }
-          color: #333333;
+          color: get-theme-value(theme, primary, color);
         }
       }
     }

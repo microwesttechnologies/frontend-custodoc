@@ -1,0 +1,47 @@
+@import "../core/theme";
+
+.primary-notification-custom {
+  box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.08);
+  border-radius: 0.3125rem;
+  min-width: 26.5rem;
+  padding: 1.125rem;
+  position: fixed;
+  z-index: 1000;
+
+  &.notification {
+    &-success {
+      background-color: get-theme-value(status, success, dark);
+    }
+
+    &-danger {
+      background-color: get-theme-value(status, danger, dark);
+    }
+
+    &-top-center {
+      transform: translateX(-50%);
+      top: 0.5rem;
+      left: 50%;
+    }
+    &-top-right {
+      top: 1rem;
+      right: 1rem;
+    }
+    &-top-left {
+      top: 1rem;
+      left: 1rem;
+    }
+    &-bottom-center {
+      transform: translateX(-50%);
+      bottom: 1rem;
+      left: 50%;
+    }
+    &-bottom-right {
+      bottom: 1rem;
+      right: 1rem;
+    }
+    &-bottom-left {
+      bottom: 1rem;
+      left: 1rem;
+    }
+  }
+}

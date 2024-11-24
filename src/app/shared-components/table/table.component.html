@@ -1,94 +1,73 @@
-<div class="card">
-  <p-table
-    #dt1
-    [value]="itemsTable"
-    dataKey="id"
-    [rows]="10"
-    [rowsPerPageOptions]="[10, 25, 50]"
-    [paginator]="true"
-    [globalFilterFields]="filterFields"
-  >
-    <ng-template pTemplate="caption">
-      <div class="flex">
-        <h1>{{ nameTable }}</h1>
-        <p-iconField iconPosition="left" class="ml-auto">
-          <p-inputIcon>
-            <i class="pi pi-search"></i>
-          </p-inputIcon>
-          <input
-            pInputText
-            type="text"
-            (input)="onGlobalFilter($event)"
-            placeholder="Search keyword"
-          />
-        </p-iconField>
-        @if(userLocalService?.user?.id_rol !== 3){
-        <p-button
-          class="ml-4"
-          (click)="openModal()"
-          label="{{ labelBtn }}"
-          [raised]="true"
-        ></p-button>
-        }
+<div class="primary-table">
+  <div class="container-header-and-body">
+    <div
+      [ngStyle]="{ 'grid-template-columns': gridHeaderColumns }"
+      class="primary-table-header"
+    >
+      <ng-content select="[tableHeader]"></ng-content>
+    </div>
+    <div class="primary-table-body">
+      <ng-content select="[tableBody]"></ng-content>
+      @if(loadingTable){ @for(item of createArrayByNumber(list.length > 5 ?
+      list.length : 5); track i; let i = $index){
+
+      <app-item-skeleton
+        [customStyles]="{ height: '3.25rem', 'margin-top': '0.3rem' }"
+      ></app-item-skeleton>
+
+      } }@else{ @if(list.length === 0){
+      <div class="center-all height-100">
+        <h3 class="font-title-large">No se encontraron registros</h3>
       </div>
-    </ng-template>
-
-    <ng-template pTemplate="header">
-      <tr>
-        <th *ngFor="let prop of getProperties(itemsTable[0])">{{ prop }}</th>
-      </tr>
-    </ng-template>
-
-    <ng-template pTemplate="body" let-item>
-      <tr>
-        <td *ngFor="let prop of getProperties(item)">
-          @if(prop === 'Archivo'){
-          <p-button
-            (click)="previewFile(item)"
-            label="Ver archivo"
-            [raised]="true"
-          ></p-button>
-
-          }@else{
-          {{ item[prop] }}
-          }
-        </td>
-      </tr>
-    </ng-template>
-
-    <ng-template pTemplate="emptymessage">
-      <tr>
-        <td colspan="7">No hay datos para mostrar.</td>
-      </tr>
-    </ng-template>
-  </p-table>
-
-  @if(modalVisible){
-  <app-modal
-    [description]="descriptionModal"
-    [listFields]="listFields"
-    [title]="titleModal"
-    (modalClosed)="onModalClosed()"
-    (saveData)="saveData.emit($event)"
-    [withFile]="withFile"
-  ></app-modal>
+      }@else if(listFilter.length === 0 && nameFilter){
+      <div class="center-all flex-direction-column height-100">
+        <h3 class="font-title-large">
+          No se encontraron resultados con el termino:
+        </h3>
+        <h3 class="font-title-large cl-primary-background-palette-important">
+          {{ nameFilter }}
+        </h3>
+      </div>
+      }@else {@for(item of listFilter; track i; let i = $index){
+      <div
+        [ngClass]="{
+          'primary-table-item-selected':
+            item[selectedItem[0]] === selectedItem[1]
+        }"
+        [ngStyle]="{
+          'grid-template-columns': gridBodyColumns || gridHeaderColumns
+        }"
+        (keydown.enter)="eventRowClick.emit(item)"
+        [appDisabledElement]="item?.disabled"
+        (click)="eventRowClick.emit(item)"
+        class="primary-table-item"
+        aria-label="Fila"
+        role="button"
+        tabindex="0"
+      >
+        <ng-container
+          *ngTemplateOutlet="
+            templateRef;
+            context: {
+              $implicit: item,
+              gridColumns: gridHeaderColumns
+            }
+          "
+        ></ng-container>
+      </div>
+      }} }
+    </div>
+  </div>
+  @if(withPager){
+  <div class="primary-table-footer">
+    <!-- <app-pager
+      (changePage)="changeCurrentPage($event)"
+      [hiddenOptions]="hiddenOptionsPager"
+      [itemsPerPage]="itemsPerPage"
+      [currentPage]="currentPage"
+      [totalItems]="totalItems"
+      [data]="list"
+    ></app-pager> -->
+  </div>
   }
-
-  <p-dialog
-    header="Previsualizar archivo"
-    [modal]="true"
-    [visible]="!!fileUrl"
-    position="center"
-    [style]="{ width: '40rem' }"
-    (visibleChange)="cleanFileUrl()"
-  >
-    @if(fileUrl){
-    <iframe
-      [src]="fileUrl | safeUrl"
-      frameborder="0"
-      height="500px"
-      width="100%"
-    ></iframe>
-    }
-  </p-dialog>
 </div>

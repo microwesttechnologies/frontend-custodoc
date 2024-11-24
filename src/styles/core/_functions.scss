@@ -1,0 +1,32 @@
+// Función para reemplazar cadenas en Sass
+@function str-replace($string, $search, $replace: "") {
+  $index: str-index($string, $search);
+  @if $index {
+    @return str-slice($string, 1, $index - 1) + $replace +
+      str-replace(
+        str-slice($string, $index + str-length($search)),
+        $search,
+        $replace
+      );
+  }
+  @return $string;
+}
+
+@function normalize-class-name($value) {
+  // Asegúrate de que el valor sea una cadena
+  $value: if(type-of($value) != "string", #{$value}, $value);
+
+  // Normaliza caracteres inválidos
+  $value: str-replace($value, "%", ""); // Reemplaza % con ""
+  $value: str-replace($value, ".", "_"); // Reemplaza . con _
+  $value: str-replace($value, "/", "-"); // Reemplaza / con -
+
+  // Manejo de valores negativos: Añade un guion válido al inicio
+  @if str-slice($value, 1, 1) == "-" {
+    $value: "-" + str-slice($value, 2);
+  }
+
+  @return unquote(
+    $value
+  ); // Devuelve el valor sin comillas para nombres de clase
+}

@@ -1,0 +1,67 @@
+@import "../core/theme";
+
+.primary-tooltip {
+  box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.08);
+  border-radius: 0.35rem;
+  padding: 0.5rem 1rem;
+  max-height: 9.625rem;
+  max-width: 20rem;
+
+  &:not(.primary-tooltip-success):not(.primary-tooltip-danger) {
+    background-color: #616161;
+    & .tooltip-arrow {
+      &-top {
+        border-color: transparent transparent #616161 transparent;
+      }
+      &-right {
+        border-color: transparent transparent transparent #616161;
+      }
+      &-bottom {
+        border-color: #616161 transparent transparent transparent;
+      }
+      &-left {
+        border-color: transparent #616161 transparent transparent;
+      }
+    }
+  }
+
+  &-success {
+  }
+
+  &-warning {
+  }
+
+  &-danger {
+  }
+
+  & .tooltip-arrow {
+    border-style: solid;
+    position: absolute;
+    height: 0;
+    width: 0;
+    &-top {
+      border-width: 0 0.625rem 0.625rem;
+      transform: translateX(-50%);
+      top: -0.625rem;
+      left: 50%;
+    }
+    &-right {
+      border-width: 0.625rem 0 0.625rem 0.625rem;
+      transform: translateY(-50%);
+      right: -0.625rem;
+      top: 50%;
+    }
+    &-bottom {
+      border-width: 0.625rem 0.625rem 0;
+      transform: translateX(-50%);
+      bottom: -0.625rem;
+      left: 50%;
+    }
+    &-left {
+      border-width: 0.625rem 0.625rem 0.625rem 0;
+      transform: translateY(-50%);
+      left: -0.625rem;
+      top: 50%;
+    }
+  }
+}

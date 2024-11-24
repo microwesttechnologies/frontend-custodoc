@@ -1,3 +1,19 @@
-$font-family-base: "Lato", sans-serif;
-$background-color-base: #ffffff;
-$color-base: #333333;
+$font-family-base: "Roboto", sans-serif;
+
+$breakpoints: (
+  xs: 0,
+  // Extra pequeño
+  sm: 576px,
+  // Pequeño
+  md: 768px,
+  // Mediano
+  lg: 992px,
+  // Grande
+  xl: 1200px // Extra grande,,
+);
+
+// Espaciado entre columnas (gutters)
+$gutter-width: 1rem;
+
+// Cantidad máxima de columnas
+$total-columns: 12;

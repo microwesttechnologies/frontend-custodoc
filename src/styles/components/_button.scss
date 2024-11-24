@@ -1,0 +1,62 @@
+@import "../core/typography";
+@import "../core/theme";
+
+.primary-button {
+  transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+  @include apply-values-typography-by-property(button, large);
+  border-color: transparent;
+  border-radius: 0.375rem;
+  justify-content: center;
+  text-decoration: none;
+  align-items: center;
+  border-style: solid;
+  border-width: 1px;
+  cursor: pointer;
+  outline: none;
+  display: flex;
+  width: 100%;
+
+  &:not(.button-md) {
+    padding: 0.75rem;
+  }
+
+  &:not(.bg-primary):not(.bg-transparent) {
+    background-color: get-theme-value(palette, tertiary, background);
+    color: get-theme-value(theme, secondary, background);
+
+    &:hover {
+      background-color: get-theme-value(palette, tertiary, dark);
+      border-color: get-theme-value(palette, tertiary, dark);
+    }
+
+    &:focus {
+      box-shadow: 0 0 0 2px #ffffff,
+        0 0 0 4px get-theme-value(palette, tertiary, dark), 0 1px 2px 0 black;
+      background-color: get-theme-value(palette, tertiary, dark);
+      border-color: get-theme-value(palette, tertiary, dark);
+    }
+  }
+
+  &.button-md {
+    height: 2.625rem;
+    padding: 0.5rem;
+  }
+
+  &.bg-transparent {
+    color: get-theme-value(theme, primary, color);
+    background-color: transparent;
+
+    &:hover {
+      background-color: get-theme-value(theme, primary, transparent);
+      border-color: get-theme-value(theme, primary, transparent);
+    }
+
+    &:focus {
+      background-color: get-theme-value(theme, primary, transparent);
+      border-color: get-theme-value(theme, primary, transparent);
+      box-shadow: 0 0 0 2px #ffffff,
+        0 0 0 4px get-theme-value(theme, primary, transparent),
+        0 1px 2px 0 black;
+    }
+  }
+}

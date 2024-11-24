@@ -1,0 +1,52 @@
+import { HttpErrorResponse } from '@angular/common/http';
+import { Component, inject, OnInit } from '@angular/core';
+import { TooltipDirective } from 'src/app/directives/tooltip.directive';
+import { UserService } from 'src/app/services/external/user.service';
+import { validateLimitText } from 'src/app/services/local/helper.service';
+import { NavbarComponent } from 'src/app/shared-components/navbar/navbar.component';
+import { NotificationService } from 'src/app/shared-components/notification/notification.service';
+import { SharedModule } from 'src/app/shared-components/shared.module';
+import { TableComponent } from 'src/app/shared-components/table/table.component';
+
+@Component({
+  selector: 'app-ranking-module',
+  standalone: true,
+  imports: [SharedModule, TableComponent, NavbarComponent, TooltipDirective],
+  templateUrl: './ranking-module.component.html',
+  styleUrl: './ranking-module.component.scss',
+})
+export class RankingModuleComponent implements OnInit {
+  public rankingUsers: any[] = [];
+  public nameFilter = '';
+
+  public listStatus = {
+    loadingTable: false,
+  };
+
+  public validateLimitText = validateLimitText;
+
+  private notificationService = inject(NotificationService);
+  private userService = inject(UserService);
+
+  ngOnInit(): void {
+    this.getAllRankingUsers();
+  }
+
+  private getAllRankingUsers() {
+    this.listStatus.loadingTable = true;
+    this.userService.getAllRankingUsers().subscribe({
+      next: (rankingUsers) => {
+        this.listStatus.loadingTable = false;
+        this.rankingUsers = rankingUsers;
+      },
+      error: (error: HttpErrorResponse) => {
+        this.listStatus.loadingTable = false;
+        this.notificationService.showNotification(
+          'Lo sentimos, ha ocurrido un error al consultar el ranking de usuarios',
+          'danger',
+          10000
+        );
+      },
+    });
+  }
+}

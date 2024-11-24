@@ -1,0 +1,77 @@
+@import "src/styles/core/_mixins.scss";
+@import "src/styles/core/_theme.scss";
+
+@include generate-styles("ml", "margin-left", rem, 50, 50);
+
+@include generate-styles("fz", "font-size", rem, 130, 130);
+
+.primary-tabs-groups {
+  flex-direction: column;
+  display: flex;
+  height: 100%;
+  width: 100%;
+
+  & .header-tabs-groups {
+    align-items: center;
+    position: relative;
+    padding: 0 2rem;
+    flex-shrink: 0;
+    display: flex;
+
+    & .tab-item-header {
+      transition: background-color 0.3s ease;
+      border-radius: 0.3125rem 0.3125rem 0 0;
+      padding: 0.8rem 1.5rem;
+      cursor: pointer;
+
+      &-selected {
+        & p {
+          color: get-theme-value(palette, tertiary, background);
+          font-weight: 600;
+        }
+      }
+
+      &:hover {
+        background-color: get-theme-value(theme, primary, transparent);
+      }
+    }
+
+    & .indicator-tab-selected {
+      background-color: get-theme-value(palette, tertiary, background);
+      border-radius: 0.1875rem;
+      position: absolute;
+      bottom: -0.125rem;
+      height: 0.1875rem;
+    }
+  }
+
+  & .container-separator-header-body {
+    background-color: get-theme-value(theme, primary, border);
+    flex-shrink: 0;
+    height: 1px;
+    width: 100%;
+  }
+
+  & .body-tabs-groups {
+    overflow: hidden;
+    display: flex;
+    flex-grow: 1;
+    height: 100%;
+    width: 100%;
+
+    & section {
+      overflow: hidden;
+      display: flex;
+      flex-grow: 1;
+      height: 100%;
+      width: 100%;
+
+      & .tab-item {
+        overflow-y: auto;
+        height: 100%;
+        width: 100%;
+        flex: 1;
+      }
+    }
+  }
+}

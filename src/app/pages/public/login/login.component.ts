@@ -1,25 +1,16 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
-import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
-import { InputTextModule } from 'primeng/inputtext';
-import { FloatLabelModule } from 'primeng/floatlabel';
 import { UserService } from 'src/app/services/external/user.service';
 import { SharedModule } from 'src/app/shared-components/shared.module';
+import { InputComponent } from 'src/app/shared-components/form/input/input.component';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
   standalone: true,
-  imports: [
-    SharedModule,
-    ButtonModule,
-    CardModule,
-    InputTextModule,
-    FloatLabelModule,
-  ],
+  imports: [InputComponent, SharedModule],
   providers: [],
 })
 export class LoginComponent implements OnInit {
@@ -31,16 +22,18 @@ export class LoginComponent implements OnInit {
 
   ngOnInit(): void {
     this.loginForm = this.fb.group({
-      username: ['', [Validators.required, Validators.email]],
+      email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required],
     });
   }
 
-  onSubmit(): void {
+  login(): void {
+    this.loginForm.markAllAsTouched();
     if (this.loginForm.valid) {
-      const { username, password } = this.loginForm.value;
+      this.messageError = '';
+      const { email, password } = this.loginForm.value;
 
-      this.userService.login(username, password).subscribe({
+      this.userService.login(email, password).subscribe({
         next: (response) => {
           if (response.status) {
             window.localStorage.setItem('access_token', `${response.token}`);

@@ -1,0 +1,5 @@
+@import "src/styles/core/_mixins.scss";
+
+@include generate-styles("mr", "margin-right", rem, 50, 50);
+
+

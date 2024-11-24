@@ -1,0 +1,46 @@
+<div class="container-module-ranking">
+  <app-navbar
+    description="En este modulo podrás ver el ranking de usuarios"
+    [hiddenPrimaryButton]="true"
+    [(nameFilter)]="nameFilter"
+    title="Ranking usuarios"
+    module="ranking"
+  ></app-navbar>
+  <div class="secondary-card">
+    <app-table
+      gridHeaderColumns="10rem minmax(10rem, 1fr) minmax(10rem, 1fr) 10rem"
+      [loadingTable]="listStatus.loadingTable"
+      [totalItems]="rankingUsers.length"
+      [nameFilter]="nameFilter"
+      [list]="rankingUsers"
+      [withPager]="true"
+    >
+      <ng-container tableHeader>
+        <p class="font-subtitle-large">Identificación</p>
+        <p class="font-subtitle-large">Nombre</p>
+        <p class="font-subtitle-large">Compañía</p>
+        <p class="font-subtitle-large text-align-center">Total documentos</p>
+      </ng-container>
+      <ng-template let-item>
+        <p class="font-body-medium">{{ item?.identification }}</p>
+        <p
+          class="font-body-medium white-space-nowrap text-overflow-ellipsis overflow-hidden"
+          [appTooltip]="validateLimitText(nameUser) ? item?.name_user : ''"
+          #nameUser
+        >
+          {{ item?.name_user }}
+        </p>
+        <p
+          class="font-body-medium white-space-nowrap text-overflow-ellipsis overflow-hidden"
+          [appTooltip]="
+            validateLimitText(nameCompany) ? item?.name_company : ''
+          "
+          #nameCompany
+        >
+          {{ item?.name_company }}
+        </p>
+        <p class="font-body-medium text-align-center">{{ item?.total_documents }}</p>
+      </ng-template>
+    </app-table>
+  </div>
+</div>

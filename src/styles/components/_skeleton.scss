@@ -1,0 +1,42 @@
+@import "../core/theme";
+
+.item-skeleton {
+  background-color: get-theme-value(theme, primary, border);
+  border-radius: 0.3125rem;
+  pointer-events: none;
+  position: relative;
+  height: 1.25rem;
+
+  &-loading {
+    &::after {
+      animation-timing-function: cubic-bezier(0.17, 0.67, 0.83, 0.67);
+      animation-iteration-count: infinite;
+      background: linear-gradient(
+        to right,
+        #f4f4f4 0%,
+        #d8d8d8 50%,
+        #f4f4f4 100%
+      );
+      animation-name: skeletonShimmer;
+      border-radius: 4px 4px 0px 0px;
+      animation-fill-mode: forwards;
+      background-size: 200% 100%;
+      animation-duration: 2s;
+      position: absolute;
+      height: 100%;
+      width: 100%;
+      content: "";
+      left: 0;
+      top: 0;
+    }
+  }
+}
+
+@keyframes skeletonShimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}

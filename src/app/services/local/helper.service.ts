@@ -1,4 +1,9 @@
-import { AbstractControl, ValidationErrors } from '@angular/forms';
+import {
+  AbstractControl,
+  FormGroup,
+  ValidationErrors,
+  ValidatorFn,
+} from '@angular/forms';
 import { HttpHeaders } from '@angular/common/http';
 
 export function isTokenExpired(token: any): boolean {
@@ -33,3 +38,71 @@ export const headerAuthorization = () => ({
     Authorization: 'Bearer ' + localStorage.getItem('access_token'),
   }),
 });
+
+export const validateFormField = (
+  form: FormGroup,
+  field: string,
+  type: 'valid' | 'invalid' = 'invalid'
+): boolean => !!(form.get(field)?.[type] && form.get(field)?.touched);
+
+export const createArrayByNumber = (length: number): number[] =>
+  Array.from({ length }, (_, i) => i);
+
+export const validateLimitText = (event: HTMLElement): boolean =>
+  event?.scrollWidth > event?.clientWidth;
+
+export const arrayFilter = <T extends Array<any> | object>(
+  list: Array<T>,
+  value: string,
+  propertys: string | string[]
+): Array<T> => {
+  if (!value) return list;
+
+  return list?.filter((o: any) =>
+    Object.keys(o).some((k) => {
+      if (propertys.includes(k) || propertys === '') {
+        if (!o[k]) {
+          o[k] = '';
+        }
+
+        return o[k]
+          ?.trim()
+          ?.toString()
+          ?.toLowerCase()
+          ?.includes(value?.trim()?.toLowerCase());
+      } else {
+        return null;
+      }
+    })
+  );
+};
+
+export function passwordMatchValidator(
+  password: string,
+  confirmPassword: string
+): ValidatorFn {
+  return (formGroup: AbstractControl): ValidationErrors | null => {
+    const passwordControl = formGroup.get(password);
+    const confirmPasswordControl = formGroup.get(confirmPassword);
+
+    if (!passwordControl || !confirmPasswordControl) {
+      return null; // Salir si los controles no existen
+    }
+
+    if (
+      confirmPasswordControl.errors &&
+      !confirmPasswordControl.errors['passwordMismatch']
+    ) {
+      return null; // Salir si ya tiene otros errores
+    }
+
+    // Validar que las contraseñas coincidan
+    if (passwordControl.value !== confirmPasswordControl.value) {
+      confirmPasswordControl.setErrors({ passwordMismatch: true });
+      return { passwordMismatch: true };
+    } else {
+      confirmPasswordControl.setErrors(null); // Limpiar error si coincide
+      return null;
+    }
+  };
+}

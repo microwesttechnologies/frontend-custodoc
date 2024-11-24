@@ -1,0 +1,17 @@
+@use 'sass:math';
+
+// Clase principal para un contenedor fluido
+.container {
+  width: 100%; // El ancho ocupa todo el espacio disponible
+  padding-right: math.div($gutter-width, 2); // Espaciado a la derecha
+  padding-left: math.div($gutter-width, 2); // Espaciado a la izquierda
+  margin-right: auto; // Centra el contenedor horizontalmente
+  margin-left: auto;
+
+  // Define anchos máximos para cada breakpoint
+  @each $breakpoint, $min-width in $breakpoints {
+    @include respond-to($breakpoint) {
+      max-width: #{$min-width};
+    }
+  }
+}

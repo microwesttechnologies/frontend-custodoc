@@ -1,0 +1,24 @@
+@import "../core/theme";
+
+.primary-list {
+  list-style: none;
+  overflow-y: auto;
+  padding: 0;
+  margin: 0;
+  & .item-list {
+    transition: background-color 0.3s ease-in-out;
+    padding: 0.875rem 1rem;
+    text-align: left;
+    cursor: pointer;
+
+    &:not(.item-list-selected) {
+      &:hover {
+        background-color: get-theme-value(theme, primary, transparent);
+      }
+    }
+
+    &-selected {
+      background-color: get-theme-value(theme, primary, transparent);
+    }
+  }
+}

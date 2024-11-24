@@ -1,17 +1,189 @@
-<div
-  class="background-dash w-full pl-8 pr-8 flex flex-column align-items-start justify-content-start"
->
-  <div class="w-full mt-4 mb-4">
+<div class="container-module-document">
+  <app-navbar
+    description="En este modulo podrás gestionar los documents"
+    (eventImport)="listStatus.showModalBulkload = true"
+    (eventClickButton)="openModalCreateDocument()"
+    [actions]="['import', 'export']"
+    title="Gestión de documentos"
+    [(nameFilter)]="nameFilter"
+    module="document"
+  ></app-navbar>
+  <div class="secondary-card">
     <app-table
-      [nameTable]="nameTable"
-      [itemsTable]="itemsTable"
-      [labelBtn]="labelBtn"
-      [descriptionModal]="descriptionModal"
-      [titleModal]="titleModal"
-      [listFields]="listFields"
-      (saveData)="createDocument($event)"
-      [(modalVisible)]="modalVisible"
-      [withFile]="true"
-    ></app-table>
+      gridHeaderColumns="5rem minmax(10rem, 1fr) 10rem minmax(10rem, 1fr) minmax(10rem, 1fr) 5rem"
+      [loadingTable]="listStatus.loadingTable"
+      [totalItems]="documents.length"
+      [nameFilter]="nameFilter"
+      [list]="documents"
+      [withPager]="true"
+    >
+      <ng-container tableHeader>
+        <p class="font-subtitle-large">Id</p>
+        <p class="font-subtitle-large">Nombre</p>
+        <p class="font-subtitle-large">Identificación cliente</p>
+        <p class="font-subtitle-large">Nombre del cliente</p>
+        <p class="font-subtitle-large">Descripción</p>
+      </ng-container>
+      <ng-template let-item>
+        <p class="font-body-medium">{{ item?.id_history }}</p>
+        <p
+          class="font-body-medium white-space-nowrap text-overflow-ellipsis overflow-hidden"
+          [appTooltip]="validateLimitText(nameDocument) ? item?.name : ''"
+          #nameDocument
+        >
+          {{ item?.name }}
+        </p>
+        <p class="font-body-medium">
+          {{ item?.identification }}
+        </p>
+        <p
+          class="font-body-medium white-space-nowrap text-overflow-ellipsis overflow-hidden"
+          [appTooltip]="
+            validateLimitText(nameCustomer) ? item?.name_customer : ''
+          "
+          #nameCustomer
+        >
+          {{ item?.name_customer }}
+        </p>
+        <p
+          class="font-body-medium white-space-nowrap text-overflow-ellipsis overflow-hidden"
+          [appTooltip]="
+            validateLimitText(descriptionDocument) ? item?.description : ''
+          "
+          #descriptionDocument
+        >
+          {{ item?.description }}
+        </p>
+        <div class="center-all">
+          <button
+            class="primary-button button-md width-fit-content"
+            [configTooltip]="{ position: 'left' }"
+            (click)="previewFile(item)"
+            appTooltip="Ver archivo"
+          >
+            <i
+              class="material-symbols-outlined cl-secondary-background-theme-important"
+            >
+              visibility
+            </i>
+          </button>
+        </div>
+      </ng-template>
+    </app-table>
   </div>
 </div>
+
+@if(listStatus.showModal){
+<app-modal
+  [primaryButton]="{ hidden: listStatus.disabledPrimaryButton }"
+  (eventButtonClick)="$event ? createDocument() : closeModal()"
+  [loadingButtons]="listStatus.savingDocument"
+  [customStyles]="{
+    height: '95vh'
+  }"
+  title="Crear documento"
+  size="sm"
+>
+  <form [formGroup]="documentForm">
+    <div class="row">
+      <!-- Name -->
+      <div class="col-auto mb-150-rem">
+        <app-input
+          placeholder="Escribir nombre"
+          [defaultLabelError]="true"
+          formControlName="name"
+          id="name"
+        >
+          <label for="name" labelInput>
+            Nombre <span class="cl-danger-background-status">*</span>
+          </label>
+        </app-input>
+      </div>
+      <!-- Identification -->
+      <div class="col-auto mb-150-rem">
+        <app-autocomplete
+          formControlName="identification"
+          [configAutoComplete]="{
+            placeholder: 'Buscar cliente por nombre',
+            fieldId: 'identification',
+            assignOnlyFieldId: true,
+            defaultLabelError: true,
+            id: 'identification',
+            fieldText: 'name'
+          }"
+          [options]="customers"
+        >
+          <label for="identification" labelAutoComplete>Cliente</label>
+        </app-autocomplete>
+      </div>
+    </div>
+    <div class="row">
+      <!-- Description -->
+      <div class="col-auto mb-150-rem">
+        <div class="primary-form-field">
+          <label for="description" labelInput> Descripción </label>
+          <textarea
+            formControlName="description"
+            class="primary-input"
+            rows="5"
+          ></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-auto">
+        <div
+          appTooltip="Click para seleccioar un archivo"
+          class="primary-form-field-file"
+          (click)="inputPdf.click()"
+        >
+          <p class="font-body-medium">
+            {{
+              selectedFilePdf
+                ? "Archivo seleccionado: " + selectedFilePdf?.name
+                : "Seleccionar archivo"
+            }}
+          </p>
+          <input
+            (change)="onFileSelected($event)"
+            accept="application/pdf"
+            type="file"
+            #inputPdf
+          />
+        </div>
+        @if(pdfSrc){
+        <iframe
+          [src]="pdfSrc"
+          frameborder="0"
+          height="500px"
+          width="100%"
+        ></iframe>
+        }
+      </div>
+    </div>
+  </form>
+</app-modal>
+} @if(listStatus.showModalPrewiew){
+<app-modal
+  (eventButtonClick)="listStatus.showModalPrewiew = false"
+  [primaryButton]="{ text: 'Cerrar' }"
+  [secondaryButton]="{ hidden: true }"
+  [customStyles]="{ height: '95vh' }"
+  title="Previsualiar archivo"
+  size="sm"
+>
+  @if(fileUrl){
+  <iframe
+    [src]="fileUrl! | safeUrl"
+    frameborder="0"
+    height="100%"
+    width="100%"
+  ></iframe>
+  }
+</app-modal>
+}@if(listStatus.showModalBulkload){
+<app-modal-bulkload
+  [(showModalBulkload)]="listStatus.showModalBulkload"
+  [customers]="customers"
+></app-modal-bulkload>
+}

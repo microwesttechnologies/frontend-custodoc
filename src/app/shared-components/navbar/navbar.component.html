@@ -1,0 +1,103 @@
+<div class="primary-navbar">
+  <div class="list-cards row">
+    @for ( key of globalService.detailCompany | getObjectProperties; track
+    indexItem; let indexItem = $index){
+    <div class="col-auto mb-100-rem">
+      <div
+        class="item-card display-flex align-items-center justify-content-space-around"
+      >
+        <i class="material-symbols-outlined cl-tertiary-background-palette">{{
+          getValueByKey(key).icon
+        }}</i>
+        <section class="">
+          <p
+            class="font-body-medium cl-secondary-background-theme-important mb-30-rem"
+          >
+            {{ getValueByKey(key).label }}
+          </p>
+
+          <h2
+            class="font-headline-small cl-secondary-background-theme-important text-align-center"
+          >
+            {{ getValueByKey(key).amount | number }}
+          </h2>
+        </section>
+      </div>
+    </div>
+    }
+  </div>
+
+  <div class="row align-items-flex-end">
+    <div class="col-auto mb-50-rem">
+      <h2 class="font-headline-medium mb-50-rem">
+        {{ title }}
+      </h2>
+
+      <p class="font-body-large cl-secondary-color-theme-important">
+        {{ description }}
+      </p>
+    </div>
+    <div class="col-auto mb-50-rem">
+      <div class="display-flex align-items-center justify-content-flex-end">
+        <div class="primary-form-field width-75">
+          <input
+            placeholder="Buscar {{ homologateModule[module] }} por nombre"
+            class="primary-input bg-secondary-background-theme-important"
+            (keyup)="changeValueFilter($event)"
+            [value]="nameFilter"
+            type="text"
+          />
+        </div>
+        @if(!hiddenPrimaryButton){
+        <button
+          class="primary-button button-md width-fit-content ml-50-rem"
+          [appDisabledElement]="disabledByModuleAndRol?.primaryButton"
+          [appTooltip]="'Agregar ' + homologateModule[module]"
+          [configTooltip]="{
+            position: 'left'
+          }"
+          (click)="eventClickButton.emit()"
+        >
+          <i
+            class="material-symbols-outlined cl-secondary-background-theme-important"
+            >add</i
+          >
+        </button>
+        } @if(actions.length){
+        <button
+          class="primary-button button-md bg-transparent width-fit-content ml-50-rem"
+          [appDisabledElement]="disabledByModuleAndRol?.actions"
+          [appOverlay]="overlayActions"
+          overlayPosition="left-center"
+          [closeInsideOverlay]="true"
+          overlayActivateBy="click"
+          overlayWidth="6rem"
+        >
+          <i class="material-symbols-outlined"> menu </i>
+        </button>
+
+        <ng-template #overlayActions>
+          <div class="primary-overlay">
+            <ul class="primary-list">
+              @if(actions.includes('export')){
+              <li
+                class="item-list"
+                (click)="eventExport.emit()"
+                [appDisabledElement]="true"
+              >
+                <p class="font-caption-large">Exportar</p>
+              </li>
+              } @if(actions.includes('import')){
+              <li class="item-list" (click)="eventImport.emit()">
+                <p class="font-caption-large">Importar</p>
+              </li>
+              }
+            </ul>
+          </div>
+        </ng-template>
+
+        }
+      </div>
+    </div>
+  </div>
+</div>

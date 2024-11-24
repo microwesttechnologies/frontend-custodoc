@@ -1,0 +1,174 @@
+<!-- [primaryButton]="{ disabled: !!errorsMessage.length || !csvData.length }" -->
+<app-modal
+  (eventButtonClick)="
+    showModalBulkload = false; showModalBulkloadChange.emit(false)
+  "
+  [loadingButtons]="listStatus.uploadingFiles"
+  [primaryButton]="{ disabled: true }"
+  title="Carga masiva de documentos"
+>
+  <p class="font-body-large mb-100-rem">
+    Para realizar un cargue masivo se debe cargar un archivo csv el cual tiene
+    el siguiente formato:
+  </p>
+  <a
+    href="assets/formatos/formato_documentos.csv"
+    class="primary-button button-md mb-100-rem"
+    target="_blank"
+  >
+    <i
+      class="material-symbols-outlined mr-50-rem cl-secondary-background-theme-important"
+      >download</i
+    >
+    Descargar formato
+  </a>
+
+  @if(selectedIndexStep === 0){
+  <p class="font-body-large mb-100-rem">
+    Una vez descargado y agregado toda la información a guardar se debe subir el
+    archivo CSV
+  </p>
+  <div
+    appTooltip="Click para seleccioar un archivo"
+    class="primary-form-field-file mb-100-rem"
+    (click)="inputCsv.click()"
+  >
+    <p class="font-body-medium">
+      {{
+        selectedFileCsv
+          ? "Archivo seleccionado: " + selectedFileCsv?.name
+          : "Seleccionar archivo"
+      }}
+    </p>
+    <input
+      (change)="onDataFileChange($event)"
+      accept=".csv"
+      type="file"
+      #inputCsv
+    />
+  </div>
+  }@else if(selectedIndexStep === 1){
+  <p class="font-body-large mb-100-rem">
+    Después de cargar el archivo CSV y no tener errores se cargan los archivos
+    PDF, recuerda que el nombre del archivo PDF debe coincidir con el nombre de
+    la última columna
+  </p>
+  <div
+    appTooltip="Click para seleccioar un archivo"
+    class="primary-form-field-file mb-100-rem"
+    [appDisabledElement]="!csvData.length"
+    (click)="inputPdfs.click()"
+  >
+    <p class="font-body-medium">Seleccionar archivos</p>
+    <input
+      (change)="onPdfFileChange($event)"
+      accept="application/pdf"
+      type="file"
+      #inputPdfs
+      multiple
+    />
+  </div>
+  }
+
+  <div class="display-flex justify-content-flex-end">
+    <button
+      class="primary-button button-md width-fit-content border-radius-100"
+      [appTooltip]="selectedIndexStep === 0 ? 'Siguiente' : 'Volver'"
+      (click)="selectedIndexStep = selectedIndexStep === 0 ? 1 : 0"
+    >
+      <i
+        class="material-symbols-outlined cl-secondary-background-theme-important rotate-icon"
+        [ngClass]="{ 'rotate-icon-activate': selectedIndexStep === 1 }"
+      >
+        chevron_right
+      </i>
+    </button>
+  </div>
+
+  @if(!!csvData.length || !!errorsMessage.length){
+
+  <app-tabs-groups
+    (eventTabSelected)="changeSelectedTabIndex($event)"
+    [selectedTabIndex]="selectedIndexTabs"
+  >
+    <app-tab-item
+      [disabled]="!csvData.length"
+      [label]="'Registros (' + csvData.length + ')'"
+    >
+      <ng-template>
+        <div class="content-body-table-and-errors">
+          <p class="font-body-medium mb-100-rem">
+            Se encontraron <strong>{{ csvData.length }}</strong> registros
+          </p>
+          <div class="primary-table">
+            <div class="container-header-and-body">
+              <div
+                [ngStyle]="{
+                  'grid-template-columns':
+                    '4rem minmax(8rem, 1fr) minmax(8rem, 1fr) minmax(8rem, 1fr) minmax(8rem, 1fr)'
+                }"
+                class="primary-table-header"
+              >
+                <p class="font-subtitle-medium">#</p>
+                @for(label of headers; track indexHeader; let indexHeader =
+                $index){
+                <p class="font-subtitle-large">{{ label }}</p>
+                }
+              </div>
+              <div class="primary-table-body">
+                @for(item of csvData; track indexItem; let indexItem = $index){
+                <div
+                  [ngStyle]="{
+                    'grid-template-columns':
+                      '4rem minmax(8rem, 1fr) minmax(8rem, 1fr) minmax(8rem, 1fr) minmax(8rem, 1fr)'
+                  }"
+                  class="primary-table-item"
+                >
+                  <p class="font-subtitle-large">{{ indexItem + 1 }}</p>
+                  @for(label of headers; track indexHeader; let indexHeader =
+                  $index){
+                  <p
+                    class="font-body-medium text-overflow-ellipsis white-space-nowrap overflow-hidden"
+                    [appTooltip]="
+                      validateLimitText(itemText) ? item[indexHeader] : ''
+                    "
+                    #itemText
+                  >
+                    {{ item[indexHeader] }}
+                  </p>
+                  }
+                </div>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-template>
+    </app-tab-item>
+    <app-tab-item
+      [label]="'Errores (' + errorsMessage.length + ')'"
+      [withErrors]="!!errorsMessage.length"
+      [disabled]="!errorsMessage.length"
+    >
+      <ng-template>
+        <div class="content-body-table-and-errors">
+          <p class="font-body-medium mb-100-rem">
+            Se encontraron <strong>{{ errorsMessage.length }}</strong> errores
+          </p>
+
+          <ul class="list-errors">
+            @for(error of errorsMessage; track indexError; let indexError =
+            $index){
+            <li class="list-errors-item">
+              <p class="font-subtitle-large mr-50-rem">{{ indexError + 1 }})</p>
+              <p class="font-body-medium" [innerHTML]="error"></p>
+            </li>
+            }
+          </ul>
+        </div>
+      </ng-template>
+    </app-tab-item>
+  </app-tabs-groups>
+
+  }
+</app-modal>

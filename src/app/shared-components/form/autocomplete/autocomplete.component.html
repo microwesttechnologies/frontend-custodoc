@@ -1,0 +1,113 @@
+<div
+  class="primary-form-field primary-autocomplete {{ sizeClass?.input }}"
+  [ngClass]="{
+    'valid-form-field':
+      (valid || disabled),
+    'invalid-form-field': invalid || configAutoComplete?.showAsError,
+  }"
+  [ngStyle]="{ width: configAutoComplete?.width || '100%' }"
+  [appDisabledElement]="disabled!"
+>
+  <ng-content select="[labelAutoComplete]"></ng-content>
+  <div
+    class="container-input overflow-hidden display-flex align-items-center justify-content-space-between"
+    [ngClass]="{
+      'bg-secondary-background-theme-important': listStatus.showOverlay
+    }"
+    (statusOverlayChange)="statusOverlayChange($event)"
+    [closeOverlay]="!listStatus.showOverlay"
+    [openOverlay]="listStatus.showOverlay"
+    [appOverlay]="overlayAutoComplete"
+    overlayPosition="bottom-center"
+    [closeInsideOverlay]="true"
+    overlayActivateBy="click"
+    #parentAutoComplete
+  >
+    <!-- @if(configAutoComplete?.withAvatar){
+    <app-avatar
+      [size]="configAutoComplete?.size || 'md'"
+      [userName]="getDisplayValue(currentOption)"
+    ></app-avatar>
+    } -->
+
+    <input
+      [placeholder]="configAutoComplete?.placeholder"
+      (keyup)="filterOptions(); keyUpOrDown('up', $event)"
+      (keydown)="keyUpOrDown('down', $event)"
+      [id]="configAutoComplete?.id"
+      [(ngModel)]="inputValue"
+      autocomplete="off"
+      type="text"
+    />
+
+    <i
+      class="material-symbols-outlined rotate-icon"
+      [ngClass]="{ 'rotate-icon-activate': listStatus.showOverlay }"
+    >
+      keyboard_arrow_down
+    </i>
+  </div>
+  @if(invalid || configAutoComplete?.showAsError){
+  @if(configAutoComplete?.defaultLabelError){
+  <label [for]="configAutoComplete.id"> Este campo es obligatorio </label>
+  }
+  <ng-content select="[labelAutoCompleteError]"></ng-content>
+  }
+  <ng-template #overlayAutoComplete>
+    <ul class="primary-autocomplete-panel {{ sizeClass?.panel }}">
+      <ng-container *ngFor="let item of filteredOptions">
+        @if(configAutoComplete?.fieldGroup){
+        <div class="group-separator-title">
+          <p class="font-subtitle-medium cl-primary-border-theme">
+            {{ item?.group | uppercase }}
+          </p>
+        </div>
+        <ng-container *ngFor="let option of item?.options">
+          <ng-container
+            *ngTemplateOutlet="optionAutcomplete; context: { option: option }"
+          ></ng-container>
+        </ng-container>
+        }@else {
+        <ng-container
+          *ngTemplateOutlet="optionAutcomplete; context: { option: item }"
+        >
+        </ng-container>
+        }
+      </ng-container>
+    </ul>
+  </ng-template>
+</div>
+
+<ng-template #optionAutcomplete let-option="option">
+  <li
+    [ngClass]="{
+      'option-autocomplete-selected': isSelected(option),
+    }"
+    (click)="
+      !option?.disabled && !disabledOptions.includes(getIdValue(option))
+        ? selectOption(option)
+        : null
+    "
+    [appDisabledElement]="
+      option?.disabled || disabledOptions.includes(getIdValue(option))
+    "
+    class="option-autocomplete"
+  >
+    <!-- <ng-container *ngIf="configAutoComplete?.withAvatar">
+      <app-avatar
+        [size]="configAutoComplete?.size || 'md'"
+        [userName]="getDisplayValue(option)"
+      ></app-avatar>
+    </ng-container> -->
+    <p
+      [ngClass]="{
+        'cl-primary-background-palette': isSelected(option)
+      }"
+      class="font-caption-large word-break-break-all"
+    >
+      <!-- ,
+      'ml-50-rem': configAutoComplete?.withAvatar -->
+      {{ getDisplayValue(option) }}
+    </p>
+  </li>
+</ng-template>

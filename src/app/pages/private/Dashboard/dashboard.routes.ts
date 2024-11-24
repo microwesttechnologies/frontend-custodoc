@@ -43,7 +43,17 @@ export const DASHBOARD_ROUTES: Routes = [
             (c) => c.CustomersModuleComponent
           ),
       },
+      {
+        path: 'ranking',
+        data: { id: 8 },
+        canActivate: [AuthGuard],
+        loadComponent: () =>
+          import('./ranking-module/ranking-module.component').then(
+            (c) => c.RankingModuleComponent
+          ),
+      },
       { path: '', redirectTo: 'companies', pathMatch: 'full' },
+      { path: '**', redirectTo: 'companies', pathMatch: 'full' },
     ],
   },
 ];

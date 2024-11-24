@@ -1,5 +1,89 @@
-.icon-sidebar{
+@import "src/styles/core/_theme.scss";
+
+.primary-sidebar {
+  background-color: get-theme-value(theme, secondary, background);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  transition: width 0.3s ease-in-out;
   position: fixed;
+  height: 100vh;
+  width: 6rem;
+  z-index: 2;
   left: 0;
   top: 0;
+
+  & .sidebar-action {
+    background-color: get-theme-value(palette, primary, background);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    transition: box-shadow 0.3s ease-in-out;
+    border-radius: 100%;
+    position: absolute;
+    cursor: pointer;
+    padding: 0.2rem;
+    right: -0.8rem;
+    outline: none;
+    display: flex;
+    border: none;
+    top: 1.5rem;
+
+    & i {
+      color: get-theme-value(theme, secondary, background) !important;
+      transition: transform 0.3s ease-in-out;
+    }
+
+    &:focus {
+      box-shadow: 0 0 0 2px #ffffff,
+        0 0 0 4px get-theme-value(palette, primary, background),
+        0 1px 2px 0 black;
+    }
+  }
+
+  &.sidebar-opened {
+    width: 20rem;
+  }
+
+  & .sidebar-content {
+    grid-template-rows: auto 1fr auto;
+    overflow: hidden;
+    display: grid;
+    height: 100%;
+
+    & .sidebar-item {
+      transition: background-color 0.3s ease-in-out;
+      border-radius: 0.375rem;
+      align-items: center;
+      cursor: pointer;
+      padding: 1rem;
+      display: flex;
+
+      & p {
+        margin-left: 0.5rem;
+      }
+
+      &:hover,
+      &:focus,
+      &-activate {
+        background-color: get-theme-value(palette, primary, transparent);
+      }
+    }
+
+    & .sidebar-header {
+      padding: 2rem 0;
+    }
+
+    & .sidebar-body {
+      overflow: hidden auto;
+      padding: 1rem;
+      & ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+    }
+
+    & .sidebar-footer {
+      border-top: 1px solid get-theme-value(theme, primary, border);
+      overflow: hidden auto;
+      padding: 1rem;
+    }
+  }
 }

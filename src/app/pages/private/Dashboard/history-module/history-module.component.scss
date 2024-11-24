@@ -1,0 +1,18 @@
+@import "src/styles/core/_mixins.scss";
+
+@include generate-styles("mb", "margin-bottom", rem, 150, 150);
+@include generate-styles("mb", "margin-bottom", rem, 100, 100);
+
+@include generate-styles("mr", "margin-right", rem, 50, 50);
+
+.container-module-document {
+  height: calc(100vh - 4rem);
+  flex-direction: column;
+  display: flex;
+
+  & .secondary-card {
+    margin-top: 2rem;
+    overflow: hidden;
+    height: 100%;
+  }
+}

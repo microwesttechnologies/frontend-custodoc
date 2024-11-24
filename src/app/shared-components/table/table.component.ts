@@ -1,116 +1,67 @@
 import {
-  Component,
+  ContentChild,
   EventEmitter,
+  TemplateRef,
+  Component,
+  Output,
   Input,
   OnChanges,
-  OnDestroy,
-  Output,
   SimpleChanges,
-  ViewChild,
-  inject,
 } from '@angular/core';
-import { ButtonModule } from 'primeng/button';
-import { Table, TableModule } from 'primeng/table';
-import { InputTextModule } from 'primeng/inputtext';
-import { InputIconModule } from 'primeng/inputicon';
-import { IconFieldModule } from 'primeng/iconfield';
-import { ModalComponent } from '../modal/modal.component';
-import { ListFields } from 'src/app/models/modal.model';
+
+import { ItemSkeletonComponent } from '../item-skeleton/item-skeleton.component';
+
+import {
+  arrayFilter,
+  createArrayByNumber,
+} from 'src/app/services/local/helper.service';
+
 import { SharedModule } from '../shared.module';
-import { FormGroup } from '@angular/forms';
-import { DocumentService } from 'src/app/services/external/document.service';
-import { SafeUrlPipe } from 'src/app/pipes/safe-url.pipe';
-import { DialogModule } from 'primeng/dialog';
-import { UserLocalService } from 'src/app/services/local/user.service';
+import { DisabledElementDirective } from 'src/app/directives/disabled-element.directive';
 
 @Component({
   selector: 'app-table',
-  standalone: true,
-  imports: [
-    ButtonModule,
-    TableModule,
-    InputTextModule,
-    InputIconModule,
-    IconFieldModule,
-    SharedModule,
-    DialogModule,
-    ModalComponent,
-    SafeUrlPipe,
-  ],
   templateUrl: './table.component.html',
-  styleUrls: ['./table.component.scss'],
+  imports: [ItemSkeletonComponent, SharedModule, DisabledElementDirective],
+  standalone: true,
 })
-export class TableComponent implements OnChanges, OnDestroy {
-  @ViewChild('dt1') dt1!: Table;
-  @Input() labelRow: any = [];
-  @Input() itemsTable!: any[];
-  @Input() listFields!: ListFields;
-  @Input() descriptionModal!: string;
-  @Input() titleModal!: string;
-  @Input() nameTable!: string;
-  @Input() labelBtn: string = 'Not Name';
-  @Input() routerBtn: string = '';
-  @Input() showForm!: boolean;
-  @Input() modalVisible!: boolean;
-  @Input() withFile!: boolean;
+export class TableComponent implements OnChanges {
+  @Input() itemsPerPage = 25;
+  @Input() selectedItem: [string, any] = [
+    '',
+    null,
+  ]; /** La primera posición es el identificador y el siguiente el valor a comparar */
+  @Input() hiddenOptionsPager!: boolean;
+  @Input() gridHeaderColumns!: string;
+  @Input() gridBodyColumns!: string;
+  @Input() loadingTable!: boolean;
+  @Input() currentPage!: number;
+  @Input() nameFilter!: string;
+  @Input() totalItems!: number;
+  @Input() withPager!: boolean;
+  @Input() list: any[] = [];
 
-  @Output() saveData = new EventEmitter<{ form: FormGroup; file?: File }>();
-  @Output() modalVisibleChange = new EventEmitter<boolean>();
+  @Output() currentPageChange = new EventEmitter<number>();
+  @Output() eventRowClick = new EventEmitter<any>();
 
-  representatives!: any[];
-  searchValue: string | undefined;
-  loading: boolean = true;
-  filterFields: string[] = [];
-  fileUrl: string = '';
+  @ContentChild(TemplateRef, { static: false }) templateRef!: TemplateRef<any>;
 
-  public readonly userLocalService = inject(UserLocalService);
-  private readonly documentService = inject(DocumentService);
+  public listFilter: any[] = [];
+
+  public createArrayByNumber = createArrayByNumber;
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (this.itemsTable && this.itemsTable.length > 0) {
-      this.filterFields = Object.keys(this.itemsTable[0]);
+    if (changes['list']) {
+      this.listFilter = this.list;
+    }
+
+    if (changes['nameFilter']) {
+      this.listFilter = arrayFilter(this.list, this.nameFilter, 'name');
     }
   }
 
-  onGlobalFilter(event: Event) {
-    const input = event.target as HTMLInputElement;
-    this.dt1.filterGlobal(input.value, 'contains');
-  }
-
-  getProperties(obj: any) {
-    if (obj === undefined || obj === null) {
-      return [];
-    }
-    return Object.keys(obj);
-  }
-
-  openModal() {
-    this.modalVisible = true; // Abrir el modal
-    this.modalVisibleChange.emit(this.modalVisible);
-  }
-
-  onModalClosed() {
-    this.modalVisible = false; // Cerrar el modal al recibir el evento
-    this.modalVisibleChange.emit(this.modalVisible);
-  }
-
-  previewFile(item: any) {
-    this.documentService.getFile(item?.Id).subscribe({
-      next: (file) => {
-        this.fileUrl = URL.createObjectURL(file);
-      },
-      error: (err) => {
-        console.error(err);
-      },
-    });
-  }
-
-  cleanFileUrl() {
-    URL.revokeObjectURL(this.fileUrl);
-    this.fileUrl = '';
-  }
-
-  ngOnDestroy(): void {
-    this.cleanFileUrl();
+  public changeCurrentPage(page: number): void {
+    this.currentPage = page;
+    this.currentPageChange.emit(page);
   }
 }

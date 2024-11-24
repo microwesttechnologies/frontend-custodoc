@@ -1,0 +1,86 @@
+<div
+  class="primary-form-field primary-select {{ sizeClass.input }}"
+  [ngClass]="{
+    'invalid-form-field': invalid && touched,
+    'valid-form-field': valid && touched,
+  }"
+  [ngStyle]="{ width: configSelect?.width || '100%' }"
+  [appDisabledElement]="disabled!"
+>
+  <ng-content select="[labelSelect]"></ng-content>
+  <div
+    class="container-input display-flex align-items-center justify-content-space-between"
+    [ngClass]="{
+      'bg-secondary-background-theme-important':
+        listStatus.showOptions,
+      'brcl-primary-background-palette-important':
+        listStatus.showOptions,
+    }"
+    [closeInsideOverlay]="configSelect?.multiple ? false : true"
+    (statusOverlayChange)="
+      listStatus.showOptions = $event; !$event && onTouched()
+    "
+    [appOverlay]="overlaySelect"
+    overlayPosition="bottom-center"
+    overlayActivateBy="click"
+  >
+    <p
+      [appTooltip]="validateLimitText(textSelectCustom) ? inputValue : ''"
+      [ngClass]="{ 'cl-secondary-color-theme-important': !inputValue }"
+      class="font-body-medium"
+      #textSelectCustom
+    >
+      {{ inputValue || configSelect?.placeholder || "Seleccionar" }}
+    </p>
+
+    <i
+      class="material-symbols-outlined rotate-icon"
+      [ngClass]="{ 'rotate-icon-activate': listStatus.showOptions }"
+    >
+      keyboard_arrow_down
+    </i>
+  </div>
+  <ng-container *ngIf="invalid && touched">
+    <ng-container *ngIf="configSelect?.defaultLabelError">
+      <label [for]="configSelect.id"> Este campo es obligatorio </label>
+    </ng-container>
+
+    <ng-content select="[labelSelectError]"></ng-content>
+  </ng-container>
+  <ng-template #overlaySelect>
+    <ul class="primary-select-panel {{ sizeClass?.panel }}">
+      <ng-container *ngFor="let option of filteredOptions">
+        <li
+          (click)="!configSelect?.multiple ? selectOption(option) : null"
+          [ngClass]="{
+            'option-select-panel-selected':
+              isSelected(option) && !configSelect?.multiple,
+            'cursor-pointer': !configSelect?.multiple,
+          }"
+          class="option-select-panel display-flex align-items-center"
+        >
+          <!-- <ng-container *ngIf="configSelect?.multiple">
+            <app-checkbox-or-radio
+              [configCheckboxOrRadio]="{
+                id: option?.value?.[configSelect?.fieldId],
+                type: 'checkbox',
+                size: 'md',
+              }"
+              (eventChecked)="selectOption(option)"
+              [formControl]="option.selected"
+            ></app-checkbox-or-radio>
+          </ng-container> -->
+          <p
+            [ngClass]="{
+              'cl-primary-background-palette':
+                isSelected(option) && !configSelect?.multiple,
+            }"
+            class="font-caption-large"
+          >
+            {{ getDisplayValue(option) }}
+          </p>
+        </li>
+      </ng-container>
+    </ul>
+  </ng-template>
+</div>

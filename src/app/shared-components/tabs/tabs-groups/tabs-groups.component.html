@@ -1,0 +1,42 @@
+<div
+  class="primary-tabs-groups align-items-{{
+    positionHeader === 'center' ? positionHeader : 'flex-' + positionHeader
+  }}"
+>
+  <div class="header-tabs-groups" #containerHeaderTabs>
+    @for(tab of tabs; track i; let i = $index){
+    <div
+      [ngClass]="{ 'tab-item-header-selected': selectedTabIndex === i }"
+      [appDisabledElement]="tab?.disabled!"
+      class="tab-item-header center-all"
+      (click)="selectTab(tab)"
+    >
+      <p
+        class="font-body-medium unselectable white-space-nowrap {{
+          tab?.withErrors ? 'cl-danger-dark-status-important' : ''
+        }}"
+      >
+        {{ tab.label }}
+      </p>
+      @if(tab?.withErrors){
+      <i
+        class="material-symbols-outlined cl-danger-dark-status ml-50-rem fz-130-rem"
+      >
+        warning_amber
+      </i>
+      }
+    </div>
+    }
+    <div class="indicator-tab-selected" [ngStyle]="indicatorStyle"></div>
+  </div>
+  <div class="container-separator-header-body"></div>
+  <div class="body-tabs-groups">
+    <section [@tabAnimation]="selectedTabIndex">
+      @for(tab of tabs; track i; let i = $index){ @if(selectedTabIndex === i){
+      <div class="tab-item">
+        <ng-template [ngTemplateOutlet]="tab.templateRef"></ng-template>
+      </div>
+      } }
+    </section>
+  </div>
+</div>

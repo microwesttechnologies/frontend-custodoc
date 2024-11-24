@@ -1,85 +1,47 @@
-<p-dialog
-  header="{{ title }}"
-  [modal]="true"
-  [visible]="true"
-  [position]="position"
-  [style]="{ width: '40rem' }"
-  (visibleChange)="closeModal()"
->
-  <span class="p-text-secondary block mb-5">
-    {{ description }}
-  </span>
-
-  <form [formGroup]="formGroup">
-    <div *ngFor="let key of listFields | getObjectProperties">
-      <div class="flex flex-column align-items-start mb-3">
-        <label for="{{ key }}" class="font-semibold">
-          {{ listFields[key].label }}
-        </label>
-        @if(!listFields[key]?.type){
-        <input
-          [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid(key) }"
-          [formControlName]="key"
-          autocomplete="off"
-          class="w-full"
-          [id]="key"
-          pInputText
-        />
-        }@else if(listFields[key].type === 'autocomplete'){
-        <p-dropdown
-          [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid(key) }"
-          [optionLabel]="listFields[key].keyAutoComplete"
-          [options]="listFields[key].dataFilter!"
-          [formControlName]="key"
-          [showClear]="true"
-          [filter]="true"
-          class="w-full"
-        ></p-dropdown>
-        }@else if(listFields[key].type === 'textarea'){
-        <textarea
-          [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid(key) }"
-          [formControlName]="key"
-          pInputTextarea
-          class="w-full"
-          rows="5"
-        >
-        </textarea>
-        }@else if(listFields[key].type === 'select'){
-        <p-dropdown
-          [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid(key) }"
-          [optionLabel]="listFields[key].keyAutoComplete"
-          [options]="listFields[key].data"
-          [formControlName]="key"
-          class="w-full"
-        >
-        </p-dropdown>
-        }@else if(listFields[key].type === 'password'){
-        <p-password
-          [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid(key) }"
-          [formControlName]="key"
-          [toggleMask]="true"
-          class="w-full"
-        ></p-password>
-        }
-      </div>
+<div class="primary-modal-background primary-typography center-all">
+  <div
+    class="content-modal modal-{{ size }}"
+    [@slideEnterAndLeaveTop]
+    [ngStyle]="customStyles"
+  >
+    @if(title){
+    <div class="content-modal-header">
+      <h3 class="font-headline-small cl-secondary-background-theme-important">
+        {{ title }}
+      </h3>
     </div>
-
-    @if(withFile){
-
-    <p-fileUpload
-      mode="basic"
-      chooseLabel="Choose"
-      chooseIcon="pi pi-upload"
-      name="demo[]"
-      url="https://www.primefaces.org/cdn/api/upload.php"
-      maxFileSize="1000000"
-      (onSelect)="onFileSelected($event)"
-    />
     }
-  </form>
-
-  <div class="flex justify-content-end gap-2">
-    <p-button severity="danger" label="Cancelar" (click)="closeModal()" />
-    <p-button label="Guardar" (click)="onSubmit()" />
+    <div class="content-modal-body">
+      <ng-content></ng-content>
+    </div>
+    <div
+      class="content-modal-footer display-flex align-items-center justify-content-flex-end"
+    >
+      @if(!secondaryButton?.hidden){
+        <button
+        class="primary-button button-md bg-transparent w-1000-rem"
+        (click)="eventButtonClick.emit(false)"
+        [appDisabledElement]="secondaryButton?.disabled || loadingButtons"
+      >
+        @if(loadingButtons){
+        <i class="material-symbols-outlined loading-icon">progress_activity</i>
+        }@else { {{ secondaryButton?.text || "Cancelar" }} }
+      </button>
+      }
+      @if(!primaryButton?.hidden){
+      <button
+        [appDisabledElement]="primaryButton?.disabled || loadingButtons"
+        class="primary-button button-md w-1000-rem ml-100-rem"
+        (click)="eventButtonClick.emit(true)"
+      >
+        @if(loadingButtons){
+        <i
+          class="material-symbols-outlined loading-icon cl-secondary-background-theme-important"
+          >progress_activity</i
+        >
+        }@else { {{ primaryButton?.text || "Aceptar" }} }
+      </button>
+      }
+    </div>
   </div>
-</p-dialog>
+</div>

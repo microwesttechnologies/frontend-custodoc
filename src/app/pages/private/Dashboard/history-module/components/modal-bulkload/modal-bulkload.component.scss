@@ -1,0 +1,30 @@
+@import "src/styles/core/_mixins.scss";
+@import "src/styles/core/_theme.scss";
+
+@include generate-styles("mb", "margin-bottom", rem, 100, 100);
+
+@include generate-styles("mr", "margin-right", rem, 50, 50);
+
+.content-body-table-and-errors {
+  padding: 1rem;
+
+  & .list-errors {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    &-item {
+      background-color: get-theme-value(theme, primary, background);
+      border-radius: 0.3125rem;
+      align-items: center;
+      padding: 0.75rem;
+      display: flex;
+    }
+  }
+}
+
+::ng-deep {
+  .primary-tabs-groups {
+    height: auto !important;
+  }
+}

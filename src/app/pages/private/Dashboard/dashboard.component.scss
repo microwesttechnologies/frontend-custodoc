@@ -1,5 +1,19 @@
 .content-page {
-  padding: 0 3rem 1.5rem 6rem;
+  transition: width 0.3s ease-in-out, margin-left 0.3s ease-in-out;
+  padding: 2rem 2rem 2rem 3rem;
+  flex-direction: column;
+  overflow: hidden auto;
   max-height: 100vh;
-  overflow-y: auto;
+  height: 100vh;
+  display: flex;
+
+  &:not(.sidebar-opened) {
+    width: calc(100% - 6rem);
+    margin-left: 6rem;
+  }
+
+  &.sidebar-opened {
+    width: calc(100% - 20rem);
+    margin-left: 20rem;
+  }
 }

@@ -5,8 +5,34 @@ $properties-map: (
       flex,
       block,
       grid,
+      none,
     ),
-    alias: "d",
+  ),
+  justify-content: (
+    values: (
+      space-between,
+      space-around,
+      flex-start,
+      flex-end,
+      center,
+    ),
+  ),
+  align-items: (
+    values: (
+      space-between,
+      space-around,
+      flex-start,
+      flex-end,
+      center,
+    ),
+  ),
+  flex-direction: (
+    values: (
+      column-reverse,
+      row-reverse,
+      column,
+      row,
+    ),
   ),
   text-align: (
     values: (
@@ -14,19 +40,78 @@ $properties-map: (
       center,
       right,
     ),
-    alias: "text-align",
+  ),
+  text-overflow: (
+    values: (
+      ellipsis,
+    ),
+  ),
+  white-space: (
+    values: (
+      nowrap,
+    ),
+  ),
+  height: (
+    values: (
+      100%,
+      75%,
+      50%,
+      25%,
+      100vh,
+      fit-content,
+    ),
+  ),
+  width: (
+    values: (
+      100%,
+      75%,
+      50%,
+      25%,
+      100vh,
+      fit-content,
+    ),
+  ),
+  overflow: (
+    values: (
+      auto,
+      hidden,
+    ),
+  ),
+  overflow-x: (
+    values: (
+      auto,
+      hidden,
+    ),
+  ),
+  overflow-y: (
+    values: (
+      auto,
+      hidden,
+    ),
+  ),
+  border-radius: (
+    values: (
+      100%,
+    ),
   ),
 );
 
 // Mixin para generar una clase específica con el nombre de clase, propiedad CSS y valor proporcionados.
 // Parámetros:
-// - $className: El nombre de la clase CSS que se va a generar.
+// - $class-prefix: El nombre de la clase CSS que se va a generar.
 // - $property: La propiedad CSS que se va a aplicar en la clase.
 // - $value: El valor de la propiedad CSS que se va a aplicar.
-@mixin generate-specific-class($className, $property, $value) {
-  .#{$className} {
+@mixin generate-specific-class($class-prefix, $property, $value) {
+  $normalized-value: normalize-class-name(
+    $value
+  ); // Limpia y convierte el valor
+  .#{$class-prefix}-#{$normalized-value} {
     // Aplica la propiedad CSS ($property) con el valor ($value) en la clase generada.
     #{$property}: $value;
+
+    &-important {
+      #{$property}: $value !important;
+    }
   }
 }
 
@@ -40,14 +125,17 @@ $properties-map: (
     // Obtiene la lista de valores ($values) asociados a la propiedad actual.
     $values: map-get($data, values);
 
+    // Determina el prefijo para el nombre de la clase (alias o propiedad)
+    $class-prefix: if($alias, $alias, $property);
+
     // Itera sobre cada valor ($value) en la lista de valores.
     @each $value in $values {
       // Llama al mixin generate-specific-class con el alias y el valor actual para generar la clase correspondiente.
       // Parámetros:
-      // - #{$alias}-#{$value}: El nombre de la clase CSS a generar.
+      // - $class-prefix: El nombre de la clase CSS a generar.
       // - $property: La propiedad CSS que se va a aplicar.
       // - $value: El valor de la propiedad CSS que se va a aplicar.
-      @include generate-specific-class(#{$alias}-#{$value}, $property, $value);
+      @include generate-specific-class($class-prefix, $property, $value);
     }
   }
 }

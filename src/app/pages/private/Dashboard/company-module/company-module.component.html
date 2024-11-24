@@ -1,16 +1,167 @@
-<div
-  class="background-dash w-full flex flex-column align-items-start justify-content-start"
->
-  <div class="w-full mt-4 mb-4">
+<div class="container-module-company">
+  <app-navbar
+    description="En este modulo podrás gestionar las compañias"
+    (eventClickButton)="openModalCreateCompany()"
+    title="Gestión de compañias"
+    [(nameFilter)]="nameFilter"
+    module="company"
+  ></app-navbar>
+  <div class="secondary-card">
     <app-table
-      [nameTable]="nameTable"
-      [itemsTable]="itemsTable"
-      [labelBtn]="labelBtn"
-      [descriptionModal]="descriptionModal"
-      [titleModal]="titleModal"
-      [listFields]="listFields"
-      (saveData)="createCompany($event.form)"
-      [(modalVisible)]="modalVisible"
-    ></app-table>
+      gridHeaderColumns="10rem minmax(10rem, 1fr) 10rem 10rem 10rem 10rem 10rem"
+      [selectedItem]="['id_company', idCompanySelected]"
+      (eventRowClick)="setUpdateCompany($event)"
+      [loadingTable]="listStatus.loadingTable"
+      [totalItems]="companies.length"
+      [nameFilter]="nameFilter"
+      [list]="companies"
+      [withPager]="true"
+    >
+      <ng-container tableHeader>
+        <p class="font-subtitle-large">Nit</p>
+        <p class="font-subtitle-large">Nombre</p>
+        <p class="font-subtitle-large">Tipo</p>
+        <p class="font-subtitle-large">País</p>
+        <p class="font-subtitle-large">Ciudad</p>
+        <p class="font-subtitle-large">Dirección</p>
+        <p class="font-subtitle-large">Teléfono</p>
+      </ng-container>
+      <ng-template let-item>
+        <p class="font-body-medium">{{ item?.nit }}</p>
+        <p
+          class="font-body-medium white-space-nowrap text-overflow-ellipsis overflow-hidden"
+          [appTooltip]="validateLimitText(nameCompany) ? item?.name : ''"
+          #nameCompany
+        >
+          {{ item?.name }}
+        </p>
+        <p class="font-body-medium">
+          {{ item?.type }}
+        </p>
+        <p class="font-body-medium">{{ item?.country }}</p>
+        <p class="font-body-medium">{{ item?.city }}</p>
+        <p
+          class="font-body-medium white-space-nowrap text-overflow-ellipsis overflow-hidden"
+          [appTooltip]="validateLimitText(addressCompany) ? item?.address : ''"
+          #addressCompany
+        >
+          {{ item?.address }}
+        </p>
+        <p class="font-body-medium">{{ item?.phone }}</p>
+      </ng-template>
+    </app-table>
   </div>
 </div>
+
+@if(listStatus.showModal){
+<app-modal
+  [title]="idCompanySelected ? 'Actualizar compañía' : 'Crear compañía'"
+  [primaryButton]="{ hidden: listStatus.disabledAcceptButton }"
+  (eventButtonClick)="$event ? createCompany() : closeModal()"
+  [loadingButtons]="listStatus.savingCompany"
+  size="sm"
+>
+  <form [formGroup]="companyForm">
+    <div class="row">
+      <!-- Name -->
+      <div class="col-auto mb-150-rem">
+        <app-input
+          placeholder="Escribir nombre"
+          [defaultLabelError]="true"
+          formControlName="name"
+          id="name"
+        >
+          <label for="name" labelInput>
+            Nombre <span class="cl-danger-background-status">*</span>
+          </label>
+        </app-input>
+      </div>
+    </div>
+    <div class="row">
+      <!-- Nit -->
+      <div class="col-auto mb-150-rem">
+        <app-input
+          placeholder="Escribir nit"
+          [defaultLabelError]="true"
+          formControlName="nit"
+          id="nit"
+        >
+          <label for="nit" labelInput>
+            Nit <span class="cl-danger-background-status">*</span>
+          </label>
+        </app-input>
+      </div>
+      <!-- Type -->
+      <div class="col-auto mb-150-rem">
+        <app-input
+          placeholder="Escribir tipo"
+          [defaultLabelError]="true"
+          formControlName="type"
+          id="type"
+        >
+          <label for="type" labelInput>
+            Tipo <span class="cl-danger-background-status">*</span>
+          </label>
+        </app-input>
+      </div>
+    </div>
+    <div class="row">
+      <!-- Country -->
+      <div class="col-auto mb-150-rem">
+        <app-input
+          placeholder="Escribir país"
+          [defaultLabelError]="true"
+          formControlName="country"
+          id="country"
+        >
+          <label for="country" labelInput>
+            País <span class="cl-danger-background-status">*</span>
+          </label>
+        </app-input>
+      </div>
+      <!-- City -->
+      <div class="col-auto mb-150-rem">
+        <app-input
+          placeholder="Escribir ciudad"
+          [defaultLabelError]="true"
+          formControlName="city"
+          id="city"
+        >
+          <label for="city" labelInput>
+            Ciudad <span class="cl-danger-background-status">*</span>
+          </label>
+        </app-input>
+      </div>
+    </div>
+    <div class="row">
+      <!-- Address -->
+      <div class="col-auto mb-150-rem">
+        <app-input
+          placeholder="Escribir dirección"
+          [defaultLabelError]="true"
+          formControlName="address"
+          id="address"
+        >
+          <label for="address" labelInput>
+            Dirección <span class="cl-danger-background-status">*</span>
+          </label>
+        </app-input>
+      </div>
+      <!-- Phone -->
+      <div class="col-auto">
+        <app-input
+          placeholder="Escribir teléfono"
+          [defaultLabelError]="true"
+          formControlName="phone"
+          type="number"
+          id="phone"
+        >
+          <label for="phone" labelInput>
+            Teléfono <span class="cl-danger-background-status">*</span>
+          </label>
+        </app-input>
+      </div>
+    </div>
+  </form>
+</app-modal>
+}

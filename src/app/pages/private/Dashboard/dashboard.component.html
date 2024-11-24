@@ -1,5 +1,4 @@
-<app-sidebar></app-sidebar>
-<div class="content-page">
-  <app-list-cards></app-list-cards>
+<app-sidebar [(isSidebarOpened)]="isSidebarOpened"></app-sidebar>
+<div class="content-page" [ngClass]="{ 'sidebar-opened': isSidebarOpened }">
   <router-outlet></router-outlet>
 </div>

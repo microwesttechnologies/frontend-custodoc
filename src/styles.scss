@@ -1,17 +1,33 @@
-@import "primeng/resources/themes/lara-light-blue/theme.css";
-@import "primeng/resources/primeng.min.css";
-@import "primeflex/primeflex.css";
-@import "primeicons/primeicons.css";
+// @import url("https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap");
+@import "material-symbols/outlined.css";
+
+@import "styles/core/variables";
+@import "styles/core/functions";
+@import "styles/core/utilities";
+@import "styles/core/mixins";
 
 @import "styles/core/typography";
-@import "styles/core/utilities";
-@import "styles/core/variables";
+@import "styles/core/theme";
+@import "styles/core/grid";
 
-@import url("https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap");
+@import "styles/components/notifications";
+@import "styles/components/autocomplete";
+@import "styles/components/container";
+@import "styles/components/skeleton";
+@import "styles/components/tooltip";
+@import "styles/components/overlay";
+@import "styles/components/button";
+@import "styles/components/select";
+@import "styles/components/table";
+@import "styles/components/modal";
+@import "styles/components/form";
+@import "styles/components/list";
+@import "styles/components/card";
 
 * {
   box-sizing: border-box;
   outline: none;
+  margin: 0;
   &::after,
   &::before {
     box-sizing: inherit;
@@ -20,8 +36,8 @@
 
 body,
 html {
+  background: get-theme-value(theme, primary, background);
   font-family: $font-family-base;
-  background: #fafbfc;
   min-height: 100vh;
   overflow: hidden;
   height: 100vh;
@@ -29,77 +45,60 @@ html {
   margin: 0;
 }
 
-.lato-thin {
-  font-family: $font-family-base;
-  font-weight: 100;
-  font-style: normal;
+/* Personalizar el scroll para todos los elementos con scroll */
+::-webkit-scrollbar {
+  width: 0.625rem; /* Ancho del scroll vertical */
+  height: 0.625rem; /* Altura del scroll horizontal */
 }
 
-.lato-light {
-  font-family: $font-family-base;
-  font-weight: 300;
-  font-style: normal;
+::-webkit-scrollbar-thumb {
+  background: #c2c2c2; /* Color del scroll */
+  border-radius: 0.3125rem;
 }
 
-.lato-regular {
-  font-family: $font-family-base;
-  font-weight: 400;
-  font-style: normal;
+::-webkit-scrollbar-thumb:hover {
+  background: #c2c2c2; /* Hover del scroll */
 }
 
-.lato-bold {
-  font-family: $font-family-base;
-  font-weight: 700;
-  font-style: normal;
+::-webkit-scrollbar-track {
+  background: #0000000a; /* Fondo del track */
+  border-radius: 0.3125rem;
 }
 
-.lato-black {
-  font-family: $font-family-base;
-  font-weight: 900;
-  font-style: normal;
+.center-all {
+  justify-content: center;
+  align-items: center;
+  display: flex;
 }
 
-.lato-thin-italic {
-  font-family: $font-family-base;
-  font-weight: 100;
-  font-style: italic;
+i {
+  color: get-theme-value(theme, primary, color);
 }
 
-.lato-light-italic {
-  font-family: $font-family-base;
-  font-weight: 300;
-  font-style: italic;
+.rotate-icon {
+  transition: transform 0.3s ease-in-out;
+  &-activate {
+    transform: rotate(180deg);
+  }
 }
 
-.lato-regular-italic {
-  font-family: $font-family-base;
-  font-weight: 400;
-  font-style: italic;
+.loading-icon {
+  animation: spin 1s linear infinite;
 }
 
-.lato-bold-italic {
-  font-family: $font-family-base;
-  font-weight: 700;
-  font-style: italic;
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-.lato-black-italic {
-  font-family: $font-family-base;
-  font-weight: 900;
-  font-style: italic;
-}
+@include generate-properties-classes();
+@include generate-hidden-classes();
 
-.full-width {
-  width: 100%;
-}
+@include generate-theme-classes("bg", "background");
+@include generate-theme-classes("cl", "color");
 
-.full-width input {
-  width: 100%;
-}
-
-:root {
-  --primary-color: #004358;
-  --primary-color-text: #ffffff;
-  --primary-background: #ececec;
-  --button-bg-color: var(--primary-color);
-}
+@include generate-typography-classes();

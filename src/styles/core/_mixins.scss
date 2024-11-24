@@ -1,0 +1,108 @@
+// Importamos 'sass:math' para manejar divisiones matemáticas de forma moderna
+@use "sass:math";
+
+$measures: (
+  vmn: 0.1vmin,
+  vmx: 0.1vmax,
+  rem: 0.01rem,
+  em: 0.01em,
+  vh: 0.1vh,
+  vw: 0.1vw,
+  px: 1px,
+  pg: 1%,
+);
+
+
+// Mixin para aplicar estilos en un breakpoint mínimo
+// Ejemplo de uso: @include respond-to('md') { ... }
+@mixin respond-to($breakpoint) {
+  @media (min-width: map-get($breakpoints, $breakpoint)) {
+    @content;
+  }
+}
+
+// Mixin para generar clases que oculten elementos según un rango de tamaños de pantalla
+@mixin generate-hidden-classes() {
+  $breakpoint-list: map-keys(
+    $breakpoints
+  ); // Lista de los nombres de los breakpoints
+
+  @for $i from 1 through length($breakpoint-list) {
+    $current: nth($breakpoint-list, $i); // Breakpoint actual
+    $min-width: map-get(
+      $breakpoints,
+      $current
+    ); // Ancho mínimo del breakpoint actual
+
+    @if $i < length($breakpoint-list) {
+      $next: nth($breakpoint-list, $i + 1); // Siguiente breakpoint
+      $max-width: map-get(
+        $breakpoints,
+        $next
+      ); // Ancho máximo del siguiente breakpoint
+
+      // Genera una clase .hidden-{breakpoint} que oculta elementos en el rango definido
+      .hidden-#{$current} {
+        @media (width >= #{$min-width}) and (width < #{$max-width}) {
+          display: none !important;
+        }
+      }
+    } @else {
+      // Para el último breakpoint, solo aplica min-width
+      .hidden-#{$current} {
+        @media (width >= #{$min-width}) {
+          display: none !important;
+        }
+      }
+    }
+  }
+}
+
+@function get-measure($size: 1, $measure: px) {
+  $msv: map-get($measures, $measure);
+  @return if($msv, $msv * $size, $size * 1px);
+}
+
+@mixin generate-styles(
+  // Nombre base del selector (e.g., padding, margin)
+  $selector,
+  // Propiedad CSS (e.g., padding, margin)
+  $property: $selector,
+  // Unidad de medida (e.g., px, rem)
+  $measure: px,
+  // Valor inicial del rango
+  $from: 1,
+  $to: 20 // Valor final del rango
+) {
+  @for $value from $from to ($to + 1) {
+    .#{$selector}-#{$value}-#{$measure} {
+      #{$property}: get-measure($value, $measure);
+      &-important {
+        #{$property}: get-measure($value, $measure) !important;
+      }
+    }
+  }
+}
+
+@mixin extend-styles(
+  $selector,
+  // Selector base
+  $measure: px,
+  // Unidad de medida
+  $from: 1,
+  // Valor inicial del rango
+  $to: 20,
+  // Valor final del rango
+  $classes... // Clases a extender
+) {
+  @for $value from $from to ($to + 1) {
+    .#{$selector}-#{$value}-#{$measure} {
+      @each $val in $classes {
+        @extend .#{$val + "-" + $value + "-" + $measure};
+        &-important {
+          @extend .#{$val + "-" + $value + "-" + $measure}-important;
+        }
+      }
+    }
+  }
+}

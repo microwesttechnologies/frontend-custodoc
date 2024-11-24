@@ -1,0 +1,7 @@
+@import "src/styles/core/_mixins.scss";
+
+@include generate-styles("mt", "margin-top", rem, 50, 50);
+
+@include generate-styles("mr", "margin-right", rem, 50, 50);
+
+// @include generate-theme-classes("brcl", "border-color");
