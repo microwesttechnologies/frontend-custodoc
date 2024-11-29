@@ -18,29 +18,30 @@
       class="content-modal-footer display-flex align-items-center justify-content-flex-end"
     >
       @if(!secondaryButton?.hidden){
-        <button
-        class="primary-button button-md bg-transparent w-1000-rem"
-        (click)="eventButtonClick.emit(false)"
+      <app-button
         [appDisabledElement]="secondaryButton?.disabled || loadingButtons"
+        classes="primary-button button-md bg-transparent"
+        (eventButtonClick)="eventButtonClick.emit(false)"
+        [loading]="loadingButtons"
+        [styles]="{
+          width: '12rem'
+        }"
       >
-        @if(loadingButtons){
-        <i class="material-symbols-outlined loading-icon">progress_activity</i>
-        }@else { {{ secondaryButton?.text || "Cancelar" }} }
-      </button>
-      }
-      @if(!primaryButton?.hidden){
-      <button
+        {{ secondaryButton?.text || "Cancelar" }}
+      </app-button>
+
+      } @if(!primaryButton?.hidden){
+      <app-button
         [appDisabledElement]="primaryButton?.disabled || loadingButtons"
-        class="primary-button button-md w-1000-rem ml-100-rem"
-        (click)="eventButtonClick.emit(true)"
+        classes="primary-button button-md w-1200-rem ml-100-rem"
+        (eventButtonClick)="eventButtonClick.emit(true)"
+        [loading]="loadingButtons"
+        [styles]="{
+          width: '12rem'
+        }"
       >
-        @if(loadingButtons){
-        <i
-          class="material-symbols-outlined loading-icon cl-secondary-background-theme-important"
-          >progress_activity</i
-        >
-        }@else { {{ primaryButton?.text || "Aceptar" }} }
-      </button>
+        {{ primaryButton?.text || "Crear" }}
+      </app-button>
       }
     </div>
   </div>

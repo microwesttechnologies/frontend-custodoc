@@ -34,10 +34,9 @@
     </p>
 
     <i
-      class="material-symbols-outlined rotate-icon"
-      [ngClass]="{ 'rotate-icon-activate': listStatus.showOptions }"
+      [ngClass]="{ 'fa-rotate-180': listStatus.showOptions }"
+      class="fa-solid fa-chevron-down rotate-icon"
     >
-      keyboard_arrow_down
     </i>
   </div>
   <ng-container *ngIf="invalid && touched">

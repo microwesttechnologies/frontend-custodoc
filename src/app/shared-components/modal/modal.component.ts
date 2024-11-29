@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { SharedModule } from '../shared.module';
 import { slideCustomAnimation } from 'src/app/animations/global.animations';
 import { DisabledElementDirective } from 'src/app/directives/disabled-element.directive';
+import { ButtonComponent } from '../form/button/button.component';
 
 interface ButtonsFooter {
   disabled?: boolean;
@@ -12,7 +13,7 @@ interface ButtonsFooter {
 @Component({
   selector: 'app-modal',
   standalone: true,
-  imports: [SharedModule, DisabledElementDirective],
+  imports: [SharedModule, DisabledElementDirective, ButtonComponent],
   templateUrl: './modal.component.html',
   styleUrl: './modal.component.scss',
   animations: [

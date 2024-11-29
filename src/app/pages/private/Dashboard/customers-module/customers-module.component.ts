@@ -27,11 +27,15 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { InputComponent } from 'src/app/shared-components/form/input/input.component';
 import { SelectComponent } from 'src/app/shared-components/form/select/select.component';
 import { AutoCompleteComponent } from 'src/app/shared-components/form/autocomplete/autocomplete.component';
+import { DocumentService } from 'src/app/services/external/document.service';
+import { Document } from 'src/app/models/documents.model';
+import { DisabledElementDirective } from 'src/app/directives/disabled-element.directive';
 
 @Component({
   selector: 'app-customers-module',
   standalone: true,
   imports: [
+    DisabledElementDirective,
     AutoCompleteComponent,
     TooltipDirective,
     SelectComponent,
@@ -45,6 +49,7 @@ import { AutoCompleteComponent } from 'src/app/shared-components/form/autocomple
   styleUrl: './customers-module.component.scss',
 })
 export class CustomersModuleComponent {
+  public documentsByCustomer: Document[] = [];
   public typesDocument: TypesDocument[] = [];
   public customers: Customer[] = [];
   public companies: Company[] = [];
@@ -57,7 +62,7 @@ export class CustomersModuleComponent {
   public nameFilter = '';
 
   public listStatus = {
-    disabledAcceptButton: false,
+    loadingTableDocumentsByCustomer: true,
     savingCustomer: false,
     loadingTable: true,
     showModal: false,
@@ -69,6 +74,7 @@ export class CustomersModuleComponent {
   private readonly typesDocumentService = inject(TypesDocumentService);
   private readonly notificationService = inject(NotificationService);
   private readonly customerService = inject(CustomerService);
+  private readonly documentService = inject(DocumentService);
   private readonly companyService = inject(CompanyService);
   private readonly globalService = inject(GlobalService);
   private readonly formBuilder = inject(FormBuilder);
@@ -150,25 +156,49 @@ export class CustomersModuleComponent {
     });
   }
 
+  private getAllDocumentsByCustomer(id_customer: string): void {
+    this.listStatus.loadingTableDocumentsByCustomer = true;
+    this.documentsByCustomer = [];
+    this.documentService.getAllDocumentsByCustomer(id_customer).subscribe({
+      next: (documents) => {
+        this.listStatus.loadingTableDocumentsByCustomer = false;
+        this.documentsByCustomer = documents;
+      },
+      error: (error: HttpErrorResponse) => {
+        this.listStatus.loadingTableDocumentsByCustomer = false;
+        this.notificationService.showNotification(
+          'Lo sentimos, ha ocurrido un error al consultar los documentos del cliente',
+          'danger',
+          10000
+        );
+      },
+    });
+  }
+
   public openModalCreateCustomer() {
-    this.listStatus.disabledAcceptButton = false;
     this.listStatus.showModal = true;
     this.customerForm.reset();
   }
 
-  public createCustomer() {
+  public createOrUpdateCustomer() {
     this.customerForm.markAllAsTouched();
     if (this.customerForm.valid) {
       const customer = { ...this.customerForm.value } as Customer;
 
       this.listStatus.savingCustomer = true;
 
-      this.customerService.createCustomer(customer).subscribe({
+      const endpointToExecute = this.idCustomerSelected
+        ? this.customerService.updateCustomer(customer)
+        : this.customerService.createCustomer(customer);
+
+      endpointToExecute.subscribe({
         next: (response) => {
           if (response.status) {
             this.getAllCustomers();
             this.notificationService.showNotification(
-              'Cliente agregado exitosamente',
+              `Cliente ${
+                this.idCustomerSelected ? 'actualizado' : 'agregado'
+              } exitosamente`,
               'success'
             );
             this.listStatus.showModal = false;
@@ -185,7 +215,9 @@ export class CustomersModuleComponent {
         error: (error) => {
           this.listStatus.savingCustomer = false;
           this.notificationService.showNotification(
-            'Lo sentimos, no se pudo crear el cliente',
+            `Lo sentimos, no se pudo ${
+              this.idCustomerSelected ? 'actualizar' : 'agregar'
+            } el cliente`,
             'danger'
           );
         },
@@ -194,8 +226,9 @@ export class CustomersModuleComponent {
   }
 
   public closeModal(): void {
-    this.listStatus.showModal = false;
     this.idCustomerSelected = undefined;
+    this.listStatus.showModal = false;
+    this.documentsByCustomer = [];
   }
 
   public setUpdateCustomer(customer: Customer) {
@@ -210,12 +243,8 @@ export class CustomersModuleComponent {
 
       this.customerForm.markAllAsTouched();
       this.listStatus.showModal = true;
-      this.listStatus.disabledAcceptButton = true;
-      this.notificationService.showNotification(
-        'Metodo de actualización en desarrollo',
-        'success',
-        100000
-      );
+
+      this.getAllDocumentsByCustomer(customer.identification!);
     }
   }
 }

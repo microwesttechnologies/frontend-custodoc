@@ -31,9 +31,16 @@
         </app-input>
       </div>
 
-      <button type="button" class="primary-button mb-100-rem" (click)="login()">
+      <app-button
+        [loading]="listStatus.loadingLogin"
+        classes="primary-button mb-100-rem"
+        (eventButtonClick)="login()"
+        [styles]="{
+          'margin-bottom': '1rem'
+        }"
+      >
         Iniciar sesión
-      </button>
+      </app-button>
 
       @if(messageError){
       <p

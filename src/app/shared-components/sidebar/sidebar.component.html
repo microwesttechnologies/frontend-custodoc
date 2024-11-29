@@ -1,18 +1,17 @@
 <div class="primary-sidebar" [ngClass]="{ 'sidebar-opened': isSidebarOpened }">
   <button
     [appTooltip]="isSidebarOpened ? 'Cerrar' : 'Abrir'"
+    class="sidebar-action center-all"
     (click)="openAndCloseSidebar()"
-    class="sidebar-action"
     [configTooltip]="{
       position: 'right'
     }"
     type="button"
   >
     <i
-      [ngClass]="{ 'rotate-icon-activate': isSidebarOpened }"
-      class="material-symbols-outlined rotate-icon"
-      >chevron_right</i
-    >
+      [ngClass]="{ 'fa-rotate-180': isSidebarOpened }"
+      class="fa-solid fa-angle-right fa-lg"
+    ></i>
   </button>
   <div class="sidebar-content">
     <div class="sidebar-header center-all">
@@ -40,7 +39,7 @@
             position: 'right'
           }"
         >
-          <i class="material-symbols-outlined">{{ item.icon }}</i>
+          <i class="fa-solid fa-lg" [ngClass]="item.icon"></i>
           @if(isSidebarOpened){
           <p class="font-body-large" @slideEnterAndLeaveLeft>
             {{ item.label }}
@@ -62,7 +61,7 @@
         role="button"
         tabindex="0"
       >
-        <i class="material-symbols-outlined">account_circle</i>
+        <i class="fa-solid fa-circle-user fa-lg"></i>
         @if(isSidebarOpened){
         <p
           class="font-subtitle-xlarge white-space-nowrap text-overflow-ellipsis overflow-hidden"
@@ -86,7 +85,7 @@
         role="button"
         tabindex="0"
       >
-        <i class="material-symbols-outlined">logout</i>
+        <i class="fa-solid fa-arrow-right-from-bracket fa-lg"></i>
         @if(isSidebarOpened){
         <p class="font-subtitle-xlarge" @slideEnterAndLeaveLeft>
           Cerrar sesión

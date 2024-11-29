@@ -10,7 +10,7 @@
   ></app-navbar>
   <div class="secondary-card">
     <app-table
-      gridHeaderColumns="5rem minmax(10rem, 1fr) 10rem minmax(10rem, 1fr) minmax(10rem, 1fr) 5rem"
+      gridHeaderColumns="minmax(10rem, 1fr) minmax(10rem, 1fr) 10rem minmax(10rem, 1fr) 5rem"
       [loadingTable]="listStatus.loadingTable"
       [totalItems]="documents.length"
       [nameFilter]="nameFilter"
@@ -18,14 +18,21 @@
       [withPager]="true"
     >
       <ng-container tableHeader>
-        <p class="font-subtitle-large">Id</p>
-        <p class="font-subtitle-large">Nombre</p>
-        <p class="font-subtitle-large">Identificación cliente</p>
         <p class="font-subtitle-large">Nombre del cliente</p>
+        <p class="font-subtitle-large">Tipo documento</p>
+        <p class="font-subtitle-large">Identificación cliente</p>
         <p class="font-subtitle-large">Descripción</p>
       </ng-container>
       <ng-template let-item>
-        <p class="font-body-medium">{{ item?.id_history }}</p>
+        <p
+          class="font-body-medium white-space-nowrap text-overflow-ellipsis overflow-hidden"
+          [appTooltip]="
+            validateLimitText(nameCustomer) ? item?.name_customer : ''
+          "
+          #nameCustomer
+        >
+          {{ item?.name_customer }}
+        </p>
         <p
           class="font-body-medium white-space-nowrap text-overflow-ellipsis overflow-hidden"
           [appTooltip]="validateLimitText(nameDocument) ? item?.name : ''"
@@ -35,15 +42,6 @@
         </p>
         <p class="font-body-medium">
           {{ item?.identification }}
-        </p>
-        <p
-          class="font-body-medium white-space-nowrap text-overflow-ellipsis overflow-hidden"
-          [appTooltip]="
-            validateLimitText(nameCustomer) ? item?.name_customer : ''
-          "
-          #nameCustomer
-        >
-          {{ item?.name_customer }}
         </p>
         <p
           class="font-body-medium white-space-nowrap text-overflow-ellipsis overflow-hidden"
@@ -62,9 +60,8 @@
             appTooltip="Ver archivo"
           >
             <i
-              class="material-symbols-outlined cl-secondary-background-theme-important"
+              class="fa-solid fa-file-pdf fa-lg cl-secondary-background-theme-important"
             >
-              visibility
             </i>
           </button>
         </div>
@@ -95,7 +92,7 @@
           id="name"
         >
           <label for="name" labelInput>
-            Nombre <span class="cl-danger-background-status">*</span>
+            Tipo documento <span class="cl-danger-background-status">*</span>
           </label>
         </app-input>
       </div>
@@ -109,7 +106,7 @@
             assignOnlyFieldId: true,
             defaultLabelError: true,
             id: 'identification',
-            fieldText: 'name'
+            fieldText: ['identification', 'name']
           }"
           [options]="customers"
         >
@@ -183,7 +180,8 @@
 </app-modal>
 }@if(listStatus.showModalBulkload){
 <app-modal-bulkload
-  [(showModalBulkload)]="listStatus.showModalBulkload"
+  (showModalBulkloadChange)="modalBulkloadChange($event)"
+  [showModalBulkload]="listStatus.showModalBulkload"
   [customers]="customers"
 ></app-modal-bulkload>
 }

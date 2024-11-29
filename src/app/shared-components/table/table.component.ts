@@ -18,12 +18,31 @@ import {
 
 import { SharedModule } from '../shared.module';
 import { DisabledElementDirective } from 'src/app/directives/disabled-element.directive';
+import {
+  fadeInCustomAnimation,
+  slideCustomAnimation,
+} from 'src/app/animations/global.animations';
 
 @Component({
   selector: 'app-table',
   templateUrl: './table.component.html',
   imports: [ItemSkeletonComponent, SharedModule, DisabledElementDirective],
   standalone: true,
+  animations: [
+    slideCustomAnimation(
+      'slideEnterRight',
+      'X',
+      '1rem',
+      '0',
+      {
+        enter: '300ms',
+      },
+      {
+        enter: true,
+      }
+    ),
+    fadeInCustomAnimation('fadeIn', '300ms'),
+  ],
 })
 export class TableComponent implements OnChanges {
   @Input() itemsPerPage = 25;
@@ -40,6 +59,7 @@ export class TableComponent implements OnChanges {
   @Input() totalItems!: number;
   @Input() withPager!: boolean;
   @Input() list: any[] = [];
+  @Input() height = '100%';
 
   @Output() currentPageChange = new EventEmitter<number>();
   @Output() eventRowClick = new EventEmitter<any>();

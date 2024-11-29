@@ -29,14 +29,14 @@ export class NotificationService {
       | 'bottom-right'
       | 'bottom-left' = 'top-center'
   ): void {
-    // Destruir la instancia anterior si existe
-    if (this.notificationComponentRef) {
-      this.notificationComponentRef.destroy();
-    }
-
     // Eliminar la instancia del setTimeout
     if (this.setTimeoutNotification) {
       clearTimeout(this.setTimeoutNotification);
+    }
+
+    // Destruir la instancia anterior si existe
+    if (this.notificationComponentRef) {
+      this.notificationComponentRef.destroy();
     }
 
     const componentFactory =

@@ -55,9 +55,9 @@
 
 @if(listStatus.showModal){
 <app-modal
+  [primaryButton]="{ text: idCompanySelected ? 'Guardar cambios' : 'Crear' }"
   [title]="idCompanySelected ? 'Actualizar compañía' : 'Crear compañía'"
-  [primaryButton]="{ hidden: listStatus.disabledAcceptButton }"
-  (eventButtonClick)="$event ? createCompany() : closeModal()"
+  (eventButtonClick)="$event ? createOrUpdateCompany() : closeModal()"
   [loadingButtons]="listStatus.savingCompany"
   size="sm"
 >
@@ -81,6 +81,7 @@
       <!-- Nit -->
       <div class="col-auto mb-150-rem">
         <app-input
+          [appDisabledElement]="!!idCompanySelected"
           placeholder="Escribir nit"
           [defaultLabelError]="true"
           formControlName="nit"

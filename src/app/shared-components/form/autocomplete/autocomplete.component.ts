@@ -28,7 +28,7 @@ interface ConfigAutoComplete {
   // separateByGroups?: boolean; // Separar la lista en grupos cuando solo hay una lista
   placeholder?: string; // Placeholder del input
   fieldGroup?: string; // Propiedad para separar los grupos
-  fieldText: string; // Propiedad para el texto
+  fieldText: string | string[]; // Propiedad para el texto
   fieldImg?: string; // Proipiedad para la imagen
   fieldId: string; // Propiedad del identificador
   width?: string;
@@ -51,7 +51,7 @@ interface ConfigAutoComplete {
       multi: true,
     },
   ],
-  // changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 // Es necesario actualizar el componente para que reciba proyecciones
 export class AutoCompleteComponent
@@ -74,7 +74,7 @@ export class AutoCompleteComponent
   public currentOption!: any;
 
   public listStatus = {
-    showOverlay: false,
+    openOverlay: false,
   };
 
   public sizeClass = {
@@ -164,7 +164,15 @@ export class AutoCompleteComponent
   }
 
   public getDisplayValue(option: any): string {
-    return option?.[this.configAutoComplete?.fieldText] || '';
+    const fields = Array.isArray(this.configAutoComplete?.fieldText)
+      ? this.configAutoComplete.fieldText
+      : [this.configAutoComplete?.fieldText];
+
+    const displayValue = fields
+      .map((field) => option?.[field] || '')
+      .join(' - ');
+
+    return displayValue === ' - ' ? '' : displayValue;
   }
 
   public getIdValue(option: any): any {
@@ -205,22 +213,35 @@ export class AutoCompleteComponent
             .map((group) => ({
               group: group.group,
               options: group.options.filter((option: any) =>
-                this.getDisplayValue(option).toLowerCase().includes(query)
+                this.doesOptionMatchQuery(option, query)
               ),
             }))
             .filter((group) => group.options.length > 0);
         } else {
           this.filteredOptions = this.options.filter((option) =>
-            this.getDisplayValue(option).toLowerCase().includes(query)
+            this.doesOptionMatchQuery(option, query)
           );
         }
 
         const optionMatch = this.findExactOptionMatch(query);
         this.handleSelection(optionMatch);
-        this.listStatus.showOverlay = true;
+        this.listStatus.openOverlay = true;
         this.cdRef.detectChanges();
       }, 150);
     }
+  }
+
+  /**
+   * Verifica si una opción coincide con el query, buscando en una o varias propiedades.
+   */
+  private doesOptionMatchQuery(option: any, query: string): boolean {
+    const fields = Array.isArray(this.configAutoComplete.fieldText)
+      ? this.configAutoComplete.fieldText
+      : [this.configAutoComplete.fieldText];
+
+    return fields.some((field) =>
+      (option[field] || '').toString().toLowerCase().includes(query)
+    );
   }
 
   private findExactOptionMatch(query: string): any {
@@ -286,7 +307,6 @@ export class AutoCompleteComponent
   }
 
   public statusOverlayChange(showOverlay: boolean): void {
-    this.listStatus.showOverlay = showOverlay;
     if (!showOverlay) {
       if (!this.touched) this.onTouched();
       this.setupFilteredOptions();
@@ -302,8 +322,8 @@ export class AutoCompleteComponent
 
     setTimeout(() => {
       if (event.key === 'Tab') {
-        this.listStatus.showOverlay = action === 'up';
-        if (this.listStatus.showOverlay) {
+        this.listStatus.openOverlay = action === 'up';
+        if (this.listStatus.openOverlay) {
           const inputElement = event.target as HTMLInputElement;
           inputElement.setSelectionRange(
             this.inputValue.length,
@@ -311,7 +331,7 @@ export class AutoCompleteComponent
           );
         }
       } else if (event.key === 'Escape') {
-        this.listStatus.showOverlay = false;
+        this.listStatus.openOverlay = false;
       }
       this.cdRef.detectChanges();
     }, 150);

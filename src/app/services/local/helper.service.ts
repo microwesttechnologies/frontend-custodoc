@@ -77,11 +77,9 @@ export const arrayFilter = <T extends Array<any> | object>(
   );
 };
 
-export function passwordMatchValidator(
-  password: string,
-  confirmPassword: string
-): ValidatorFn {
-  return (formGroup: AbstractControl): ValidationErrors | null => {
+export const passwordMatchValidator =
+  (password: string, confirmPassword: string): ValidatorFn =>
+  (formGroup: AbstractControl): ValidationErrors | null => {
     const passwordControl = formGroup.get(password);
     const confirmPasswordControl = formGroup.get(confirmPassword);
 
@@ -105,4 +103,15 @@ export function passwordMatchValidator(
       return null;
     }
   };
-}
+
+// Función para convertir archivos a Base64
+export const fileToBase64 = (
+  file: File
+): Promise<string | ArrayBuffer | null> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = (error) => reject(error);
+    reader.readAsDataURL(file);
+  });
+};

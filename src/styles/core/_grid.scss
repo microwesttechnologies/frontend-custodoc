@@ -1,4 +1,4 @@
-@use 'sass:math';
+@use "sass:math";
 
 // Clase para las filas del grid
 .row {
@@ -8,26 +8,30 @@
   margin-left: -#{math.div($gutter-width, 2)}; // Ajusta los gutters a la izquierda
 }
 
-// Clase base para las columnas
 .col {
   padding-right: math.div($gutter-width, 2); // Espaciado a la derecha
   padding-left: math.div($gutter-width, 2); // Espaciado a la izquierda
 }
 
-// Genera clases para columnas con proporciones específicas
-@for $i from 1 through $total-columns {
-  // Clase base .col-{n}, donde {n} es el número de columnas
-  .col-#{$i} {
-    flex: 0 0 calc(100% / #{$total-columns} * #{$i}); // Calcula el ancho proporcional
-    max-width: calc(100% / #{$total-columns} * #{$i}); // Limita el ancho al valor calculado
-  }
+$breakpoint-list: map-keys(
+  $breakpoints
+); // Lista de los nombres de los breakpoints
 
-  // Genera clases responsivas para cada breakpoint
-  @each $breakpoint, $min-width in $breakpoints {
-    @include respond-to($breakpoint) {
-      .col-#{$breakpoint}-#{$i} {
-        flex: 0 0 calc(100% / #{$total-columns} * #{$i});
-        max-width: calc(100% / #{$total-columns} * #{$i});
+// Generar columnas por rango de breakpoints
+@for $i from 1 through length($breakpoint-list) {
+  $current: nth($breakpoint-list, $i); // Breakpoint actual
+  $min-width: map-get(
+    $breakpoints,
+    $current
+  ); // Ancho mínimo del breakpoint actual
+
+  // Generar clases de columnas
+  @for $col from 1 through $total-columns {
+    .col-#{$current}-#{$col} {
+      @media (width >= #{$min-width}) {
+        flex: 0 0 calc(100% / #{$total-columns} * #{$col});
+        max-width: calc(100% / #{$total-columns} * #{$col});
+        min-width: calc(100% / #{$total-columns} * #{$col});
       }
     }
   }

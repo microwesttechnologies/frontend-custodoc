@@ -5,9 +5,14 @@
     }} {{ theme }}"
     [@notificationSlide]="{ value: '', params: translateEnterAndLeave }"
   >
-    <i class="material-symbols-outlined cl-secondary-background-theme-important mr-50-rem">{{
-      theme === "notification-success" ? "check_circle" : "error"
-    }}</i>
+    <i
+      class="fa-solid fa-lg cl-secondary-background-theme-important mr-50-rem"
+      [ngClass]="
+        theme === 'notification-success'
+          ? 'fa-circle-check'
+          : 'fa-triangle-exclamation'
+      "
+    ></i>
     <p class="font-body-medium cl-secondary-background-theme-important">
       {{ message }}
     </p>

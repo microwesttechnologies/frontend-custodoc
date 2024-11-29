@@ -26,6 +26,14 @@ export class DocumentService {
     );
   }
 
+  bulkUploadDocuments(documents: FormData): Observable<GenericResponse> {
+    return this.http.post<GenericResponse>(
+      `${this.apiUrl}/bulkUploadDocuments`,
+      documents,
+      headerAuthorization()
+    );
+  }
+
   getFile(id_history: number): Observable<Blob> {
     return this.http.get(`${this.apiUrl}/getFile/${id_history}`, {
       headers: new HttpHeaders({
@@ -33,5 +41,12 @@ export class DocumentService {
       }),
       responseType: 'blob',
     });
+  }
+
+  getAllDocumentsByCustomer(id_customer: string): Observable<Document[]> {
+    return this.http.get<Document[]>(
+      `${this.apiUrl}/getAllDocumentsByCustomer/${id_customer}`,
+      headerAuthorization()
+    );
   }
 }

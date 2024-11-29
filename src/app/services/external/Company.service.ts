@@ -25,4 +25,12 @@ export class CompanyService {
       headerAuthorization()
     );
   }
+
+  updateCompany(company: Company): Observable<GenericResponse> {
+    return this.http.put<GenericResponse>(
+      this.apiUrl,
+      company,
+      headerAuthorization()
+    );
+  }
 }

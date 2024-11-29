@@ -1,10 +1,10 @@
-<!-- [primaryButton]="{ disabled: !!errorsMessage.length || !csvData.length }" -->
 <app-modal
-  (eventButtonClick)="
-    showModalBulkload = false; showModalBulkloadChange.emit(false)
-  "
+  [primaryButton]="{
+    disabled: !!errorsMessage.length || !csvData.length || !selectedFilesPdf,
+    text: 'Cargar documentos'
+  }"
+  (eventButtonClick)="bulkUploadDocuments($event)"
   [loadingButtons]="listStatus.uploadingFiles"
-  [primaryButton]="{ disabled: true }"
   title="Carga masiva de documentos"
 >
   <p class="font-body-large mb-100-rem">
@@ -17,9 +17,8 @@
     target="_blank"
   >
     <i
-      class="material-symbols-outlined mr-50-rem cl-secondary-background-theme-important"
-      >download</i
-    >
+      class="fa-solid fa-file-csv fa-lg mr-50-rem cl-secondary-background-theme-important"
+    ></i>
     Descargar formato
   </a>
 
@@ -77,20 +76,16 @@
       (click)="selectedIndexStep = selectedIndexStep === 0 ? 1 : 0"
     >
       <i
-        class="material-symbols-outlined cl-secondary-background-theme-important rotate-icon"
-        [ngClass]="{ 'rotate-icon-activate': selectedIndexStep === 1 }"
+        class="fa-solid fa-angle-right fa-lg cl-secondary-background-theme-important rotate-icon"
+        [ngClass]="{ 'fa-rotate-180': selectedIndexStep === 1 }"
       >
-        chevron_right
       </i>
     </button>
   </div>
 
   @if(!!csvData.length || !!errorsMessage.length){
 
-  <app-tabs-groups
-    (eventTabSelected)="changeSelectedTabIndex($event)"
-    [selectedTabIndex]="selectedIndexTabs"
-  >
+  <app-tabs-groups [selectedTabIndex]="selectedIndexTabs">
     <app-tab-item
       [disabled]="!csvData.length"
       [label]="'Registros (' + csvData.length + ')'"
@@ -109,7 +104,7 @@
                 }"
                 class="primary-table-header"
               >
-                <p class="font-subtitle-medium">#</p>
+                <p class="font-subtitle-large text-align-center"># Fila</p>
                 @for(label of headers; track indexHeader; let indexHeader =
                 $index){
                 <p class="font-subtitle-large">{{ label }}</p>
@@ -124,7 +119,9 @@
                   }"
                   class="primary-table-item"
                 >
-                  <p class="font-subtitle-large">{{ indexItem + 1 }}</p>
+                  <p class="font-subtitle-large text-align-center">
+                    {{ indexItem + 2 }}
+                  </p>
                   @for(label of headers; track indexHeader; let indexHeader =
                   $index){
                   <p

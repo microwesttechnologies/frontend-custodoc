@@ -17,7 +17,8 @@
   width: 100%;
 
   &:not(.button-md) {
-    padding: 0.75rem;
+    padding: 0.75rem 1rem;
+    height: 2.9375rem;
   }
 
   &:not(.bg-primary):not(.bg-transparent) {
@@ -38,8 +39,8 @@
   }
 
   &.button-md {
+    padding: 0.5rem 0.8rem;
     height: 2.625rem;
-    padding: 0.5rem;
   }
 
   &.bg-transparent {

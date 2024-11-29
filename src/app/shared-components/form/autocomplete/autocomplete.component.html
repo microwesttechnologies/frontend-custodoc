@@ -12,11 +12,11 @@
   <div
     class="container-input overflow-hidden display-flex align-items-center justify-content-space-between"
     [ngClass]="{
-      'bg-secondary-background-theme-important': listStatus.showOverlay
+      'bg-secondary-background-theme-important': listStatus.openOverlay
     }"
     (statusOverlayChange)="statusOverlayChange($event)"
-    [closeOverlay]="!listStatus.showOverlay"
-    [openOverlay]="listStatus.showOverlay"
+    [closeOverlay]="!listStatus.openOverlay"
+    [openOverlay]="listStatus.openOverlay"
     [appOverlay]="overlayAutoComplete"
     overlayPosition="bottom-center"
     [closeInsideOverlay]="true"
@@ -41,10 +41,9 @@
     />
 
     <i
-      class="material-symbols-outlined rotate-icon"
-      [ngClass]="{ 'rotate-icon-activate': listStatus.showOverlay }"
+      [ngClass]="{ 'fa-rotate-180': listStatus.openOverlay }"
+      class="fa-solid fa-chevron-down rotate-icon"
     >
-      keyboard_arrow_down
     </i>
   </div>
   @if(invalid || configAutoComplete?.showAsError){

@@ -215,4 +215,15 @@ export class HistoryModuleComponent {
       },
     });
   }
+
+  public modalBulkloadChange(action: 'close' | 'show' | 'refresh') {
+    this.listStatus.showModalBulkload = !['close', 'refresh'].includes(action);
+    if (action === 'refresh') {
+      this.notificationService.showNotification(
+        'Archivos cargados exitosamente',
+        'success'
+      );
+      this.getAllDocuments();
+    }
+  }
 }

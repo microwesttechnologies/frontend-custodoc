@@ -15,33 +15,38 @@ import { DisabledElementDirective } from 'src/app/directives/disabled-element.di
 import { validateLimitText } from 'src/app/services/local/helper.service';
 import { Customer } from 'src/app/models/customer.model';
 import { NotificationService } from 'src/app/shared-components/notification/notification.service';
+import { DocumentService } from 'src/app/services/external/document.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-modal-bulkload',
   standalone: true,
   imports: [
+    DisabledElementDirective,
+    TooltipDirective,
     ModalComponent,
     SharedModule,
     TabsModule,
-    TooltipDirective,
-    DisabledElementDirective,
   ],
   templateUrl: './modal-bulkload.component.html',
   styleUrl: './modal-bulkload.component.scss',
 })
 export class ModalBulkloadComponent {
+  @ViewChild('inputPdfs') inputPdfs!: ElementRef<HTMLInputElement>;
   @ViewChild('inputCsv') inputCsv!: ElementRef<HTMLInputElement>;
 
   @Input() customers: Customer[] = [];
   @Input() showModalBulkload = false;
 
-  @Output() showModalBulkloadChange = new EventEmitter<boolean>();
+  @Output() showModalBulkloadChange = new EventEmitter<
+    'close' | 'show' | 'refresh'
+  >();
 
   public selectedIndexTabs = 0;
   public selectedIndexStep = 0;
   public selectedFileCsv?: File;
   public csvData: any[] = []; // Array para almacenar los datos del CSV
-  public selectedFilesPdf?: FileList;
+  public selectedFilesPdf: File[] = [];
   public errorsMessage: string[] = []; // Mensaje de error en validaciones
   public headers: string[] = []; // Almacena las columnas del CSV
 
@@ -52,6 +57,7 @@ export class ModalBulkloadComponent {
   public validateLimitText = validateLimitText;
 
   private readonly notificationService = inject(NotificationService);
+  private readonly documentService = inject(DocumentService);
 
   /**
    * Procesar archivo CSV al cargarlo
@@ -60,8 +66,9 @@ export class ModalBulkloadComponent {
     this.selectedFileCsv = event.target.files?.[0];
     if (this.selectedFileCsv) {
       this.inputCsv.nativeElement.value = '';
-      this.selectedFilesPdf = undefined;
+      this.selectedFilesPdf = [];
       this.errorsMessage = [];
+
       const reader = new FileReader();
 
       reader.onload = () => {
@@ -181,6 +188,11 @@ export class ModalBulkloadComponent {
     this.selectedIndexTabs = this.errorsMessage.length
       ? 1
       : this.selectedIndexTabs;
+
+    this.selectedIndexStep = this.errorsMessage.length
+      ? this.selectedIndexStep
+      : 1;
+
     this.notificationService.showNotification(
       this.errorsMessage.length
         ? 'Hay errores en el archivo CSV, debes solucionarlos para poder continuar'
@@ -194,14 +206,16 @@ export class ModalBulkloadComponent {
    * Manejar archivos PDF asociados
    */
   public onPdfFileChange(event: any) {
-    this.selectedFilesPdf = event.target.files;
-
-    if (this.selectedFilesPdf?.length) {
+    this.selectedFilesPdf = [];
+    const files = event.target.files;
+    if (files) {
       const nameFiles: any[] = [];
 
-      for (let i = 0; i < this.selectedFilesPdf?.length; i++) {
-        nameFiles.push(this.selectedFilesPdf.item(i)?.name);
+      for (let i = 0; i < files?.length; i++) {
+        nameFiles.push(files[i]?.name);
+        this.selectedFilesPdf?.push(files[i]);
       }
+
       this.csvData.forEach((row, indexRow) => {
         if (!nameFiles.includes(row[3])) {
           const message = `El archivo en la fila <strong>${
@@ -219,15 +233,56 @@ export class ModalBulkloadComponent {
       this.selectedIndexTabs = this.errorsMessage.length
         ? 1
         : this.selectedIndexTabs;
+
       this.notificationService.showNotification(
         this.errorsMessage.length
           ? 'Hay errores con los archivos PDF, debes solucionarlos para poder continuar'
-          : 'Todos los registros fueron agregados exitosamente, ya puedes guardar los cambios',
+          : 'Todos los registros fueron agregados exitosamente, ya puedes cargar los documentos',
         this.errorsMessage.length ? 'danger' : 'success',
         5000
       );
+      this.inputPdfs.nativeElement.value = '';
     }
   }
 
-  public changeSelectedTabIndex(index: number) {}
+  public bulkUploadDocuments(action: boolean): void {
+    if (action) {
+      this.listStatus.uploadingFiles = true;
+      const formData = new FormData();
+
+      this.csvData.forEach((record, index) => {
+        formData.append(`documents[${index}][identification]`, record[0]);
+        formData.append(`documents[${index}][name]`, record[1]);
+        formData.append(`documents[${index}][description]`, record[2]);
+        formData.append(
+          `documents[${index}][file]`,
+          this.selectedFilesPdf.find((file) => file.name === record[3])!
+        );
+      });
+
+      this.documentService.bulkUploadDocuments(formData).subscribe({
+        next: (response) => {
+          if (response.status) {
+            this.showModalBulkloadChange.emit('refresh');
+          } else {
+            this.notificationService.showNotification(
+              response.message!,
+              'danger'
+            );
+          }
+          this.listStatus.uploadingFiles = false;
+        },
+        error: (error: HttpErrorResponse) => {
+          this.listStatus.uploadingFiles = false;
+          this.notificationService.showNotification(
+            'Lo sentimos, no se pudieron cargar los documentos',
+            'danger'
+          );
+        },
+      });
+    } else {
+      this.showModalBulkload = false;
+      this.showModalBulkloadChange.emit('close');
+    }
+  }
 }

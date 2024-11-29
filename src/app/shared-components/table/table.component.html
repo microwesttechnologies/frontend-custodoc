@@ -1,4 +1,4 @@
-<div class="primary-table">
+<div class="primary-table" [ngStyle]="{ height: height }">
   <div class="container-header-and-body">
     <div
       [ngStyle]="{ 'grid-template-columns': gridHeaderColumns }"
@@ -16,11 +16,11 @@
       ></app-item-skeleton>
 
       } }@else{ @if(list.length === 0){
-      <div class="center-all height-100">
+      <div class="center-all height-100" @fadeIn>
         <h3 class="font-title-large">No se encontraron registros</h3>
       </div>
       }@else if(listFilter.length === 0 && nameFilter){
-      <div class="center-all flex-direction-column height-100">
+      <div class="center-all flex-direction-column height-100" @fadeIn>
         <h3 class="font-title-large">
           No se encontraron resultados con el termino:
         </h3>
@@ -42,6 +42,7 @@
         (click)="eventRowClick.emit(item)"
         class="primary-table-item"
         aria-label="Fila"
+        @slideEnterRight
         role="button"
         tabindex="0"
       >

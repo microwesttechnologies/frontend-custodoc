@@ -14,6 +14,7 @@ import { GetObjectPropertiesPipe } from 'src/app/pipes/get-object-properties.pip
 import { TooltipDirective } from 'src/app/directives/tooltip.directive';
 import { OverlayDirective } from 'src/app/directives/overlay.directive';
 import { DisabledElementDirective } from 'src/app/directives/disabled-element.directive';
+import { slideCustomAnimation } from 'src/app/animations/global.animations';
 
 @Component({
   selector: 'app-navbar',
@@ -27,6 +28,20 @@ import { DisabledElementDirective } from 'src/app/directives/disabled-element.di
   ],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.scss',
+  animations: [
+    slideCustomAnimation(
+      'slideEnterRight',
+      'X',
+      '1rem',
+      '0',
+      {
+        enter: '300ms',
+      },
+      {
+        enter: true,
+      }
+    ),
+  ],
 })
 export class NavbarComponent implements OnInit {
   @Input() module!: 'company' | 'user' | 'customer' | 'document' | 'ranking';
@@ -53,11 +68,16 @@ export class NavbarComponent implements OnInit {
 
   public disabledOptions: any = {
     customer: {
-      3: {
+      2: {
         primaryButton: true,
+        actions: true,
       },
     },
     document: {
+      2: {
+        primaryButton: true,
+        actions: true,
+      },
       3: {
         primaryButton: true,
         actions: true,
@@ -75,7 +95,7 @@ export class NavbarComponent implements OnInit {
   public readonly globalService = inject(GlobalService);
 
   ngOnInit(): void {
-    this.getDetailCompany();
+    if (this.userLocalService.user?.id_rol !== 3) this.getDetailCompany();
   }
 
   private getDetailCompany(): void {

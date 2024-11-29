@@ -20,11 +20,13 @@ import {
 } from 'src/app/services/local/helper.service';
 import { TooltipDirective } from 'src/app/directives/tooltip.directive';
 import { InputComponent } from 'src/app/shared-components/form/input/input.component';
+import { DisabledElementDirective } from 'src/app/directives/disabled-element.directive';
 
 @Component({
   selector: 'app-company-module',
   standalone: true,
   imports: [
+    DisabledElementDirective,
     TooltipDirective,
     NavbarComponent,
     InputComponent,
@@ -44,7 +46,6 @@ export class CompanyModuleComponent {
   public nameFilter = '';
 
   public listStatus = {
-    disabledAcceptButton: false,
     savingCompany: false,
     loadingTable: true,
     showModal: false,
@@ -95,44 +96,49 @@ export class CompanyModuleComponent {
   }
 
   public openModalCreateCompany() {
-    this.listStatus.disabledAcceptButton = false;
     this.listStatus.showModal = true;
     this.companyForm.reset();
   }
 
-  public createCompany(): void {
+  public createOrUpdateCompany(): void {
     this.companyForm.markAllAsTouched();
     if (this.companyForm.valid) {
+      const endpointToExecute = this.idCompanySelected
+        ? this.companyService.updateCompany(this.companyForm.value as Company)
+        : this.companyService.createCompany(this.companyForm.value as Company);
+
       this.listStatus.savingCompany = true;
-      this.companyService
-        .createCompany(this.companyForm.value as Company)
-        .subscribe({
-          next: (response) => {
-            if (response.status) {
-              this.getAllCompanies();
-              this.notificationService.showNotification(
-                'Compañía agregada exitosamente',
-                'success'
-              );
-              this.listStatus.showModal = false;
-              this.globalService.detailCompany.company!.amount =
-                this.globalService.detailCompany.company?.amount! + 1;
-            } else {
-              this.notificationService.showNotification(
-                response.message!,
-                'danger'
-              );
-            }
-            this.listStatus.savingCompany = false;
-          },
-          error: (error) => {
-            this.listStatus.savingCompany = false;
+      endpointToExecute.subscribe({
+        next: (response) => {
+          if (response.status) {
+            this.getAllCompanies();
             this.notificationService.showNotification(
-              'Lo sentimos, no se pudo crear la compañia',
+              `Compañía ${
+                this.idCompanySelected ? 'actualizada' : 'agregada'
+              } exitosamente`,
+              'success'
+            );
+            this.listStatus.showModal = false;
+            this.globalService.detailCompany.company!.amount =
+              this.globalService.detailCompany.company?.amount! + 1;
+          } else {
+            this.notificationService.showNotification(
+              response.message!,
               'danger'
             );
-          },
-        });
+          }
+          this.listStatus.savingCompany = false;
+        },
+        error: (error) => {
+          this.listStatus.savingCompany = false;
+          this.notificationService.showNotification(
+            `Lo sentimos, no se pudo ${
+              this.idCompanySelected ? 'actualizar' : 'agrer'
+            } la compañia`,
+            'danger'
+          );
+        },
+      });
     }
   }
 
@@ -150,11 +156,5 @@ export class CompanyModuleComponent {
 
     this.companyForm.markAllAsTouched();
     this.listStatus.showModal = true;
-    this.listStatus.disabledAcceptButton = true;
-    this.notificationService.showNotification(
-      'Metodo de actualización en desarrollo',
-      'success',
-      100000
-    );
   }
 }

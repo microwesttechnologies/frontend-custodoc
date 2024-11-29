@@ -25,4 +25,12 @@ export class CustomerService {
       headerAuthorization()
     );
   }
+
+  updateCustomer(customer: Customer): Observable<GenericResponse> {
+    return this.http.put<GenericResponse>(
+      this.apiUrl,
+      customer,
+      headerAuthorization()
+    );
+  }
 }
