@@ -1,4 +1,4 @@
-import { Component, inject, Input } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { SharedModule } from 'src/app/shared-components/shared.module';
 import { ModalComponent } from 'src/app/shared-components/modal/modal.component';
 import { GlobalService } from 'src/app/services/external/global.service';
@@ -26,6 +26,9 @@ import { TooltipDirective } from 'src/app/directives/tooltip.directive';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { SafeUrlPipe } from 'src/app/pipes/safe-url.pipe';
 import { ModalBulkloadComponent } from './components/modal-bulkload/modal-bulkload.component';
+import { environment } from 'src/environments/environment';
+import { UserLocalService } from 'src/app/services/local/user.service';
+import { homologateText } from 'src/app/globals/homologate-text';
 
 @Component({
   selector: 'app-history-module',
@@ -46,6 +49,9 @@ import { ModalBulkloadComponent } from './components/modal-bulkload/modal-bulklo
   providers: [],
 })
 export class HistoryModuleComponent {
+
+  public storageUrl = environment.storageUrl;
+
   public documents: Document[] = [];
   public customers: Customer[] = [];
 
@@ -69,12 +75,14 @@ export class HistoryModuleComponent {
 
   public validateLimitText = validateLimitText;
   public validateFormField = validateFormField;
+  public homologateText = homologateText;
 
   private readonly notificationService = inject(NotificationService);
   private readonly documentService = inject(DocumentService);
   private readonly customerService = inject(CustomerService);
   private readonly globalService = inject(GlobalService);
   private readonly formBuilder = inject(FormBuilder);
+  public userLocalService = inject(UserLocalService);
   private readonly sanitizer = inject(DomSanitizer);
 
   ngOnInit(): void {
@@ -103,7 +111,7 @@ export class HistoryModuleComponent {
       error: (error: HttpErrorResponse) => {
         this.listStatus.loadingTable = false;
         this.notificationService.showNotification(
-          'Lo sentimos, ha ocurrido un error al consultar los clientes',
+          `Lo sentimos, ha ocurrido un error al consultar los ${homologateText(this.userLocalService?.user?.type_company!, 'clientes')}`,
           'danger',
           10000
         );
@@ -119,7 +127,7 @@ export class HistoryModuleComponent {
       error: (error: HttpErrorResponse) => {
         this.listStatus.loadingTable = false;
         this.notificationService.showNotification(
-          'Lo sentimos, ha ocurrido un error al consultar los documentos',
+          `Lo sentimos, ha ocurrido un error al consultar los ${homologateText(this.userLocalService?.user?.type_company!, 'documentos')}`,
           'danger',
           10000
         );
@@ -161,7 +169,7 @@ export class HistoryModuleComponent {
       const formData = new FormData();
 
       Object.entries(this.documentForm.value).forEach((elm: any[]) => {
-        formData.append(elm[0], elm[1]);
+        formData.append(elm[0], elm[1] ?? '');
       });
       formData.append('file', this.selectedFilePdf!);
 
@@ -170,7 +178,7 @@ export class HistoryModuleComponent {
           if (response.status) {
             this.getAllDocuments();
             this.notificationService.showNotification(
-              'Compañía agregada exitosamente',
+              `${homologateText(this.userLocalService?.user?.type_company!, 'documento')} se agrego exitosamente`,
               'success'
             );
             this.listStatus.showModal = false;
@@ -188,7 +196,7 @@ export class HistoryModuleComponent {
         error: (error) => {
           this.listStatus.savingDocument = false;
           this.notificationService.showNotification(
-            'Lo sentimos, no se pudo crear el documento',
+            `Lo sentimos, no se pudo crear ${homologateText(this.userLocalService?.user?.type_company!, 'documento')}`,
             'danger'
           );
         },
@@ -198,6 +206,8 @@ export class HistoryModuleComponent {
 
   public closeModal(): void {
     this.listStatus.showModal = false;
+    this.selectedFilePdf = undefined;
+    this.pdfSrc = undefined;
   }
 
   public previewFile(document: Document) {
@@ -225,5 +235,48 @@ export class HistoryModuleComponent {
       );
       this.getAllDocuments();
     }
+  }
+
+  public exportTableToCsv(): void {
+    const headers = 'Nombre del cliente,Nombre documento, Identificación cliente, Descripción';
+    const rows = this.documents.map(document => [document.name_customer, document.name, document.identification, document.description].map((value) =>
+      typeof value === 'string' && value.includes('\n')
+        ? `"${value.replace(/"/g, '""')}"` // Manejar saltos de línea y comillas dobles
+        : `"${String(value).replace(/"/g, '""')}"` // Encerrar todos los valores entre comillas dobles
+    ).join(',')).join('\n');
+
+    const csvData = `${headers}\n${rows}`;
+
+    const bom = '\uFEFF'; // BOM para UTF-8
+    const blob = new Blob([bom + csvData], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+
+    const date = new Date();
+
+    const filename = `${homologateText(this.userLocalService?.user?.type_company!, 'documentos')}-${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}-${date.getHours()}-${date.getMinutes()}-${date.getSeconds()}.csv`
+
+    link.setAttribute('href', url);
+    link.setAttribute('download', filename);
+    link.style.visibility = 'hidden';
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  public deleteDocument(id_history: number) {
+    this.documentService.deleteDocument(id_history).subscribe({
+      next: (response) => {
+        if (response.status) {
+          this.notificationService.showNotification(`${homologateText(this.userLocalService?.user?.type_company!, 'documento')} eliminado exitosamente`, 'success');
+          this.documents = this.documents.filter(document=>document.id_history !== id_history);
+          this.globalService.detailCompany.documents.amount = this.documents.length;
+        }
+      },
+      error: (error: HttpErrorResponse) => {
+        this.notificationService.showNotification(`Lo sentimos, no se pudo eliminar ${homologateText(this.userLocalService?.user?.type_company!, 'documento')}`, 'danger');
+      }
+    })
   }
 }

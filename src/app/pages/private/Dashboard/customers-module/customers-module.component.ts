@@ -30,6 +30,7 @@ import { AutoCompleteComponent } from 'src/app/shared-components/form/autocomple
 import { DocumentService } from 'src/app/services/external/document.service';
 import { Document } from 'src/app/models/documents.model';
 import { DisabledElementDirective } from 'src/app/directives/disabled-element.directive';
+import { homologateText } from 'src/app/globals/homologate-text';
 
 @Component({
   selector: 'app-customers-module',
@@ -70,6 +71,7 @@ export class CustomersModuleComponent {
 
   public validateLimitText = validateLimitText;
   public validateFormField = validateFormField;
+  public homologateText = homologateText;
 
   private readonly typesDocumentService = inject(TypesDocumentService);
   private readonly notificationService = inject(NotificationService);
@@ -117,7 +119,7 @@ export class CustomersModuleComponent {
       },
       error: (error: HttpErrorResponse) => {
         this.notificationService.showNotification(
-          'Lo sentimos, ha ocurrido un error al consultar los clientes',
+          `Lo sentimos, ha ocurrido un error al consultar los ${homologateText(this.userLocalService?.user?.type_company!, 'clientes')}`,
           'danger',
           10000
         );
@@ -167,7 +169,7 @@ export class CustomersModuleComponent {
       error: (error: HttpErrorResponse) => {
         this.listStatus.loadingTableDocumentsByCustomer = false;
         this.notificationService.showNotification(
-          'Lo sentimos, ha ocurrido un error al consultar los documentos del cliente',
+          `Lo sentimos, ha ocurrido un error al consultar los documentos del ${homologateText(this.userLocalService?.user?.type_company!, 'cliente')}`,
           'danger',
           10000
         );
@@ -196,14 +198,15 @@ export class CustomersModuleComponent {
           if (response.status) {
             this.getAllCustomers();
             this.notificationService.showNotification(
-              `Cliente ${
-                this.idCustomerSelected ? 'actualizado' : 'agregado'
+              `${homologateText(this.userLocalService?.user?.type_company!, 'cliente')} ${this.idCustomerSelected ? 'actualizado' : 'agregado'
               } exitosamente`,
               'success'
             );
-            this.listStatus.showModal = false;
-            this.globalService.detailCompany.customers.amount =
-              this.globalService.detailCompany.customers?.amount + 1;
+            this.closeModal();
+            if (!this.idCustomerSelected) {
+              this.globalService.detailCompany.customers.amount =
+                this.globalService.detailCompany.customers?.amount + 1;
+            }
           } else {
             this.notificationService.showNotification(
               response.message!,
@@ -215,9 +218,8 @@ export class CustomersModuleComponent {
         error: (error) => {
           this.listStatus.savingCustomer = false;
           this.notificationService.showNotification(
-            `Lo sentimos, no se pudo ${
-              this.idCustomerSelected ? 'actualizar' : 'agregar'
-            } el cliente`,
+            `Lo sentimos, no se pudo ${this.idCustomerSelected ? 'actualizar' : 'agregar'
+            } el ${homologateText(this.userLocalService?.user?.type_company!, 'cliente')}`,
             'danger'
           );
         },

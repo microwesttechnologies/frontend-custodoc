@@ -12,7 +12,7 @@ import { Document } from 'src/app/models/documents.model';
 export class DocumentService {
   private readonly apiUrl = `${environment.apiUrl}document`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getAllDocuments(): Observable<Document[]> {
     return this.http.get<Document[]>(this.apiUrl, headerAuthorization());
@@ -46,6 +46,13 @@ export class DocumentService {
   getAllDocumentsByCustomer(id_customer: string): Observable<Document[]> {
     return this.http.get<Document[]>(
       `${this.apiUrl}/getAllDocumentsByCustomer/${id_customer}`,
+      headerAuthorization()
+    );
+  }
+
+  deleteDocument(id_history: number): Observable<GenericResponse> {
+    return this.http.delete<GenericResponse>(
+      `${this.apiUrl}/${id_history}`,
       headerAuthorization()
     );
   }

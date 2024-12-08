@@ -29,11 +29,14 @@ import {
 import { NotificationService } from 'src/app/shared-components/notification/notification.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TableComponent } from 'src/app/shared-components/table/table.component';
+import { homologateText } from 'src/app/globals/homologate-text';
+import { DisabledElementDirective } from 'src/app/directives/disabled-element.directive';
 
 @Component({
   selector: 'app-users-module',
   standalone: true,
   imports: [
+    DisabledElementDirective,
     AutoCompleteComponent,
     TooltipDirective,
     NavbarComponent,
@@ -65,7 +68,6 @@ export class UsersModuleComponent {
   public nameFilter = '';
 
   public listStatus = {
-    disabledAcceptButton: false,
     loadingTable: true,
     savingUser: false,
     showModal: false,
@@ -73,6 +75,7 @@ export class UsersModuleComponent {
 
   public validateLimitText = validateLimitText;
   public validateFormField = validateFormField;
+  public homologateText = homologateText;
 
   private readonly typesDocumentService = inject(TypesDocumentService);
   private readonly notificationService = inject(NotificationService);
@@ -112,13 +115,10 @@ export class UsersModuleComponent {
         identification: new FormControl('', [Validators.required]),
         email: new FormControl('', [Validators.required]),
         phone: new FormControl('', [Validators.required]),
-        password: new FormControl('', [
-          Validators.required,
-          Validators.minLength(8),
-        ]),
-        confirmPassword: new FormControl('', [Validators.required]),
+        password: new FormControl(''),
+        confirmPassword: new FormControl(''),
       },
-      { validators: passwordMatchValidator('password', 'confirmPassword') }
+
     );
 
     this.userForm.get('id_rol')?.valueChanges.subscribe((rol) => {
@@ -129,6 +129,25 @@ export class UsersModuleComponent {
         this.userForm.get('id_company')?.enable();
       }
     });
+  }
+
+  private setFormMode(isCreating: boolean): void {
+    if (isCreating) {
+      // Agregar validadores para creación
+      this.userForm.get('password')?.setValidators([Validators.required, Validators.minLength(8)]);
+      this.userForm.get('confirmPassword')?.setValidators([Validators.required]);
+      this.userForm.setValidators(passwordMatchValidator('password', 'confirmPassword'));
+    } else {
+      // Remover validadores para actualización
+      this.userForm.get('password')?.clearValidators();
+      this.userForm.get('confirmPassword')?.clearValidators();
+      this.userForm.clearValidators(); // Si tienes validadores a nivel de formulario
+    }
+
+    // Actualizar estado de validadores
+    this.userForm.get('password')?.updateValueAndValidity();
+    this.userForm.get('confirmPassword')?.updateValueAndValidity();
+    this.userForm.updateValueAndValidity();
   }
 
   private getAllUsers(): void {
@@ -144,7 +163,7 @@ export class UsersModuleComponent {
       },
       error: (error: HttpErrorResponse) => {
         this.notificationService.showNotification(
-          'Lo sentimos, ha ocurrido un error al consultar los empleados',
+          `Lo sentimos, ha ocurrido un error al consultar los ${homologateText(this.userLocalService?.user?.type_company!, 'empleados')}`,
           'danger',
           10000
         );
@@ -184,29 +203,37 @@ export class UsersModuleComponent {
   }
 
   public openModalCreateUser() {
-    this.listStatus.disabledAcceptButton = false;
     this.listStatus.showModal = true;
+    this.setFormMode(true);
     this.userForm.reset();
   }
 
-  public createUser() {
+  public createOrUpdateUser() {
     this.userForm.markAllAsTouched();
     if (this.userForm.valid) {
       const user = { ...this.userForm.value } as User;
 
       this.listStatus.savingUser = true;
 
-      this.userService.createUser(user).subscribe({
+      const endpointToExecute = this.idUserSelected
+        ? this.userService.updateUser(user)
+        : this.userService.createUser(user);
+
+      endpointToExecute.subscribe({
         next: (response) => {
           if (response.status) {
             this.getAllUsers();
             this.notificationService.showNotification(
-              'Empleado agregado exitosamente',
+              `${homologateText(this.userLocalService?.user?.type_company!, 'empleado')} ${this.idUserSelected ? 'actualizado' : 'agregado'
+              } exitosamente`,
               'success'
             );
             this.listStatus.showModal = false;
-            this.globalService.detailCompany.users.amount =
-              this.globalService.detailCompany.users.amount + 1;
+            this.closeModal();
+            if (!this.idUserSelected) {
+              this.globalService.detailCompany.users.amount =
+                this.globalService.detailCompany.users.amount + 1;
+            }
           } else {
             this.notificationService.showNotification(
               response.message!,
@@ -218,7 +245,8 @@ export class UsersModuleComponent {
         error: (error) => {
           this.listStatus.savingUser = false;
           this.notificationService.showNotification(
-            'Lo sentimos, no se pudo crear el empleado',
+            `Lo sentimos, no se pudo ${this.idUserSelected ? 'actualizar' : 'agregar'
+            } el ${homologateText(this.userLocalService?.user?.type_company!, 'empleado')}`,
             'danger'
           );
         },
@@ -233,6 +261,7 @@ export class UsersModuleComponent {
 
   public setUpdateUser(user: User) {
     this.idUserSelected = user.identification;
+    this.setFormMode(false);
 
     Object.keys(this.userForm.value).forEach((key) =>
       this.userForm
@@ -242,11 +271,5 @@ export class UsersModuleComponent {
 
     this.userForm.markAllAsTouched();
     this.listStatus.showModal = true;
-    this.listStatus.disabledAcceptButton = true;
-    this.notificationService.showNotification(
-      'Metodo de actualización en desarrollo',
-      'success',
-      100000
-    );
   }
 }

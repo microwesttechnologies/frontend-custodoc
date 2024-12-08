@@ -1,22 +1,13 @@
 <div class="container-module-user">
   <app-navbar
-    description="En este modulo podrás gestionar los empleados"
+    [description]="'En este modulo podrás gestionar los ' + homologateText(userLocalService?.user?.type_company!,'empleados')"
     (eventClickButton)="openModalCreateUser()"
-    title="Gestión de empleados"
-    [(nameFilter)]="nameFilter"
-    module="user"
-  ></app-navbar>
+    [title]="'Gestión de ' + homologateText(userLocalService?.user?.type_company!,'empleados')"
+    [(nameFilter)]="nameFilter" module="user"></app-navbar>
   <div class="secondary-card">
-    <app-table
-      [selectedItem]="['identification', idUserSelected]"
-      [loadingTable]="listStatus.loadingTable"
-      (eventRowClick)="setUpdateUser($event)"
-      [gridHeaderColumns]="gridHeaderColumns"
-      [totalItems]="users.length"
-      [nameFilter]="nameFilter"
-      [withPager]="true"
-      [list]="users"
-    >
+    <app-table [selectedItem]="['identification', idUserSelected]" [loadingTable]="listStatus.loadingTable"
+      (eventRowClick)="setUpdateUser($event)" [gridHeaderColumns]="gridHeaderColumns" [totalItems]="users.length"
+      [nameFilter]="nameFilter" [withPager]="true" [list]="users">
       <ng-container tableHeader>
         <p class="font-subtitle-large">Identificación</p>
         <p class="font-subtitle-large">Tipo documento</p>
@@ -24,40 +15,27 @@
         <p class="font-subtitle-large">Email</p>
         <p class="font-subtitle-large">Teléfono</p>
         <p class="font-subtitle-large">Rol</p>
-        <p
-          [ngClass]="{ 'display-none': userLocalService?.user?.id_rol !== 1 }"
-          class="font-subtitle-large"
-        >
+        <p [ngClass]="{ 'display-none': userLocalService?.user?.id_rol !== 1 }" class="font-subtitle-large">
           Compañía
         </p>
       </ng-container>
       <ng-template let-item>
         <p class="font-body-medium">{{ item?.identification }}</p>
         <p class="font-body-medium">{{ item?.name_type_document }}</p>
-        <p
-          class="font-body-medium white-space-nowrap text-overflow-ellipsis overflow-hidden"
-          [appTooltip]="validateLimitText(nameUser) ? item?.name : ''"
-          #nameUser
-        >
+        <p class="font-body-medium white-space-nowrap text-overflow-ellipsis overflow-hidden"
+          [appTooltip]="validateLimitText(nameUser) ? item?.name : ''" #nameUser>
           {{ item?.name }}
         </p>
-        <p
-          class="font-body-medium white-space-nowrap text-overflow-ellipsis overflow-hidden"
-          [appTooltip]="validateLimitText(emailUser) ? item?.email : ''"
-          #emailUser
-        >
+        <p class="font-body-medium white-space-nowrap text-overflow-ellipsis overflow-hidden"
+          [appTooltip]="validateLimitText(emailUser) ? item?.email : ''" #emailUser>
           {{ item?.email }}
         </p>
         <p class="font-body-medium">{{ item?.phone }}</p>
         <p class="font-body-medium">{{ item?.name_rol }}</p>
-        <p
-          class="font-body-medium white-space-nowrap text-overflow-ellipsis overflow-hidden"
-          [ngClass]="{ 'display-none': userLocalService?.user?.id_rol !== 1 }"
-          [appTooltip]="
+        <p class="font-body-medium white-space-nowrap text-overflow-ellipsis overflow-hidden"
+          [ngClass]="{ 'display-none': userLocalService?.user?.id_rol !== 1 }" [appTooltip]="
             validateLimitText(nameCompany) ? item?.name_company : ''
-          "
-          #nameCompany
-        >
+          " #nameCompany>
           {{ item?.name_company }}
         </p>
       </ng-template>
@@ -66,23 +44,14 @@
 </div>
 
 @if(listStatus.showModal){
-<app-modal
-  [title]="idUserSelected ? 'Actualizar empleado' : 'Crear empleado'"
-  [primaryButton]="{ hidden: listStatus.disabledAcceptButton }"
-  (eventButtonClick)="$event ? createUser() : closeModal()"
-  [loadingButtons]="listStatus.savingUser"
-  size="sm"
->
+<app-modal [primaryButton]="{text: !!idUserSelected ? 'Guardar cambios' : 'Guardar'}"
+  [title]="(!!idUserSelected ? 'Actualizar ' : 'Crear ') + homologateText(userLocalService?.user?.type_company!,'empleado')"
+  (eventButtonClick)="$event ? createOrUpdateUser() : closeModal()" [loadingButtons]="listStatus.savingUser" size="sm">
   <form [formGroup]="userForm">
     <div class="row">
       <!-- Name -->
       <div class="col-auto mb-150-rem">
-        <app-input
-          placeholder="Escribir nombre"
-          [defaultLabelError]="true"
-          formControlName="name"
-          id="name"
-        >
+        <app-input placeholder="Escribir nombre" [defaultLabelError]="true" formControlName="name" id="name">
           <label labelInput for="name">
             Nombre <span class="cl-danger-background-status">*</span>
           </label>
@@ -90,18 +59,14 @@
       </div>
       <!-- Type document -->
       <div class="col-auto mb-150-rem">
-        <app-select
-          formControlName="id_document"
-          [configSelect]="{
+        <app-select formControlName="id_document" [configSelect]="{
             placeholder:'Seleccionar tipo de documento',
             assignOnlyFieldId: true,
             defaultLabelError: true,
             fieldId: 'id_document',
             id: 'id_document',
             fieldText: 'name',
-          }"
-          [options]="typesDocument"
-        >
+          }" [appDisabledElement]="!!idUserSelected" [options]="typesDocument">
           <label for="id_document" labelSelect>Tipo de documento</label>
         </app-select>
       </div>
@@ -109,13 +74,8 @@
     <div class="row">
       <!-- Identification -->
       <div class="col-auto mb-150-rem">
-        <app-input
-          placeholder="Escribir identificación"
-          formControlName="identification"
-          [defaultLabelError]="true"
-          id="identification"
-          type="number"
-        >
+        <app-input placeholder="Escribir identificación" [appDisabledElement]="!!idUserSelected"
+          formControlName="identification" [defaultLabelError]="true" id="identification" type="number">
           <label labelInput for="identification">
             Identificación <span class="cl-danger-background-status">*</span>
           </label>
@@ -123,13 +83,8 @@
       </div>
       <!-- Phone -->
       <div class="col-auto mb-150-rem">
-        <app-input
-          placeholder="Escribir teléfono"
-          [defaultLabelError]="true"
-          formControlName="phone"
-          type="number"
-          id="phone"
-        >
+        <app-input placeholder="Escribir teléfono" [defaultLabelError]="true" formControlName="phone" type="number"
+          id="phone">
           <label labelInput for="phone">
             Teléfono <span class="cl-danger-background-status">*</span>
           </label>
@@ -139,13 +94,8 @@
     <div class="row">
       <!-- Email -->
       <div class="col-auto mb-150-rem">
-        <app-input
-          placeholder="Escribir correo electrónico"
-          [defaultLabelError]="true"
-          formControlName="email"
-          type="email"
-          id="email"
-        >
+        <app-input placeholder="Escribir correo electrónico" [defaultLabelError]="true" formControlName="email"
+          type="email" id="email">
           <label labelInput for="email">
             Correo electrónico
             <span class="cl-danger-background-status">*</span>
@@ -157,26 +107,18 @@
     <div class="row">
       <!-- Password -->
       <div class="col-auto mb-150-rem">
-        <app-input
-          placeholder="Escribir contraseña"
-          formControlName="password"
-          type="password"
-          id="password"
-        >
+        <app-input placeholder="Escribir contraseña" formControlName="password" type="password" id="password">
           <label for="password" labelInput>Contraseña</label>
           <label for="confirmPassword" labelInputError>
-            {{userForm?.get('password')?.errors?.['minlength'] ? 'La contraseña debe tener al menos 8 caracteres.' : 'Este campo es obligatorio'}}
+            {{userForm?.get('password')?.errors?.['minlength'] ? 'La contraseña debe tener al menos 8 caracteres.' :
+            'Este campo es obligatorio'}}
           </label>
         </app-input>
       </div>
       <!-- Confirmar contraseña -->
       <div class="col-auto mb-150-rem">
-        <app-input
-          placeholder="Escribir confirmación de contraseña"
-          formControlName="confirmPassword"
-          id="confirmPassword"
-          type="password"
-        >
+        <app-input placeholder="Escribir confirmación de contraseña" formControlName="confirmPassword"
+          id="confirmPassword" type="password">
           <label for="confirmPassword" labelInput>Confirmar contraseña</label>
           <label for="confirmPassword" labelInputError>
             {{userForm?.errors?.['passwordMismatch'] ? 'Las contraseñas no coinciden' : 'Este campo es obligatorio'}}
@@ -188,35 +130,27 @@
     <div class="row">
       <!-- Rol -->
       <div class="col-auto mb-150-rem">
-        <app-select
-          formControlName="id_rol"
-          [configSelect]="{
+        <app-select formControlName="id_rol" [configSelect]="{
             placeholder: 'Seleccionar rol',
             assignOnlyFieldId: true,
             defaultLabelError: true,
             fieldId: 'id_rol',
             fieldText: 'name',
             id: 'id_rol'
-          }"
-          [options]="roles"
-        >
+          }" [options]="roles">
           <label for="id_rol" labelSelect>Rol</label>
         </app-select>
       </div>
       <!-- Company -->
       <div class="col-auto">
-        <app-autocomplete
-          [configAutoComplete]="{
+        <app-autocomplete [configAutoComplete]="{
             placeholder: 'Buscar compañia por nombre',
             assignOnlyFieldId: true,
             defaultLabelError: true,
             fieldId: 'id_company',
             fieldText: 'name',
             id: 'id_company'
-          }"
-          formControlName="id_company"
-          [options]="companies"
-        >
+          }" formControlName="id_company" [options]="companies">
           <label for="id_company" labelAutoComplete> Compañía</label>
         </app-autocomplete>
       </div>

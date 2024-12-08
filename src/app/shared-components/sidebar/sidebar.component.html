@@ -1,17 +1,9 @@
 <div class="primary-sidebar" [ngClass]="{ 'sidebar-opened': isSidebarOpened }">
-  <button
-    [appTooltip]="isSidebarOpened ? 'Cerrar' : 'Abrir'"
-    class="sidebar-action center-all"
-    (click)="openAndCloseSidebar()"
-    [configTooltip]="{
+  <button [appTooltip]="isSidebarOpened ? 'Cerrar' : 'Abrir'" class="sidebar-action center-all"
+    (click)="openAndCloseSidebar()" [configTooltip]="{
       position: 'right'
-    }"
-    type="button"
-  >
-    <i
-      [ngClass]="{ 'fa-rotate-180': isSidebarOpened }"
-      class="fa-solid fa-angle-right fa-lg"
-    ></i>
+    }" type="button">
+    <i [ngClass]="{ 'fa-rotate-180': isSidebarOpened }" class="fa-solid fa-angle-right fa-lg"></i>
   </button>
   <div class="sidebar-content">
     <div class="sidebar-header center-all">
@@ -27,22 +19,16 @@
         @for ( menu of userLocalService.menuSidebar; track indexMenu; let
         indexMenu = $index){ @for ( item of menu.items; track indexItem; let
         indexItem = $index){
-        <li
-          [appTooltip]="
-            isSidebarOpened ? '' : 'Ver ' + (item.label | lowercase)
-          "
-          [ngClass]="{ 'justify-content-center': !showContent }"
-          routerLinkActive="sidebar-item-activate"
-          [routerLink]="[item.path]"
-          class="sidebar-item"
-          [configTooltip]="{
+        <li [appTooltip]="
+            isSidebarOpened ? '' : 'Ver ' + (homologateText(userLocalService?.user?.type_company!, item.label| lowercase) | lowercase)
+          " [ngClass]="{ 'justify-content-center': !showContent }" routerLinkActive="sidebar-item-activate"
+          [routerLink]="[item.path]" class="sidebar-item" [configTooltip]="{
             position: 'right'
-          }"
-        >
+          }">
           <i class="fa-solid fa-lg" [ngClass]="item.icon"></i>
           @if(isSidebarOpened){
-          <p class="font-body-large" @slideEnterAndLeaveLeft>
-            {{ item.label }}
+          <p class="font-body-large white-space-nowrap text-overflow-ellipsis overflow-hidden" @slideEnterAndLeaveLeft>
+            {{ homologateText(userLocalService?.user?.type_company!, item.label| lowercase) | titlecase }}
           </p>
           }
         </li>
@@ -50,44 +36,26 @@
       </ul>
     </div>
     <div class="sidebar-footer">
-      <div
-        [ngClass]="{ 'justify-content-center': !showContent }"
-        class="sidebar-item display-flex align-items-center"
-        appTooltip="Mi perfil"
-        [configTooltip]="{
+      <div [ngClass]="{ 'justify-content-center': !showContent }" class="sidebar-item display-flex align-items-center"
+        appTooltip="Mi perfil" [configTooltip]="{
           position: 'right'
-        }"
-        aria-label="Mi perfil"
-        role="button"
-        tabindex="0"
-      >
+        }" aria-label="Mi perfil" role="button" tabindex="0">
         <i class="fa-solid fa-circle-user fa-lg"></i>
         @if(isSidebarOpened){
-        <p
-          class="font-subtitle-xlarge white-space-nowrap text-overflow-ellipsis overflow-hidden"
-          @slideEnterAndLeaveLeft
-        >
+        <p class="font-subtitle-xlarge white-space-nowrap text-overflow-ellipsis overflow-hidden"
+          @slideEnterAndLeaveLeft>
           {{ userLocalService?.user?.name }}
         </p>
         }
       </div>
-      <div
-        [ngClass]="{ 'justify-content-center': !showContent }"
-        [appTooltip]="isSidebarOpened ? '' : 'Cerrar sesión'"
-        class="sidebar-item display-flex align-items-center"
-        [configTooltip]="{
+      <div [ngClass]="{ 'justify-content-center': !showContent }" [appTooltip]="isSidebarOpened ? '' : 'Cerrar sesión'"
+        class="sidebar-item display-flex align-items-center" [configTooltip]="{
           position: 'right'
-        }"
-        (keydown.enter)="logout()"
-        (keydown.space)="logout()"
-        aria-label="Cerrar sesión"
-        (click)="logout()"
-        role="button"
-        tabindex="0"
-      >
+        }" (keydown.enter)="logout()" (keydown.space)="logout()" aria-label="Cerrar sesión" (click)="logout()"
+        role="button" tabindex="0">
         <i class="fa-solid fa-arrow-right-from-bracket fa-lg"></i>
         @if(isSidebarOpened){
-        <p class="font-subtitle-xlarge" @slideEnterAndLeaveLeft>
+        <p class="font-subtitle-xlarge white-space-nowrap text-overflow-ellipsis overflow-hidden" @slideEnterAndLeaveLeft>
           Cerrar sesión
         </p>
         }

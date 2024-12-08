@@ -15,6 +15,7 @@ import { TooltipDirective } from 'src/app/directives/tooltip.directive';
 import { OverlayDirective } from 'src/app/directives/overlay.directive';
 import { DisabledElementDirective } from 'src/app/directives/disabled-element.directive';
 import { slideCustomAnimation } from 'src/app/animations/global.animations';
+import { homologateText } from 'src/app/globals/homologate-text';
 
 @Component({
   selector: 'app-navbar',
@@ -82,6 +83,9 @@ export class NavbarComponent implements OnInit {
         primaryButton: true,
         actions: true,
       },
+      4: {
+        export: true,
+      }
     },
   };
 
@@ -91,8 +95,10 @@ export class NavbarComponent implements OnInit {
     ];
   }
 
-  public readonly userLocalService = inject(UserLocalService);
-  public readonly globalService = inject(GlobalService);
+  public homologateText = homologateText;
+
+  public userLocalService = inject(UserLocalService);
+  public globalService = inject(GlobalService);
 
   ngOnInit(): void {
     if (this.userLocalService.user?.id_rol !== 3) this.getDetailCompany();

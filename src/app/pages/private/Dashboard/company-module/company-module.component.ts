@@ -118,7 +118,7 @@ export class CompanyModuleComponent {
               } exitosamente`,
               'success'
             );
-            this.listStatus.showModal = false;
+            this.closeModal();
             this.globalService.detailCompany.company!.amount =
               this.globalService.detailCompany.company?.amount! + 1;
           } else {

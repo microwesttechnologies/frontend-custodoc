@@ -3,23 +3,14 @@
     @for ( key of globalService.detailCompany | getObjectProperties; track
     indexItem; let indexItem = $index){
     <div class="col-auto mb-100-rem" @slideEnterRight>
-      <div
-        class="item-card display-flex align-items-center justify-content-space-around"
-      >
-        <i
-          class="fa-solid cl-tertiary-background-palette center-all"
-          [ngClass]="getValueByKey(key).icon"
-        ></i>
+      <div class="item-card display-flex align-items-center justify-content-space-around">
+        <i class="fa-solid cl-tertiary-background-palette center-all" [ngClass]="getValueByKey(key).icon"></i>
         <section>
-          <p
-            class="font-body-medium cl-secondary-background-theme-important mb-30-rem"
-          >
-            {{ getValueByKey(key).label }}
+          <p class="font-body-medium cl-secondary-background-theme-important mb-30-rem">
+            {{ homologateText(userLocalService?.user?.type_company!,getValueByKey(key).label | lowercase) | titlecase }}
           </p>
 
-          <h2
-            class="font-headline-small cl-secondary-background-theme-important text-align-center"
-          >
+          <h2 class="font-headline-small cl-secondary-background-theme-important text-align-center">
             {{ getValueByKey(key).amount | number }}
           </h2>
         </section>
@@ -42,37 +33,23 @@
       <div class="display-flex align-items-center justify-content-flex-end">
         <div class="primary-form-field width-100">
           <input
-            placeholder="Buscar {{ homologateModule[module] }} por nombre"
-            class="primary-input bg-secondary-background-theme-important"
-            (keyup)="changeValueFilter($event)"
-            [value]="nameFilter"
-            type="text"
-          />
+            placeholder="Buscar {{ homologateText(userLocalService?.user?.type_company!,homologateModule[module]) }} por nombre"
+            class="primary-input bg-secondary-background-theme-important" (keyup)="changeValueFilter($event)"
+            [value]="nameFilter" type="text" />
         </div>
         @if(!hiddenPrimaryButton){
-        <button
-          class="primary-button button-md width-fit-content ml-50-rem"
+        <button class="primary-button button-md width-fit-content ml-50-rem"
           [appDisabledElement]="disabledByModuleAndRol?.primaryButton"
-          [appTooltip]="'Agregar ' + homologateModule[module]"
+          [appTooltip]="'Agregar ' + homologateText(userLocalService?.user?.type_company!,homologateModule[module])"
           [configTooltip]="{
             position: 'left'
-          }"
-          (click)="eventClickButton.emit()"
-        >
-          <i
-            class="fa-solid fa-plus fa-lg cl-secondary-background-theme-important"
-          ></i>
+          }" (click)="eventClickButton.emit()">
+          <i class="fa-solid fa-plus fa-lg cl-secondary-background-theme-important"></i>
         </button>
         } @if(actions.length){
-        <button
-          class="primary-button button-md bg-transparent width-fit-content ml-50-rem"
-          [appDisabledElement]="disabledByModuleAndRol?.actions"
-          [appOverlay]="overlayActions"
-          overlayPosition="left-center"
-          [closeInsideOverlay]="true"
-          overlayActivateBy="click"
-          overlayWidth="6rem"
-        >
+        <button class="primary-button button-md bg-transparent width-fit-content ml-50-rem"
+          [appDisabledElement]="disabledByModuleAndRol?.actions" [appOverlay]="overlayActions"
+          overlayPosition="left-center" [closeInsideOverlay]="true" overlayActivateBy="click" overlayWidth="6rem">
           <i class="fa-solid fa-bars fa-lg"> </i>
         </button>
 
@@ -80,15 +57,11 @@
           <div class="primary-overlay">
             <ul class="primary-list">
               @if(actions.includes('export')){
-              <li
-                class="item-list"
-                (click)="eventExport.emit()"
-                [appDisabledElement]="true"
-              >
+              <li class="item-list" (click)="eventExport.emit()" [appDisabledElement]="disabledByModuleAndRol?.export">
                 <p class="font-caption-large">Exportar</p>
               </li>
               } @if(actions.includes('import')){
-              <li class="item-list" (click)="eventImport.emit()">
+              <li class="item-list" (click)="eventImport.emit()" [appDisabledElement]="disabledByModuleAndRol?.import">
                 <p class="font-caption-large">Importar</p>
               </li>
               }

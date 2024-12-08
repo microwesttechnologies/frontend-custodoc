@@ -22,5 +22,6 @@ export interface User {
   name_company?: string;
   name_type_document?: string;
   name_rol?: string;
+  type_company?: string;
   disabled?: boolean;
 }

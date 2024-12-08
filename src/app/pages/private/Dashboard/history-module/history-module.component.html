@@ -1,69 +1,59 @@
 <div class="container-module-document">
   <app-navbar
-    description="En este modulo podrás gestionar los documents"
-    (eventImport)="listStatus.showModalBulkload = true"
-    (eventClickButton)="openModalCreateDocument()"
-    [actions]="['import', 'export']"
-    title="Gestión de documentos"
-    [(nameFilter)]="nameFilter"
-    module="document"
-  ></app-navbar>
+    [description]="'En este modulo podrás gestionar ' + homologateText(userLocalService?.user?.type_company!,'documentos')"
+    (eventImport)="listStatus.showModalBulkload = true" (eventExport)="exportTableToCsv()"
+    (eventClickButton)="openModalCreateDocument()" [actions]="['import', 'export']"
+    [title]="'Gestión de ' + homologateText(userLocalService?.user?.type_company!,'documentos')"
+    [(nameFilter)]="nameFilter" module="document"></app-navbar>
   <div class="secondary-card">
-    <app-table
-      gridHeaderColumns="minmax(10rem, 1fr) minmax(10rem, 1fr) 10rem minmax(10rem, 1fr) 5rem"
-      [loadingTable]="listStatus.loadingTable"
-      [totalItems]="documents.length"
-      [nameFilter]="nameFilter"
-      [list]="documents"
-      [withPager]="true"
-    >
+    <app-table gridHeaderColumns="minmax(10rem, 1fr) minmax(10rem, 1fr) 10rem minmax(10rem, 1fr) 9rem"
+      [loadingTable]="listStatus.loadingTable" [totalItems]="documents.length" [nameFilter]="nameFilter"
+      [list]="documents" [withPager]="true">
       <ng-container tableHeader>
         <p class="font-subtitle-large">Nombre del cliente</p>
-        <p class="font-subtitle-large">Tipo documento</p>
+        <p class="font-subtitle-large">Nombre documento</p>
         <p class="font-subtitle-large">Identificación cliente</p>
         <p class="font-subtitle-large">Descripción</p>
       </ng-container>
       <ng-template let-item>
-        <p
-          class="font-body-medium white-space-nowrap text-overflow-ellipsis overflow-hidden"
-          [appTooltip]="
+        <p class="font-body-medium white-space-nowrap text-overflow-ellipsis overflow-hidden" [appTooltip]="
             validateLimitText(nameCustomer) ? item?.name_customer : ''
-          "
-          #nameCustomer
-        >
+          " #nameCustomer>
           {{ item?.name_customer }}
         </p>
-        <p
-          class="font-body-medium white-space-nowrap text-overflow-ellipsis overflow-hidden"
-          [appTooltip]="validateLimitText(nameDocument) ? item?.name : ''"
-          #nameDocument
-        >
+        <p class="font-body-medium white-space-nowrap text-overflow-ellipsis overflow-hidden"
+          [appTooltip]="validateLimitText(nameDocument) ? item?.name : ''" #nameDocument>
           {{ item?.name }}
         </p>
         <p class="font-body-medium">
           {{ item?.identification }}
         </p>
-        <p
-          class="font-body-medium white-space-nowrap text-overflow-ellipsis overflow-hidden"
-          [appTooltip]="
+        <p class="font-body-medium white-space-nowrap text-overflow-ellipsis overflow-hidden" [appTooltip]="
             validateLimitText(descriptionDocument) ? item?.description : ''
-          "
-          #descriptionDocument
-        >
+          " #descriptionDocument>
           {{ item?.description }}
         </p>
         <div class="center-all">
-          <button
-            class="primary-button button-md width-fit-content"
-            [configTooltip]="{ position: 'left' }"
-            (click)="previewFile(item)"
-            appTooltip="Ver archivo"
-          >
-            <i
-              class="fa-solid fa-file-pdf fa-lg cl-secondary-background-theme-important"
-            >
+          <button class="primary-button button-md width-fit-content" [configTooltip]="{ position: 'left' }"
+            (click)="previewFile(item)" appTooltip="Ver archivo" type="button">
+            <i class="fa-solid fa-file-pdf fa-lg cl-secondary-background-theme-important">
             </i>
           </button>
+
+          @if(userLocalService?.user?.id_rol === 1){
+          <a class="primary-button button-md width-fit-content ml-50-rem" [configTooltip]="{ position: 'left' }"
+            [href]="storageUrl + item?.path" appTooltip="Descargar archivo" target="_blank" download>
+            <i class="fa-solid fa-download fa-lg cl-secondary-background-theme-important">
+            </i>
+          </a>
+
+          <button class="primary-button bg-danger button-md width-fit-content ml-50-rem " [configTooltip]="{ position: 'left' }"
+            (click)="deleteDocument(item.id_history)" appTooltip="Eliminar archivo" type="button">
+            <i class="fa-solid fa-trash-can fa-lg cl-secondary-background-theme-important">
+            </i>
+          </button>
+          }
+
         </div>
       </ng-template>
     </app-table>
@@ -71,45 +61,31 @@
 </div>
 
 @if(listStatus.showModal){
-<app-modal
-  [primaryButton]="{ hidden: listStatus.disabledPrimaryButton }"
-  (eventButtonClick)="$event ? createDocument() : closeModal()"
-  [loadingButtons]="listStatus.savingDocument"
+<app-modal [primaryButton]="{ hidden: listStatus.disabledPrimaryButton }"
+  (eventButtonClick)="$event ? createDocument() : closeModal()" [loadingButtons]="listStatus.savingDocument"
   [customStyles]="{
     height: '95vh'
-  }"
-  title="Crear documento"
-  size="sm"
->
+  }" title="Crear documento" size="sm">
   <form [formGroup]="documentForm">
     <div class="row">
       <!-- Name -->
       <div class="col-auto mb-150-rem">
-        <app-input
-          placeholder="Escribir nombre"
-          [defaultLabelError]="true"
-          formControlName="name"
-          id="name"
-        >
+        <app-input placeholder="Escribir nombre" [defaultLabelError]="true" formControlName="name" id="name">
           <label for="name" labelInput>
-            Tipo documento <span class="cl-danger-background-status">*</span>
+            Nombre documento <span class="cl-danger-background-status">*</span>
           </label>
         </app-input>
       </div>
       <!-- Identification -->
       <div class="col-auto mb-150-rem">
-        <app-autocomplete
-          formControlName="identification"
-          [configAutoComplete]="{
+        <app-autocomplete formControlName="identification" [configAutoComplete]="{
             placeholder: 'Buscar cliente por nombre',
             fieldId: 'identification',
             assignOnlyFieldId: true,
             defaultLabelError: true,
             id: 'identification',
             fieldText: ['identification', 'name']
-          }"
-          [options]="customers"
-        >
+          }" [options]="customers">
           <label for="identification" labelAutoComplete>Cliente</label>
         </app-autocomplete>
       </div>
@@ -119,69 +95,37 @@
       <div class="col-auto mb-150-rem">
         <div class="primary-form-field">
           <label for="description" labelInput> Descripción </label>
-          <textarea
-            formControlName="description"
-            class="primary-input"
-            rows="5"
-          ></textarea>
+          <textarea formControlName="description" class="primary-input" rows="5"></textarea>
         </div>
       </div>
     </div>
     <div class="row">
       <div class="col-auto">
-        <div
-          appTooltip="Click para seleccioar un archivo"
-          class="primary-form-field-file"
-          (click)="inputPdf.click()"
-        >
+        <div appTooltip="Click para seleccioar un archivo" class="primary-form-field-file" (click)="inputPdf.click()">
           <p class="font-body-medium">
             {{
-              selectedFilePdf
-                ? "Archivo seleccionado: " + selectedFilePdf?.name
-                : "Seleccionar archivo"
+            selectedFilePdf
+            ? "Archivo seleccionado: " + selectedFilePdf?.name
+            : "Seleccionar archivo"
             }}
           </p>
-          <input
-            (change)="onFileSelected($event)"
-            accept="application/pdf"
-            type="file"
-            #inputPdf
-          />
+          <input (change)="onFileSelected($event)" accept="application/pdf" type="file" #inputPdf />
         </div>
         @if(pdfSrc){
-        <iframe
-          [src]="pdfSrc"
-          frameborder="0"
-          height="500px"
-          width="100%"
-        ></iframe>
+        <iframe [src]="pdfSrc" frameborder="0" height="500px" width="100%"></iframe>
         }
       </div>
     </div>
   </form>
 </app-modal>
 } @if(listStatus.showModalPrewiew){
-<app-modal
-  (eventButtonClick)="listStatus.showModalPrewiew = false"
-  [primaryButton]="{ text: 'Cerrar' }"
-  [secondaryButton]="{ hidden: true }"
-  [customStyles]="{ height: '95vh' }"
-  title="Previsualiar archivo"
-  size="sm"
->
+<app-modal (eventButtonClick)="listStatus.showModalPrewiew = false" [primaryButton]="{ text: 'Cerrar' }"
+  [secondaryButton]="{ hidden: true }" [customStyles]="{ height: '95vh' }" title="Previsualiar archivo" size="sm">
   @if(fileUrl){
-  <iframe
-    [src]="fileUrl! | safeUrl"
-    frameborder="0"
-    height="100%"
-    width="100%"
-  ></iframe>
+  <iframe [src]="fileUrl! | safeUrl" frameborder="0" height="100%" width="100%"></iframe>
   }
 </app-modal>
 }@if(listStatus.showModalBulkload){
-<app-modal-bulkload
-  (showModalBulkloadChange)="modalBulkloadChange($event)"
-  [showModalBulkload]="listStatus.showModalBulkload"
-  [customers]="customers"
-></app-modal-bulkload>
+<app-modal-bulkload (showModalBulkloadChange)="modalBulkloadChange($event)"
+  [showModalBulkload]="listStatus.showModalBulkload" [customers]="customers"></app-modal-bulkload>
 }

@@ -21,7 +21,7 @@
     height: 2.9375rem;
   }
 
-  &:not(.bg-primary):not(.bg-transparent) {
+  &:not(.bg-primary):not(.bg-transparent):not(.bg-danger) {
     background-color: get-theme-value(palette, tertiary, background);
     color: get-theme-value(theme, secondary, background);
 
@@ -57,6 +57,24 @@
       border-color: get-theme-value(theme, primary, transparent);
       box-shadow: 0 0 0 2px #ffffff,
         0 0 0 4px get-theme-value(theme, primary, transparent),
+        0 1px 2px 0 black;
+    }
+  }
+
+  &.bg-danger {
+    background-color: get-theme-value(status, danger, background);
+    color: get-theme-value(theme, primary, color);
+
+    &:hover {
+      background-color: get-theme-value(status, danger, dark);
+      border-color: get-theme-value(status, danger, dark);
+    }
+
+    &:focus {
+      background-color: get-theme-value(status, danger, dark);
+      border-color: get-theme-value(status, danger, dark);
+      box-shadow: 0 0 0 2px #ffffff,
+        0 0 0 4px get-theme-value(status, danger, dark),
         0 1px 2px 0 black;
     }
   }

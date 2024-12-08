@@ -94,6 +94,11 @@ $properties-map: (
       100%,
     ),
   ),
+  word-break: (
+    values: (
+      break-all,
+    ),
+  ),
 );
 
 // Mixin para generar una clase específica con el nombre de clase, propiedad CSS y valor proporcionados.

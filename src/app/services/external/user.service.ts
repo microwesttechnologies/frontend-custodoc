@@ -54,6 +54,14 @@ export class UserService {
     );
   }
 
+  updateUser(user: User): Observable<GenericResponse> {
+    return this.http.put<GenericResponse>(
+      this.apiUrl,
+      user,
+      headerAuthorization()
+    );
+  }
+
   getAllById(id_user: number): Observable<User> {
     return this.http.get<User>(
       `${environment.apiUrl}employees/${id_user}`,
