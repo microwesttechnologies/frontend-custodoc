@@ -129,7 +129,7 @@
     } @if(userLocalService.user?.id_rol === 1){
     <div class="row">
       <!-- Rol -->
-      <div class="col-auto mb-150-rem">
+      <div class="col col-xs-12 col-md-6 mb-150-rem">
         <app-select formControlName="id_rol" [configSelect]="{
             placeholder: 'Seleccionar rol',
             assignOnlyFieldId: true,
@@ -141,19 +141,22 @@
           <label for="id_rol" labelSelect>Rol</label>
         </app-select>
       </div>
+      {{userForm?.get('id_rol')?.value}}
+      @if(+userForm?.get('id_rol')?.value !== 4){
       <!-- Company -->
-      <div class="col-auto">
+      <div class="col col-xs-12 col-md-6">
         <app-autocomplete [configAutoComplete]="{
-            placeholder: 'Buscar compañia por nombre',
-            assignOnlyFieldId: true,
-            defaultLabelError: true,
-            fieldId: 'id_company',
-            fieldText: 'name',
-            id: 'id_company'
-          }" formControlName="id_company" [options]="companies">
+              placeholder: 'Buscar compañia por nombre',
+              assignOnlyFieldId: true,
+              defaultLabelError: true,
+              fieldId: 'id_company',
+              fieldText: 'name',
+              id: 'id_company'
+            }" formControlName="id_company" [options]="companies">
           <label for="id_company" labelAutoComplete> Compañía</label>
         </app-autocomplete>
       </div>
+      }
     </div>
     }
   </form>
