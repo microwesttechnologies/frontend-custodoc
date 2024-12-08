@@ -28,6 +28,7 @@
     "papaparse": "^5.4.1",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
+    "typeface-roboto": "^1.1.13",
     "zone.js": "~0.14.3"
   },
   "devDependencies": {
