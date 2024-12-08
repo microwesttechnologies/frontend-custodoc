@@ -181,8 +181,7 @@ export class HistoryModuleComponent {
               `${homologateText(this.userLocalService?.user?.type_company!, 'documento')} se agrego exitosamente`,
               'success'
             );
-            this.listStatus.showModal = false;
-            this.selectedFilePdf = undefined;
+            this.closeModal();
             this.globalService.detailCompany.documents.amount =
               this.globalService.detailCompany.documents.amount + 1;
           } else {
