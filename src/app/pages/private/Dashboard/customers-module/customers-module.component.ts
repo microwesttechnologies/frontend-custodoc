@@ -203,10 +203,10 @@ export class CustomersModuleComponent {
               'success'
             );
             this.closeModal();
-            if (!this.idCustomerSelected) {
+            if (!this.idCustomerSelected)
               this.globalService.detailCompany.customers.amount =
                 this.globalService.detailCompany.customers?.amount + 1;
-            }
+
           } else {
             this.notificationService.showNotification(
               response.message!,

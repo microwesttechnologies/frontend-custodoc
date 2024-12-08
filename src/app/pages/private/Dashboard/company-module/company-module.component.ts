@@ -113,13 +113,12 @@ export class CompanyModuleComponent {
           if (response.status) {
             this.getAllCompanies();
             this.notificationService.showNotification(
-              `Compañía ${
-                this.idCompanySelected ? 'actualizada' : 'agregada'
+              `Compañía ${this.idCompanySelected ? 'actualizada' : 'agregada'
               } exitosamente`,
               'success'
             );
             this.closeModal();
-            this.globalService.detailCompany.company!.amount =
+            if (!this.idCompanySelected) this.globalService.detailCompany.company!.amount =
               this.globalService.detailCompany.company?.amount! + 1;
           } else {
             this.notificationService.showNotification(
@@ -132,8 +131,7 @@ export class CompanyModuleComponent {
         error: (error) => {
           this.listStatus.savingCompany = false;
           this.notificationService.showNotification(
-            `Lo sentimos, no se pudo ${
-              this.idCompanySelected ? 'actualizar' : 'agrer'
+            `Lo sentimos, no se pudo ${this.idCompanySelected ? 'actualizar' : 'agrer'
             } la compañia`,
             'danger'
           );

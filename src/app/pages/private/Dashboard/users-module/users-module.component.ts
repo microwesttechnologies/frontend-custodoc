@@ -230,10 +230,10 @@ export class UsersModuleComponent {
             );
             this.listStatus.showModal = false;
             this.closeModal();
-            if (!this.idUserSelected) {
+            if (!this.idUserSelected)
               this.globalService.detailCompany.users.amount =
                 this.globalService.detailCompany.users.amount + 1;
-            }
+
           } else {
             this.notificationService.showNotification(
               response.message!,
