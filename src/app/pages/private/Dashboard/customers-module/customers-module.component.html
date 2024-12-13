@@ -3,11 +3,11 @@
     [description]="'En este modulo podrás gestionar los ' + homologateText(userLocalService?.user?.type_company!,'clientes')"
     (eventClickButton)="openModalCreateCustomer()"
     [title]="'Gestión de ' + homologateText(userLocalService?.user?.type_company!,'clientes')"
-    [(nameFilter)]="nameFilter" module="customer"></app-navbar>
+    [(textFilter)]="textFilter" module="customer"></app-navbar>
   <div class="secondary-card">
     <app-table [selectedItem]="['identification', idCustomerSelected]" (eventRowClick)="setUpdateCustomer($event)"
       [loadingTable]="listStatus.loadingTable" [gridHeaderColumns]="gridHeaderColumns" [totalItems]="customers.length"
-      [nameFilter]="nameFilter" [list]="customers" [withPager]="true">
+      [textFilter]="textFilter" [list]="customers" [withPager]="true" [fieldsToFilter]="fieldsToFilter">
       <ng-container tableHeader>
         <p class="font-subtitle-large">Identificación</p>
         <p class="font-subtitle-large">Tipo documento</p>
@@ -30,12 +30,23 @@
           {{ item?.email }}
         </p>
         <p class="font-body-medium">{{ item?.phone }}</p>
-        <p class="font-body-medium white-space-nowrap text-overflow-ellipsis overflow-hidden"
-          [ngClass]="{ 'display-none': userLocalService?.user?.id_rol !== 1 }" [appTooltip]="
+        @if(userLocalService?.user?.id_rol === 1){
+        <p class="font-body-medium white-space-nowrap text-overflow-ellipsis overflow-hidden" [appTooltip]="
             validateLimitText(nameCompany) ? item?.name_company : ''
-          " #nameCompany>
+            " #nameCompany>
           {{ item?.name_company }}
         </p>
+        }
+
+        @if(userLocalService?.user?.id_rol === 1){
+        <button class="primary-button bg-danger button-md width-fit-content" [configTooltip]="{ position: 'left' }"
+          (click)="$event.stopPropagation();
+          customerToDelete = item"
+          [appTooltip]="'Eliminar ' + homologateText(userLocalService?.user?.type_company!,'cliente')" type="button">
+          <i class="fa-solid fa-trash-can fa-lg cl-secondary-background-theme-important">
+          </i>
+        </button>
+        }
       </ng-template>
     </app-table>
   </div>
@@ -148,4 +159,17 @@
   </app-table>
   }
 </app-modal>
+}
+
+@if(customerToDelete){
+<app-modal-confirmation-delete [nameToValidate]="customerToDelete?.name!"
+  [title]="'Eliminar ' + homologateText(userLocalService?.user?.type_company!,'cliente')"
+  [primaryButton]="{text:'Eliminar'}" (eventButtonClick)="$event ? deleteCustomer() : customerToDelete = undefined">
+
+  <p class="font-body-large text-align-center mb-100-rem">
+    Recuerda que si eliminas el {{homologateText(userLocalService?.user?.type_company!,'cliente')}} también se
+    eliminarán los documentos asociados.
+  </p>
+
+</app-modal-confirmation-delete>
 }

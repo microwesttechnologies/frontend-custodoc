@@ -47,12 +47,12 @@ import { homologateText } from 'src/app/globals/homologate-text';
 export class NavbarComponent implements OnInit {
   @Input() module!: 'company' | 'user' | 'customer' | 'document' | 'ranking';
   @Input() description!: string;
-  @Input() nameFilter = '';
+  @Input() textFilter = '';
   @Input() title!: string;
   @Input() hiddenPrimaryButton!: boolean;
   @Input() actions: ('export' | 'import')[] = [];
 
-  @Output() nameFilterChange = new EventEmitter<string>();
+  @Output() textFilterChange = new EventEmitter<string>();
   @Output() eventClickButton = new EventEmitter<void>();
   @Output() eventExport = new EventEmitter<void>();
   @Output() eventImport = new EventEmitter<void>();
@@ -69,6 +69,10 @@ export class NavbarComponent implements OnInit {
 
   public disabledOptions: any = {
     customer: {
+      3: {
+        primaryButton: true,
+        actions: true,
+      },
       2: {
         primaryButton: true,
         actions: true,
@@ -119,7 +123,7 @@ export class NavbarComponent implements OnInit {
   }
 
   public changeValueFilter(event: KeyboardEvent) {
-    this.nameFilter = (event.target as HTMLInputElement).value;
-    this.nameFilterChange.emit(this.nameFilter);
+    this.textFilter = (event.target as HTMLInputElement).value;
+    this.textFilterChange.emit(this.textFilter);
   }
 }

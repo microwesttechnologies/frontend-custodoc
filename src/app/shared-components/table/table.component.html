@@ -1,9 +1,6 @@
 <div class="primary-table" [ngStyle]="{ height: height }">
   <div class="container-header-and-body">
-    <div
-      [ngStyle]="{ 'grid-template-columns': gridHeaderColumns }"
-      class="primary-table-header"
-    >
+    <div [ngStyle]="{ 'grid-template-columns': gridHeaderColumns }" class="primary-table-header">
       <ng-content select="[tableHeader]"></ng-content>
     </div>
     <div class="primary-table-body">
@@ -11,50 +8,37 @@
       @if(loadingTable){ @for(item of createArrayByNumber(list.length > 5 ?
       list.length : 5); track i; let i = $index){
 
-      <app-item-skeleton
-        [customStyles]="{ height: '3.25rem', 'margin-top': '0.3rem' }"
-      ></app-item-skeleton>
+      <app-item-skeleton @fadeIn [customStyles]="{ height: '3.25rem', 'margin-top': '0.3rem' }"></app-item-skeleton>
 
       } }@else{ @if(list.length === 0){
       <div class="center-all height-100" @fadeIn>
         <h3 class="font-title-large">No se encontraron registros</h3>
       </div>
-      }@else if(listFilter.length === 0 && nameFilter){
+      }@else if(listFilter.length === 0 && textFilter){
       <div class="center-all flex-direction-column height-100" @fadeIn>
         <h3 class="font-title-large">
           No se encontraron resultados con el termino:
         </h3>
         <h3 class="font-title-large cl-primary-background-palette-important word-break-break-all">
-          {{ nameFilter }}
+          {{ textFilter }}
         </h3>
       </div>
       }@else {@for(item of listFilter; track i; let i = $index){
-      <div
-        [ngClass]="{
+      <div [ngClass]="{
           'primary-table-item-selected':
             item[selectedItem[0]] === selectedItem[1]
-        }"
-        [ngStyle]="{
+        }" [ngStyle]="{
           'grid-template-columns': gridBodyColumns || gridHeaderColumns
-        }"
-        (keydown.enter)="eventRowClick.emit(item)"
-        [appDisabledElement]="item?.disabled"
-        (click)="eventRowClick.emit(item)"
-        class="primary-table-item"
-        aria-label="Fila"
-        @slideEnterRight
-        role="button"
-        tabindex="0"
-      >
-        <ng-container
-          *ngTemplateOutlet="
+        }" (keydown.enter)="eventRowClick.emit(item)" [appDisabledElement]="item?.disabled"
+        (click)="eventRowClick.emit(item)" class="primary-table-item" aria-label="Fila" @fadeIn role="button"
+        tabindex="0">
+        <ng-container *ngTemplateOutlet="
             templateRef;
             context: {
               $implicit: item,
               gridColumns: gridHeaderColumns
             }
-          "
-        ></ng-container>
+          "></ng-container>
       </div>
       }} }
     </div>

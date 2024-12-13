@@ -12,7 +12,7 @@ import { headerAuthorization } from '../local/helper.service';
 export class UserService {
   private readonly apiUrl = `${environment.apiUrl}user`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   login(email: string, password: string): Observable<GenericResponse> {
     return this.http.post<GenericResponse>(`${environment.apiUrl}login`, {
@@ -65,6 +65,13 @@ export class UserService {
   getAllById(id_user: number): Observable<User> {
     return this.http.get<User>(
       `${environment.apiUrl}employees/${id_user}`,
+      headerAuthorization()
+    );
+  }
+
+  deleteUser(identification: string): Observable<GenericResponse> {
+    return this.http.delete<GenericResponse>(
+      `${this.apiUrl}/${identification}`,
       headerAuthorization()
     );
   }

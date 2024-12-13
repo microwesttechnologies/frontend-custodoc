@@ -51,58 +51,48 @@ export const createArrayByNumber = (length: number): number[] =>
 export const validateLimitText = (event: HTMLElement): boolean =>
   event?.scrollWidth > event?.clientWidth;
 
-export const arrayFilter = <T extends Array<any> | object>(
+export const arrayFilter = <T>(
   list: Array<T>,
   value: string,
-  propertys: string | string[]
+  fields: string[]
 ): Array<T> => {
   if (!value) return list;
 
-  return list?.filter((o: any) =>
-    Object.keys(o).some((k) => {
-      if (propertys.includes(k) || propertys === '') {
-        if (!o[k]) {
-          o[k] = '';
-        }
+  const lowerCaseValue = value.trim().toLowerCase();
 
-        return o[k]
-          ?.trim()
-          ?.toString()
-          ?.toLowerCase()
-          ?.includes(value?.trim()?.toLowerCase());
-      } else {
-        return null;
-      }
-    })
+  return list.filter((item: any) =>
+    fields.some((field) =>
+      item[field]?.toString().toLowerCase().includes(lowerCaseValue),
+    ),
   );
 };
 
 export const passwordMatchValidator =
   (password: string, confirmPassword: string): ValidatorFn =>
-  (formGroup: AbstractControl): ValidationErrors | null => {
-    const passwordControl = formGroup.get(password);
-    const confirmPasswordControl = formGroup.get(confirmPassword);
+    (formGroup: AbstractControl): ValidationErrors | null => {
+      const passwordControl = formGroup.get(password);
+      const confirmPasswordControl = formGroup.get(confirmPassword);
 
-    if (!passwordControl || !confirmPasswordControl) {
-      return null; // Salir si los controles no existen
-    }
+      if (!passwordControl || !confirmPasswordControl) {
+        return null; // Salir si los controles no existen
+      }
 
-    if (
-      confirmPasswordControl.errors &&
-      !confirmPasswordControl.errors['passwordMismatch']
-    ) {
-      return null; // Salir si ya tiene otros errores
-    }
+      if (
+        confirmPasswordControl.errors &&
+        !confirmPasswordControl.errors['passwordMismatch']
+      ) {
+        return null; // Salir si ya tiene otros errores
+      }
 
-    // Validar que las contraseñas coincidan
-    if (passwordControl.value !== confirmPasswordControl.value) {
-      confirmPasswordControl.setErrors({ passwordMismatch: true });
-      return { passwordMismatch: true };
-    } else {
-      confirmPasswordControl.setErrors(null); // Limpiar error si coincide
-      return null;
-    }
-  };
+      // Validar que las contraseñas coincidan
+      if (passwordControl.value !== confirmPasswordControl.value) {
+        confirmPasswordControl.setErrors({ passwordMismatch: true });
+        return { passwordMismatch: true };
+      } else {
+        confirmPasswordControl.setErrors(null); // Limpiar error si coincide
+        return null;
+      }
+    };
 
 // Función para convertir archivos a Base64
 export const fileToBase64 = (

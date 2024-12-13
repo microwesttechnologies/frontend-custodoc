@@ -11,7 +11,6 @@
   & .content-modal {
     background-color: get-theme-value(theme, secondary, background);
     box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.08);
-    grid-template-rows: auto 1fr auto;
     border-radius: 0.5rem;
     display: grid;
     left: 50%;
@@ -30,6 +29,11 @@
     &.modal-sm {
       height: 70vh;
       width: 60vw;
+    }
+
+    &.modal-xs {
+      height: 65vh;
+      width: 40vw;
     }
 
     &-header {

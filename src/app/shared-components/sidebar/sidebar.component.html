@@ -42,10 +42,16 @@
         }" aria-label="Mi perfil" role="button" tabindex="0">
         <i class="fa-solid fa-circle-user fa-lg"></i>
         @if(isSidebarOpened){
-        <p class="font-subtitle-xlarge white-space-nowrap text-overflow-ellipsis overflow-hidden"
-          @slideEnterAndLeaveLeft>
-          {{ userLocalService?.user?.name }}
-        </p>
+        <section @slideEnterAndLeaveLeft>
+          <p class="font-subtitle-xlarge white-space-nowrap text-overflow-ellipsis overflow-hidden"
+            >
+            {{ userLocalService?.user?.name }}
+          </p>
+          <p class="font-body-medium white-space-nowrap text-overflow-ellipsis overflow-hidden"
+            >
+            {{ userLocalService?.user?.id_rol === 1 ? 'Super administrador' : userLocalService?.user?.id_rol === 2 ? 'Administrador' : userLocalService?.user?.id_rol === 3 ? 'Médico' : 'Cargador archivos' }}
+          </p>
+        </section>
         }
       </div>
       <div [ngClass]="{ 'justify-content-center': !showContent }" [appTooltip]="isSidebarOpened ? '' : 'Cerrar sesión'"
@@ -55,7 +61,8 @@
         role="button" tabindex="0">
         <i class="fa-solid fa-arrow-right-from-bracket fa-lg"></i>
         @if(isSidebarOpened){
-        <p class="font-subtitle-xlarge white-space-nowrap text-overflow-ellipsis overflow-hidden" @slideEnterAndLeaveLeft>
+        <p class="font-subtitle-xlarge white-space-nowrap text-overflow-ellipsis overflow-hidden"
+          @slideEnterAndLeaveLeft>
           Cerrar sesión
         </p>
         }

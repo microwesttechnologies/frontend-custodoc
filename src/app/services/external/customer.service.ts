@@ -12,7 +12,7 @@ import { GenericResponse } from 'src/app/models/global.model';
 export class CustomerService {
   private readonly apiUrl = `${environment.apiUrl}customer`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getAllCustomers(): Observable<Customer[]> {
     return this.http.get<Customer[]>(this.apiUrl, headerAuthorization());
@@ -30,6 +30,13 @@ export class CustomerService {
     return this.http.put<GenericResponse>(
       this.apiUrl,
       customer,
+      headerAuthorization()
+    );
+  }
+
+  deleteCustomer(identification: string): Observable<GenericResponse> {
+    return this.http.delete<GenericResponse>(
+      `${this.apiUrl}/${identification}`,
       headerAuthorization()
     );
   }

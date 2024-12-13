@@ -1,0 +1,3 @@
+@import "src/styles/core/_mixins.scss";
+
+@include generate-styles("mb", "margin-bottom", rem, 100, 100);

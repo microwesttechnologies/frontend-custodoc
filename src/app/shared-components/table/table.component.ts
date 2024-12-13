@@ -7,6 +7,7 @@ import {
   Input,
   OnChanges,
   SimpleChanges,
+  OnInit,
 } from '@angular/core';
 
 import { ItemSkeletonComponent } from '../item-skeleton/item-skeleton.component';
@@ -29,18 +30,6 @@ import {
   imports: [ItemSkeletonComponent, SharedModule, DisabledElementDirective],
   standalone: true,
   animations: [
-    slideCustomAnimation(
-      'slideEnterRight',
-      'X',
-      '1rem',
-      '0',
-      {
-        enter: '300ms',
-      },
-      {
-        enter: true,
-      }
-    ),
     fadeInCustomAnimation('fadeIn', '300ms'),
   ],
 })
@@ -50,12 +39,13 @@ export class TableComponent implements OnChanges {
     '',
     null,
   ]; /** La primera posición es el identificador y el siguiente el valor a comparar */
+  @Input() fieldsToFilter: string[] = [];
   @Input() hiddenOptionsPager!: boolean;
   @Input() gridHeaderColumns!: string;
   @Input() gridBodyColumns!: string;
   @Input() loadingTable!: boolean;
   @Input() currentPage!: number;
-  @Input() nameFilter!: string;
+  @Input() textFilter!: string;
   @Input() totalItems!: number;
   @Input() withPager!: boolean;
   @Input() list: any[] = [];
@@ -75,8 +65,8 @@ export class TableComponent implements OnChanges {
       this.listFilter = this.list;
     }
 
-    if (changes['nameFilter']) {
-      this.listFilter = arrayFilter(this.list, this.nameFilter, 'name');
+    if (changes['textFilter']) {
+      this.listFilter = arrayFilter(this.list, this.textFilter, this.fieldsToFilter);
     }
   }
 

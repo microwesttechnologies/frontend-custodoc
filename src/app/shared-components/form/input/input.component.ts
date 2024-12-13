@@ -2,7 +2,9 @@ import {
   Component,
   Injector,
   Input,
+  OnChanges,
   OnInit,
+  SimpleChanges,
   forwardRef,
   inject,
 } from '@angular/core';
@@ -12,10 +14,13 @@ import {
   NgControl,
 } from '@angular/forms';
 import { SharedModule } from '../../shared.module';
+import { TooltipDirective } from 'src/app/directives/tooltip.directive';
+
+type InputTypes = 'text' | 'email' | 'password' | 'number';
 
 @Component({
   standalone: true,
-  imports: [SharedModule],
+  imports: [SharedModule, TooltipDirective],
   selector: 'app-input',
   templateUrl: './input.component.html',
   providers: [
@@ -26,19 +31,21 @@ import { SharedModule } from '../../shared.module';
     },
   ],
 })
-export class InputComponent implements OnInit, ControlValueAccessor {
-  @Input() type: 'text' | 'email' | 'password' | 'number' = 'text';
+export class InputComponent implements OnInit, OnChanges, ControlValueAccessor {
+  @Input() type: InputTypes = 'text';
   @Input() defaultLabelError!: boolean;
   @Input() placeholder: string = '';
   @Input() maxLength!: number;
   @Input() id!: string;
 
-  private onChange: Function = (value: any) => {};
-  private onTouched: Function = () => {};
+  private onChange: Function = (value: any) => { };
+  private onTouched: Function = () => { };
 
   public ngControl!: NgControl;
 
   public value = '';
+  public tempType!: InputTypes;
+  public iconPassword = 'fa-eye-slash';
 
   public get invalid() {
     return this.ngControl?.invalid;
@@ -59,6 +66,12 @@ export class InputComponent implements OnInit, ControlValueAccessor {
       this.ngControl = this.injector.get(NgControl);
     } catch (error) {
       console.warn('form control no implemented');
+    }
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['type']) {
+      this.tempType = this.type;
     }
   }
 
@@ -93,5 +106,10 @@ export class InputComponent implements OnInit, ControlValueAccessor {
       this.value = value;
       this.onChange(this.value);
     }
+  }
+
+  public togglePassword(): void {
+    this.tempType = this.tempType === 'password' ? 'text' : 'password';
+    this.iconPassword = this.tempType === 'password' ? 'fa-eye-slash' : 'fa-eye';
   }
 }

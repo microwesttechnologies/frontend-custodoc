@@ -3,11 +3,11 @@
     [description]="'En este modulo podrás gestionar los ' + homologateText(userLocalService?.user?.type_company!,'empleados')"
     (eventClickButton)="openModalCreateUser()"
     [title]="'Gestión de ' + homologateText(userLocalService?.user?.type_company!,'empleados')"
-    [(nameFilter)]="nameFilter" module="user"></app-navbar>
+    [(textFilter)]="textFilter" module="user"></app-navbar>
   <div class="secondary-card">
     <app-table [selectedItem]="['identification', idUserSelected]" [loadingTable]="listStatus.loadingTable"
       (eventRowClick)="setUpdateUser($event)" [gridHeaderColumns]="gridHeaderColumns" [totalItems]="users.length"
-      [nameFilter]="nameFilter" [withPager]="true" [list]="users">
+      [textFilter]="textFilter" [withPager]="true" [list]="users" [fieldsToFilter]="fieldsToFilter">
       <ng-container tableHeader>
         <p class="font-subtitle-large">Identificación</p>
         <p class="font-subtitle-large">Tipo documento</p>
@@ -32,12 +32,23 @@
         </p>
         <p class="font-body-medium">{{ item?.phone }}</p>
         <p class="font-body-medium">{{ item?.name_rol }}</p>
-        <p class="font-body-medium white-space-nowrap text-overflow-ellipsis overflow-hidden"
-          [ngClass]="{ 'display-none': userLocalService?.user?.id_rol !== 1 }" [appTooltip]="
+        @if(userLocalService?.user?.id_rol === 1){
+        <p class="font-body-medium white-space-nowrap text-overflow-ellipsis overflow-hidden" [appTooltip]="
             validateLimitText(nameCompany) ? item?.name_company : ''
           " #nameCompany>
           {{ item?.name_company }}
         </p>
+        }
+        @if((userLocalService?.user?.id_rol === 1 || userLocalService?.user?.id_rol === 2) &&
+        userLocalService?.user?.identification !== item.identification){
+        <button class="primary-button bg-danger button-md width-fit-content" [configTooltip]="{ position: 'left' }"
+          (click)="$event.stopPropagation();
+          userToDelete = item"
+          [appTooltip]="'Eliminar ' + homologateText(userLocalService?.user?.type_company!, 'empleado')" type="button">
+          <i class="fa-solid fa-trash-can fa-lg cl-secondary-background-theme-important">
+          </i>
+        </button>
+        }
       </ng-template>
     </app-table>
   </div>
@@ -126,7 +137,7 @@
         </app-input>
       </div>
     </div>
-    } @if(userLocalService.user?.id_rol === 1){
+    } @if(userLocalService?.user?.id_rol === 1){
     <div class="row">
       <!-- Rol -->
       <div class="col col-xs-12 col-md-6 mb-150-rem">
@@ -141,7 +152,6 @@
           <label for="id_rol" labelSelect>Rol</label>
         </app-select>
       </div>
-      {{userForm?.get('id_rol')?.value}}
       @if(+userForm?.get('id_rol')?.value !== 4){
       <!-- Company -->
       <div class="col col-xs-12 col-md-6">
@@ -161,4 +171,17 @@
     }
   </form>
 </app-modal>
+}
+
+@if(userToDelete){
+<app-modal-confirmation-delete [nameToValidate]="userToDelete?.name!"
+  [title]="'Eliminar ' + homologateText(userLocalService?.user?.type_company!,'empleado')"
+  [primaryButton]="{text:'Eliminar'}" (eventButtonClick)="$event ? deleteUser() : userToDelete = undefined">
+
+  <p class="font-body-large text-align-center mb-100-rem">
+    Recuerda que si eliminas el {{homologateText(userLocalService?.user?.type_company!,'empleado')}} no se podrá
+    recuperar la información.
+  </p>
+
+</app-modal-confirmation-delete>
 }

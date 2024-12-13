@@ -29,11 +29,13 @@ import { ModalBulkloadComponent } from './components/modal-bulkload/modal-bulklo
 import { environment } from 'src/environments/environment';
 import { UserLocalService } from 'src/app/services/local/user.service';
 import { homologateText } from 'src/app/globals/homologate-text';
+import { ModalConfirmationDeleteComponent } from 'src/app/shared-components/modal-confirmation-delete/modal-confirmation-delete.component';
 
 @Component({
   selector: 'app-history-module',
   standalone: true,
   imports: [
+    ModalConfirmationDeleteComponent,
     ModalBulkloadComponent,
     AutoCompleteComponent,
     TooltipDirective,
@@ -55,9 +57,11 @@ export class HistoryModuleComponent {
   public documents: Document[] = [];
   public customers: Customer[] = [];
 
+  public documentToDelete?: Document;
   public documentForm!: FormGroup;
 
-  public nameFilter = '';
+  public textFilter = '';
+  public fieldsToFilter = ['name_customer', 'name', 'identification', 'description'];
 
   public pdfSrc?: SafeResourceUrl;
   public selectedFilePdf?: File;
@@ -165,7 +169,7 @@ export class HistoryModuleComponent {
 
   public createDocument(): void {
     this.documentForm.markAllAsTouched();
-    if (this.documentForm.valid) {
+    if (this.documentForm.valid && this.selectedFilePdf) {
       const formData = new FormData();
 
       Object.entries(this.documentForm.value).forEach((elm: any[]) => {
@@ -237,7 +241,7 @@ export class HistoryModuleComponent {
   }
 
   public exportTableToCsv(): void {
-    const headers = 'Nombre del cliente,Nombre documento, Identificación cliente, Descripción';
+    const headers = `Nombre del ${homologateText(this.userLocalService?.user?.type_company!, 'cliente')},Nombre documento, Identificación cliente, Descripción`;
     const rows = this.documents.map(document => [document.name_customer, document.name, document.identification, document.description].map((value) =>
       typeof value === 'string' && value.includes('\n')
         ? `"${value.replace(/"/g, '""')}"` // Manejar saltos de línea y comillas dobles
@@ -264,13 +268,14 @@ export class HistoryModuleComponent {
     document.body.removeChild(link);
   }
 
-  public deleteDocument(id_history: number) {
-    this.documentService.deleteDocument(id_history).subscribe({
+  public deleteDocument() {
+    this.documentService.deleteDocument(this.documentToDelete?.id_history!).subscribe({
       next: (response) => {
         if (response.status) {
           this.notificationService.showNotification(`${homologateText(this.userLocalService?.user?.type_company!, 'documento')} eliminado exitosamente`, 'success');
-          this.documents = this.documents.filter(document=>document.id_history !== id_history);
+          this.documents = this.documents.filter(document => document.id_history !== this.documentToDelete?.id_history!);
           this.globalService.detailCompany.documents.amount = this.documents.length;
+          this.documentToDelete = undefined;
         }
       },
       error: (error: HttpErrorResponse) => {

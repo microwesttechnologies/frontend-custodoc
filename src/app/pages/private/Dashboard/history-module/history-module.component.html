@@ -4,13 +4,14 @@
     (eventImport)="listStatus.showModalBulkload = true" (eventExport)="exportTableToCsv()"
     (eventClickButton)="openModalCreateDocument()" [actions]="['import', 'export']"
     [title]="'Gestión de ' + homologateText(userLocalService?.user?.type_company!,'documentos')"
-    [(nameFilter)]="nameFilter" module="document"></app-navbar>
+    [(textFilter)]="textFilter" module="document"></app-navbar>
   <div class="secondary-card">
     <app-table gridHeaderColumns="minmax(10rem, 1fr) minmax(10rem, 1fr) 10rem minmax(10rem, 1fr) 9rem"
-      [loadingTable]="listStatus.loadingTable" [totalItems]="documents.length" [nameFilter]="nameFilter"
-      [list]="documents" [withPager]="true">
+      [loadingTable]="listStatus.loadingTable" [totalItems]="documents.length" [textFilter]="textFilter"
+      [list]="documents" [withPager]="true" [fieldsToFilter]="fieldsToFilter">
       <ng-container tableHeader>
-        <p class="font-subtitle-large">Nombre del cliente</p>
+        <p class="font-subtitle-large">Nombre del {{homologateText(userLocalService?.user?.type_company!,'cliente')}}
+        </p>
         <p class="font-subtitle-large">Nombre documento</p>
         <p class="font-subtitle-large">Identificación cliente</p>
         <p class="font-subtitle-large">Descripción</p>
@@ -47,8 +48,10 @@
             </i>
           </a>
 
-          <button class="primary-button bg-danger button-md width-fit-content ml-50-rem " [configTooltip]="{ position: 'left' }"
-            (click)="deleteDocument(item.id_history)" appTooltip="Eliminar archivo" type="button">
+          <button class="primary-button bg-danger button-md width-fit-content ml-50-rem "
+            [configTooltip]="{ position: 'left' }" (click)="documentToDelete = item"
+            [appTooltip]="'Eliminar ' + homologateText(userLocalService?.user?.type_company!,'documento')"
+            type="button">
             <i class="fa-solid fa-trash-can fa-lg cl-secondary-background-theme-important">
             </i>
           </button>
@@ -120,7 +123,8 @@
 </app-modal>
 } @if(listStatus.showModalPrewiew){
 <app-modal (eventButtonClick)="listStatus.showModalPrewiew = false" [primaryButton]="{ text: 'Cerrar' }"
-  [secondaryButton]="{ hidden: true }" [customStyles]="{ height: '95vh' }" title="Previsualiar archivo" size="sm">
+  [secondaryButton]="{ hidden: true }" [customStyles]="{ height: '95vh' }" size="sm"
+  [customStylesBody]="{padding:0,overflow:'hidden'}">
   @if(fileUrl){
   <iframe [src]="fileUrl! | safeUrl" frameborder="0" height="100%" width="100%"></iframe>
   }
@@ -128,4 +132,17 @@
 }@if(listStatus.showModalBulkload){
 <app-modal-bulkload (showModalBulkloadChange)="modalBulkloadChange($event)"
   [showModalBulkload]="listStatus.showModalBulkload" [customers]="customers"></app-modal-bulkload>
+}
+
+@if(documentToDelete){
+<app-modal-confirmation-delete [nameToValidate]="documentToDelete?.name!"
+  [title]="'Eliminar ' + homologateText(userLocalService?.user?.type_company!,'documento')"
+  [primaryButton]="{text:'Eliminar'}" (eventButtonClick)="$event ? deleteDocument() : documentToDelete = undefined">
+
+  <p class="font-body-large text-align-center mb-100-rem">
+    Recuerda que si eliminas {{homologateText(userLocalService?.user?.type_company!,'document')}} no se podrá
+    recuperar la información.
+  </p>
+
+</app-modal-confirmation-delete>
 }

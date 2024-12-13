@@ -11,41 +11,27 @@
       </p>
 
       <div class="mb-150-rem">
-        <app-input
-          [defaultLabelError]="true"
-          formControlName="email"
-          id="email"
-        >
+        <app-input [defaultLabelError]="true" formControlName="email" id="email" (keyup.enter)="login()">
           <label for="email" labelInput>Correo electronico</label>
         </app-input>
       </div>
 
       <div class="mb-200-rem">
-        <app-input
-          [defaultLabelError]="true"
-          formControlName="password"
-          id="password"
-          type="password"
-        >
+        <app-input [defaultLabelError]="true" formControlName="password" type="password" id="password"
+          (keyup.enter)="login()">
           <label for="password" labelInput>Contraseña</label>
         </app-input>
       </div>
 
-      <app-button
-        [loading]="listStatus.loadingLogin"
-        classes="primary-button mb-100-rem"
-        (eventButtonClick)="login()"
+      <app-button [loading]="listStatus.loadingLogin" classes="primary-button mb-100-rem" (eventButtonClick)="login()"
         [styles]="{
           'margin-bottom': '1rem'
-        }"
-      >
+        }">
         Iniciar sesión
       </app-button>
 
       @if(messageError){
-      <p
-        class="font-body-large cl-danger-background-status-important text-align-center"
-      >
+      <p class="font-body-large cl-danger-background-status-important text-align-center">
         {{ messageError }}
       </p>
       }

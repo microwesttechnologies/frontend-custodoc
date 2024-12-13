@@ -31,11 +31,13 @@ import { DocumentService } from 'src/app/services/external/document.service';
 import { Document } from 'src/app/models/documents.model';
 import { DisabledElementDirective } from 'src/app/directives/disabled-element.directive';
 import { homologateText } from 'src/app/globals/homologate-text';
+import { ModalConfirmationDeleteComponent } from 'src/app/shared-components/modal-confirmation-delete/modal-confirmation-delete.component';
 
 @Component({
   selector: 'app-customers-module',
   standalone: true,
   imports: [
+    ModalConfirmationDeleteComponent,
     DisabledElementDirective,
     AutoCompleteComponent,
     TooltipDirective,
@@ -55,12 +57,14 @@ export class CustomersModuleComponent {
   public customers: Customer[] = [];
   public companies: Company[] = [];
 
+  public customerToDelete?: Customer;
   public idCustomerSelected?: string;
   public customerForm!: FormGroup;
 
   public gridHeaderColumns =
     '10rem 10rem minmax(10rem, 1fr) minmax(10rem, 1fr) 10rem';
-  public nameFilter = '';
+  public textFilter = '';
+  public fieldsToFilter = ['email', 'identification', 'name_company', 'name', 'phone', 'name_type_document'];
 
   public listStatus = {
     loadingTableDocumentsByCustomer: true,
@@ -88,8 +92,8 @@ export class CustomersModuleComponent {
     this.getAllTypesDocument();
     this.getAllCustomers();
 
-    if (this.userLocalService.user?.id_rol === 1) {
-      this.gridHeaderColumns += ' minmax(10rem, 1fr)';
+    if (this.userLocalService?.user?.id_rol === 1) {
+      this.gridHeaderColumns += ' minmax(10rem, 1fr) 2.8rem';
 
       this.getAllCompanies();
 
@@ -97,6 +101,8 @@ export class CustomersModuleComponent {
         'id_company',
         new FormControl('', [Validators.required])
       );
+    } else if (this.userLocalService?.user?.id_rol === 2) {
+      // this.gridHeaderColumns += ' 2.8rem';
     }
   }
 
@@ -248,5 +254,21 @@ export class CustomersModuleComponent {
 
       this.getAllDocumentsByCustomer(customer.identification!);
     }
+  }
+
+  public deleteCustomer(): void {
+    this.customerService.deleteCustomer(this.customerToDelete?.identification!).subscribe({
+      next: (response) => {
+        if (response.status) {
+          this.notificationService.showNotification(`${homologateText(this.userLocalService?.user?.type_company!, 'cliente')} eliminado exitosamente`, 'success');
+          this.customers = this.customers.filter(user => user.identification !== this.customerToDelete?.identification);
+          this.globalService.detailCompany.customers.amount = this.customers.length;
+          this.customerToDelete = undefined;
+        }
+      },
+      error: (error: HttpErrorResponse) => {
+        this.notificationService.showNotification(`Lo sentimos, no se pudo eliminar el ${homologateText(this.userLocalService?.user?.type_company!, 'cliente')}`, 'danger');
+      }
+    })
   }
 }

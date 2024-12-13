@@ -99,6 +99,11 @@ $properties-map: (
       break-all,
     ),
   ),
+  cursor: (
+    values: (
+      pointer,
+    ),
+  ),
 );
 
 // Mixin para generar una clase específica con el nombre de clase, propiedad CSS y valor proporcionados.

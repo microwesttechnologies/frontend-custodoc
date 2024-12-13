@@ -3,6 +3,8 @@
 @include generate-styles("mb", "margin-bottom", rem, 150, 150);
 @include generate-styles("mb", "margin-bottom", rem, 100, 100);
 
+@include generate-styles("ml", "margin-left", rem, 50, 50);
+
 .container-module-company {
   height: calc(100vh - 4rem);
   flex-direction: column;

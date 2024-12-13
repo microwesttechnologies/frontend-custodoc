@@ -33,13 +33,12 @@
       <div class="display-flex align-items-center justify-content-flex-end">
         <div class="primary-form-field width-100">
           <input
-            placeholder="Buscar {{ homologateText(userLocalService?.user?.type_company!,homologateModule[module]) }} por nombre"
+            placeholder="Buscar {{ homologateText(userLocalService?.user?.type_company!,homologateModule[module]) }}"
             class="primary-input bg-secondary-background-theme-important" (keyup)="changeValueFilter($event)"
-            [value]="nameFilter" type="text" />
+            [value]="textFilter" type="text" />
         </div>
-        @if(!hiddenPrimaryButton){
+        @if(!hiddenPrimaryButton && !disabledByModuleAndRol?.primaryButton){
         <button class="primary-button button-md width-fit-content ml-50-rem"
-          [appDisabledElement]="disabledByModuleAndRol?.primaryButton"
           [appTooltip]="'Agregar ' + homologateText(userLocalService?.user?.type_company!,homologateModule[module])"
           [configTooltip]="{
             position: 'left'

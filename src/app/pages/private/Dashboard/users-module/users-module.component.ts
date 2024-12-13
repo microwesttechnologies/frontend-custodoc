@@ -31,11 +31,13 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { TableComponent } from 'src/app/shared-components/table/table.component';
 import { homologateText } from 'src/app/globals/homologate-text';
 import { DisabledElementDirective } from 'src/app/directives/disabled-element.directive';
+import { ModalConfirmationDeleteComponent } from 'src/app/shared-components/modal-confirmation-delete/modal-confirmation-delete.component';
 
 @Component({
   selector: 'app-users-module',
   standalone: true,
   imports: [
+    ModalConfirmationDeleteComponent,
     DisabledElementDirective,
     AutoCompleteComponent,
     TooltipDirective,
@@ -62,10 +64,13 @@ export class UsersModuleComponent {
 
   public idUserSelected?: string;
   public userForm!: FormGroup;
+  public userToDelete?: User;
 
   public gridHeaderColumns =
     '10rem 10rem minmax(10rem, 1fr) minmax(10rem, 1fr) 10rem 10rem';
-  public nameFilter = '';
+
+  public textFilter = '';
+  public fieldsToFilter = ['email', 'name', 'name_type_document', 'name_rol', 'phone', 'identification', 'name_company'];
 
   public listStatus = {
     loadingTable: true,
@@ -90,21 +95,6 @@ export class UsersModuleComponent {
 
     this.getAllTypesDocument();
     this.getAllUsers();
-
-    if (this.userLocalService.user?.id_rol === 1) {
-      this.gridHeaderColumns += ' minmax(10rem, 1fr)';
-
-      this.getAllCompanies();
-
-      this.userForm.addControl(
-        'id_company',
-        new FormControl('', [Validators.required])
-      );
-      this.userForm.addControl(
-        'id_rol',
-        new FormControl('', [Validators.required])
-      );
-    }
   }
 
   private initForm(): void {
@@ -118,16 +108,33 @@ export class UsersModuleComponent {
         password: new FormControl(''),
         confirmPassword: new FormControl(''),
       },
-
     );
 
+    if (this.userLocalService.user?.id_rol === 1) {
+      this.gridHeaderColumns += ' minmax(10rem, 1fr) 2.8rem';
+
+      this.getAllCompanies();
+
+      this.userForm.addControl(
+        'id_company',
+        new FormControl('', [Validators.required])
+      );
+      this.userForm.addControl(
+        'id_rol',
+        new FormControl('', [Validators.required])
+      );
+    } else if (this.userLocalService.user?.id_rol === 2) {
+      this.gridHeaderColumns += ' 2.8rem';
+    }
+
     this.userForm.get('id_rol')?.valueChanges.subscribe((rol) => {
-      if (rol?.id_rol === 4 || rol === 4) {
+      if (+rol === 4) {
         this.userForm.get('id_company')?.reset();
-        this.userForm.get('id_company')?.disable();
+        this.userForm.get('id_company')?.clearValidators();
       } else {
-        this.userForm.get('id_company')?.enable();
+        this.userForm.get('id_company')?.setValidators([Validators.required]);
       }
+      this.userForm.get('id_company')?.updateValueAndValidity();
     });
   }
 
@@ -272,4 +279,21 @@ export class UsersModuleComponent {
     this.userForm.markAllAsTouched();
     this.listStatus.showModal = true;
   }
+
+  public deleteUser(): void {
+    this.userService.deleteUser(this.userToDelete?.identification!).subscribe({
+      next: (response) => {
+        if (response.status) {
+          this.notificationService.showNotification(`${homologateText(this.userLocalService?.user?.type_company!, 'empleado')} eliminado exitosamente`, 'success');
+          this.users = this.users.filter(user => user.identification !== this.userToDelete?.identification);
+          this.globalService.detailCompany.users.amount = this.users.length;
+          this.userToDelete = undefined;
+        }
+      },
+      error: (error: HttpErrorResponse) => {
+        this.notificationService.showNotification(`Lo sentimos, no se pudo eliminar el ${homologateText(this.userLocalService?.user?.type_company!, 'empleado')}`, 'danger');
+      }
+    })
+  }
+
 }

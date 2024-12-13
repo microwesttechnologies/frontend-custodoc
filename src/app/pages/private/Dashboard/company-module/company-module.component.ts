@@ -21,11 +21,13 @@ import {
 import { TooltipDirective } from 'src/app/directives/tooltip.directive';
 import { InputComponent } from 'src/app/shared-components/form/input/input.component';
 import { DisabledElementDirective } from 'src/app/directives/disabled-element.directive';
+import { ModalConfirmationDeleteComponent } from 'src/app/shared-components/modal-confirmation-delete/modal-confirmation-delete.component';
 
 @Component({
   selector: 'app-company-module',
   standalone: true,
   imports: [
+    ModalConfirmationDeleteComponent,
     DisabledElementDirective,
     TooltipDirective,
     NavbarComponent,
@@ -41,9 +43,11 @@ export class CompanyModuleComponent {
   public companies: Company[] = [];
 
   public idCompanySelected?: number;
+  public companyToDelete?: Company;
   public companyForm!: FormGroup;
 
-  public nameFilter = '';
+  public textFilter = '';
+  public fieldsToFilter = ['type', 'phone', 'nit', 'name', 'country', 'city', 'address'];
 
   public listStatus = {
     savingCompany: false,
@@ -154,5 +158,21 @@ export class CompanyModuleComponent {
 
     this.companyForm.markAllAsTouched();
     this.listStatus.showModal = true;
+  }
+
+  public deleteCompany(): void {
+    this.companyService.deleteCompany(this.companyToDelete?.id_company!).subscribe({
+      next: (response) => {
+        if (response.status) {
+          this.notificationService.showNotification(`Compañía eliminada exitosamente`, 'success');
+          this.companies = this.companies.filter(company => company.id_company !== this.companyToDelete?.id_company);
+          this.globalService.detailCompany.company!.amount = this.companies.length;
+          this.companyToDelete = undefined;
+        }
+      },
+      error: (error: HttpErrorResponse) => {
+        this.notificationService.showNotification(`Lo sentimos, no se pudo eliminar la compañía`, 'danger');
+      }
+    })
   }
 }

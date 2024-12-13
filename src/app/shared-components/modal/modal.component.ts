@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { SharedModule } from '../shared.module';
 import { slideCustomAnimation } from 'src/app/animations/global.animations';
 import { DisabledElementDirective } from 'src/app/directives/disabled-element.directive';
@@ -15,7 +15,6 @@ interface ButtonsFooter {
   standalone: true,
   imports: [SharedModule, DisabledElementDirective, ButtonComponent],
   templateUrl: './modal.component.html',
-  styleUrl: './modal.component.scss',
   animations: [
     slideCustomAnimation(
       'slideEnterAndLeaveTop',
@@ -30,9 +29,10 @@ interface ButtonsFooter {
     ),
   ],
 })
-export class ModalComponent {
-  @Input() size: 'lg' | 'md' | 'sm' = 'lg';
+export class ModalComponent implements OnInit {
+  @Input() size: 'lg' | 'md' | 'sm' | 'xs' = 'lg';
   @Input() loadingButtons!: boolean;
+  @Input() customStylesBody!: any;
   @Input() customStyles!: any;
   @Input() title!: string;
 
@@ -40,4 +40,11 @@ export class ModalComponent {
   @Input() primaryButton!: ButtonsFooter;
 
   @Output() eventButtonClick = new EventEmitter<boolean>();
+
+  ngOnInit(): void {
+    this.customStyles = {
+      ...this.customStyles,
+      'grid-template-rows': `${this.title ? 'auto' : ''} 1fr auto`
+    }
+  }
 }

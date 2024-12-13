@@ -17,7 +17,8 @@ import { TableComponent } from 'src/app/shared-components/table/table.component'
 })
 export class RankingModuleComponent implements OnInit {
   public rankingUsers: any[] = [];
-  public nameFilter = '';
+  public textFilter = '';
+  public fieldsToFilter = ['name_user', 'name_company', 'identification', 'total_documents'];
 
   public listStatus = {
     loadingTable: false,
