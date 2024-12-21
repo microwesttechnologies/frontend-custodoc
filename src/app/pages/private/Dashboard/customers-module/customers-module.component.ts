@@ -92,8 +92,8 @@ export class CustomersModuleComponent {
     this.getAllTypesDocument();
     this.getAllCustomers();
 
-    if (this.userLocalService?.user?.id_rol === 1) {
-      this.gridHeaderColumns += ' minmax(10rem, 1fr) 2.8rem';
+    if (this.userLocalService?.user?.id_rol === 1 || this.userLocalService?.user?.id_rol === 4) {
+      this.gridHeaderColumns += ` minmax(10rem, 1fr) ${this.userLocalService?.user?.id_rol === 1 ? '2.8rem' : ''}`;
 
       this.getAllCompanies();
 

@@ -1,49 +1,89 @@
 <div class="container-module-customer">
   <app-navbar
-    [description]="'En este modulo podrás gestionar los ' + homologateText(userLocalService?.user?.type_company!,'clientes')"
+    [description]="
+      'En este modulo podrás gestionar los ' +
+      homologateText(userLocalService?.user?.type_company!, 'clientes')
+    "
     (eventClickButton)="openModalCreateCustomer()"
-    [title]="'Gestión de ' + homologateText(userLocalService?.user?.type_company!,'clientes')"
-    [(textFilter)]="textFilter" module="customer"></app-navbar>
+    [title]="
+      'Gestión de ' +
+      homologateText(userLocalService?.user?.type_company!, 'clientes')
+    "
+    [(textFilter)]="textFilter"
+    module="customer"
+  ></app-navbar>
   <div class="secondary-card">
-    <app-table [selectedItem]="['identification', idCustomerSelected]" (eventRowClick)="setUpdateCustomer($event)"
-      [loadingTable]="listStatus.loadingTable" [gridHeaderColumns]="gridHeaderColumns" [totalItems]="customers.length"
-      [textFilter]="textFilter" [list]="customers" [withPager]="true" [fieldsToFilter]="fieldsToFilter">
+    <app-table
+      [selectedItem]="['identification', idCustomerSelected]"
+      (eventRowClick)="setUpdateCustomer($event)"
+      [loadingTable]="listStatus.loadingTable"
+      [gridHeaderColumns]="gridHeaderColumns"
+      [totalItems]="customers.length"
+      [textFilter]="textFilter"
+      [list]="customers"
+      [withPager]="true"
+      [fieldsToFilter]="fieldsToFilter"
+    >
       <ng-container tableHeader>
         <p class="font-subtitle-large">Identificación</p>
         <p class="font-subtitle-large">Tipo documento</p>
         <p class="font-subtitle-large">Nombre</p>
         <p class="font-subtitle-large">Email</p>
         <p class="font-subtitle-large">Teléfono</p>
-        <p [ngClass]="{ 'display-none': userLocalService?.user?.id_rol !== 1 }" class="font-subtitle-large">
+        <p
+          [ngClass]="{
+            'display-none':
+              userLocalService?.user?.id_rol !== 1 &&
+              userLocalService?.user?.id_rol !== 4
+          }"
+          class="font-subtitle-large"
+        >
           Compañía
         </p>
       </ng-container>
       <ng-template let-item>
         <p class="font-body-medium">{{ item?.identification }}</p>
         <p class="font-body-medium">{{ item?.name_type_document }}</p>
-        <p class="font-body-medium white-space-nowrap text-overflow-ellipsis overflow-hidden"
-          [appTooltip]="validateLimitText(nameCustomer) ? item?.name : ''" #nameCustomer>
+        <p
+          class="font-body-medium white-space-nowrap text-overflow-ellipsis overflow-hidden"
+          [appTooltip]="validateLimitText(nameCustomer) ? item?.name : ''"
+          #nameCustomer
+        >
           {{ item?.name }}
         </p>
-        <p class="font-body-medium white-space-nowrap text-overflow-ellipsis overflow-hidden"
-          [appTooltip]="validateLimitText(emailCustomer) ? item?.email : ''" #emailCustomer>
+        <p
+          class="font-body-medium white-space-nowrap text-overflow-ellipsis overflow-hidden"
+          [appTooltip]="validateLimitText(emailCustomer) ? item?.email : ''"
+          #emailCustomer
+        >
           {{ item?.email }}
         </p>
         <p class="font-body-medium">{{ item?.phone }}</p>
-        @if(userLocalService?.user?.id_rol === 1){
-        <p class="font-body-medium white-space-nowrap text-overflow-ellipsis overflow-hidden" [appTooltip]="
+        @if(userLocalService?.user?.id_rol === 1 ||
+        userLocalService?.user?.id_rol === 4){
+        <p
+          class="font-body-medium white-space-nowrap text-overflow-ellipsis overflow-hidden"
+          [appTooltip]="
             validateLimitText(nameCompany) ? item?.name_company : ''
-            " #nameCompany>
+          "
+          #nameCompany
+        >
           {{ item?.name_company }}
         </p>
-        }
-
-        @if(userLocalService?.user?.id_rol === 1){
-        <button class="primary-button bg-danger button-md width-fit-content" [configTooltip]="{ position: 'left' }"
-          (click)="$event.stopPropagation();
-          customerToDelete = item"
-          [appTooltip]="'Eliminar ' + homologateText(userLocalService?.user?.type_company!,'cliente')" type="button">
-          <i class="fa-solid fa-trash-can fa-lg cl-secondary-background-theme-important">
+        } @if(userLocalService?.user?.id_rol === 1){
+        <button
+          class="primary-button bg-danger button-md width-fit-content"
+          [configTooltip]="{ position: 'left' }"
+          (click)="$event.stopPropagation(); customerToDelete = item"
+          [appTooltip]="
+            'Eliminar ' +
+            homologateText(userLocalService?.user?.type_company!, 'cliente')
+          "
+          type="button"
+        >
+          <i
+            class="fa-solid fa-trash-can fa-lg cl-secondary-background-theme-important"
+          >
           </i>
         </button>
         }
@@ -53,16 +93,28 @@
 </div>
 
 @if(listStatus.showModal){
-<app-modal [primaryButton]="{
+<app-modal
+  [primaryButton]="{
     text: !!idCustomerSelected ? 'Guardar cambios' : 'Guardar'
-  }" (eventButtonClick)="$event ? createOrUpdateCustomer() : closeModal()"
-  [title]="(!!idCustomerSelected ? 'Actualizar  ' : 'Crear ')+homologateText(userLocalService?.user?.type_company!,'cliente')"
-  [loadingButtons]="listStatus.savingCustomer" size="sm">
+  }"
+  (eventButtonClick)="$event ? createOrUpdateCustomer() : closeModal()"
+  [title]="
+    (!!idCustomerSelected ? 'Actualizar  ' : 'Crear ') +
+    homologateText(userLocalService?.user?.type_company!, 'cliente')
+  "
+  [loadingButtons]="listStatus.savingCustomer"
+  size="sm"
+>
   <form [formGroup]="customerForm">
     <div class="row">
       <!-- Name -->
       <div class="col-auto mb-150-rem">
-        <app-input placeholder="Escribir nombre" [defaultLabelError]="true" formControlName="name" id="name">
+        <app-input
+          placeholder="Escribir nombre"
+          [defaultLabelError]="true"
+          formControlName="name"
+          id="name"
+        >
           <label labelInput for="name">
             Nombre <span class="cl-danger-background-status">*</span>
           </label>
@@ -70,14 +122,19 @@
       </div>
       <!-- Type document -->
       <div class="col-auto mb-150-rem">
-        <app-select [configSelect]="{
+        <app-select
+          [configSelect]="{
           placeholder:'Seleccionar tipo de documento',
           defaultLabelError: true,
             assignOnlyFieldId: true,
             fieldId: 'id_document',
             id: 'id_document',
             fieldText: 'name',
-          }" [appDisabledElement]="!!idCustomerSelected" formControlName="id_document" [options]="typesDocument">
+          }"
+          [appDisabledElement]="!!idCustomerSelected"
+          formControlName="id_document"
+          [options]="typesDocument"
+        >
           <label for="id_document" labelSelect>Tipo de documento</label>
         </app-select>
       </div>
@@ -85,8 +142,14 @@
     <div class="row">
       <!-- Identification -->
       <div class="col-auto mb-150-rem">
-        <app-input [appDisabledElement]="!!idCustomerSelected" placeholder="Escribir identificación"
-          formControlName="identification" [defaultLabelError]="true" id="identification" type="number">
+        <app-input
+          [appDisabledElement]="!!idCustomerSelected"
+          placeholder="Escribir identificación"
+          formControlName="identification"
+          [defaultLabelError]="true"
+          id="identification"
+          type="number"
+        >
           <label labelInput for="identification">
             Identificación <span class="cl-danger-background-status">*</span>
           </label>
@@ -94,8 +157,13 @@
       </div>
       <!-- Phone -->
       <div class="col-auto mb-150-rem">
-        <app-input placeholder="Escribir teléfono" [defaultLabelError]="true" formControlName="phone" type="number"
-          id="phone">
+        <app-input
+          placeholder="Escribir teléfono"
+          [defaultLabelError]="true"
+          formControlName="phone"
+          type="number"
+          id="phone"
+        >
           <label labelInput for="phone">
             Teléfono <span class="cl-danger-background-status">*</span>
           </label>
@@ -105,8 +173,13 @@
     <div class="row">
       <!-- Email -->
       <div class="col-auto mb-150-rem">
-        <app-input placeholder="Escribir correo electrónico" [defaultLabelError]="true" formControlName="email"
-          type="email" id="email">
+        <app-input
+          placeholder="Escribir correo electrónico"
+          [defaultLabelError]="true"
+          formControlName="email"
+          type="email"
+          id="email"
+        >
           <label labelInput for="email">
             Correo electrónico
             <span class="cl-danger-background-status">*</span>
@@ -114,16 +187,21 @@
         </app-input>
       </div>
       <!-- Company -->
-      @if(userLocalService.user?.id_rol===1){
+      @if(userLocalService.user?.id_rol === 1 || userLocalService.user?.id_rol
+      === 4){
       <div class="col-auto">
-        <app-autocomplete [configAutoComplete]="{
+        <app-autocomplete
+          [configAutoComplete]="{
             placeholder: 'Buscar compañía por nombre',
             defaultLabelError: true,
             assignOnlyFieldId: true,
             fieldId: 'id_company',
             fieldText: 'name',
             id: 'id_company'
-          }" formControlName="id_company" [options]="companies">
+          }"
+          formControlName="id_company"
+          [options]="companies"
+        >
           <label for="id_company" labelAutoComplete> Compañía</label>
         </app-autocomplete>
       </div>
@@ -135,21 +213,34 @@
 
   <h3 class="font-title-medium mb-100-rem">Documentos registrados</h3>
 
-  <app-table [loadingTable]="listStatus.loadingTableDocumentsByCustomer" [totalItems]="documentsByCustomer.length"
-    gridHeaderColumns="1fr 1fr 9rem" [list]="documentsByCustomer" [withPager]="true" height="auto">
+  <app-table
+    [loadingTable]="listStatus.loadingTableDocumentsByCustomer"
+    [totalItems]="documentsByCustomer.length"
+    gridHeaderColumns="1fr 1fr 9rem"
+    [list]="documentsByCustomer"
+    [withPager]="true"
+    height="auto"
+  >
     <ng-container tableHeader>
       <p class="font-subtitle-large">Nombre documento</p>
       <p class="font-subtitle-large">Descripción</p>
       <p class="font-subtitle-large">Fecha registro</p>
     </ng-container>
     <ng-template let-item>
-      <p class="font-body-medium white-space-nowrap text-overflow-ellipsis overflow-hidden"
-        [appTooltip]="validateLimitText(nameDocument) ? item?.name : ''" #nameDocument>
+      <p
+        class="font-body-medium white-space-nowrap text-overflow-ellipsis overflow-hidden"
+        [appTooltip]="validateLimitText(nameDocument) ? item?.name : ''"
+        #nameDocument
+      >
         {{ item?.name }}
       </p>
-      <p class="font-body-medium white-space-nowrap text-overflow-ellipsis overflow-hidden" [appTooltip]="
+      <p
+        class="font-body-medium white-space-nowrap text-overflow-ellipsis overflow-hidden"
+        [appTooltip]="
           validateLimitText(descriptionCustomer) ? item?.description : ''
-        " #descriptionCustomer>
+        "
+        #descriptionCustomer
+      >
         {{ item?.description }}
       </p>
       <p class="font-body-medium">
@@ -159,17 +250,22 @@
   </app-table>
   }
 </app-modal>
-}
-
-@if(customerToDelete){
-<app-modal-confirmation-delete [nameToValidate]="customerToDelete?.name!"
-  [title]="'Eliminar ' + homologateText(userLocalService?.user?.type_company!,'cliente')"
-  [primaryButton]="{text:'Eliminar'}" (eventButtonClick)="$event ? deleteCustomer() : customerToDelete = undefined">
-
+} @if(customerToDelete){
+<app-modal-confirmation-delete
+  [nameToValidate]="customerToDelete?.name!"
+  [title]="
+    'Eliminar ' +
+    homologateText(userLocalService?.user?.type_company!, 'cliente')
+  "
+  [primaryButton]="{ text: 'Eliminar' }"
+  (eventButtonClick)="
+    $event ? deleteCustomer() : (customerToDelete = undefined)
+  "
+>
   <p class="font-body-large text-align-center mb-100-rem">
-    Recuerda que si eliminas el {{homologateText(userLocalService?.user?.type_company!,'cliente')}} también se
-    eliminarán los documentos asociados.
+    Recuerda que si eliminas el
+    {{ homologateText(userLocalService?.user?.type_company!, "cliente") }}
+    también se eliminarán los documentos asociados.
   </p>
-
 </app-modal-confirmation-delete>
 }
