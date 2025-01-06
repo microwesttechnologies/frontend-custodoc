@@ -7,13 +7,17 @@
   </button>
   <div class="sidebar-content">
     <div class="sidebar-header center-all">
-      <h2 class="font-headline-small">
-        {{ isSidebarOpened ? "Custo" : "C" }}
-      </h2>
-      <h2 class="font-headline-small cl-primary-background-palette-important">
-        {{ isSidebarOpened ? "Docs" : "D" }}
-      </h2>
+      <img
+        class="logo"
+        [class.small-logo]="!isSidebarOpened"
+        [class.large-logo]="isSidebarOpened"
+        [src]="isSidebarOpened ? '/assets/img/LogoAzulL.png' : '/assets/img/LogoAzul.png'"
+        alt="Logo"
+      />
     </div>
+    
+    
+    
     <div class="sidebar-body">
       <ul>
         @for ( menu of userLocalService.menuSidebar; track indexMenu; let
