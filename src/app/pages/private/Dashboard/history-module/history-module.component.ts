@@ -30,6 +30,7 @@ import { environment } from 'src/environments/environment';
 import { UserLocalService } from 'src/app/services/local/user.service';
 import { homologateText } from 'src/app/globals/homologate-text';
 import { ModalConfirmationDeleteComponent } from 'src/app/shared-components/modal-confirmation-delete/modal-confirmation-delete.component';
+import { ButtonComponent } from 'src/app/shared-components/form/button/button.component';
 
 @Component({
   selector: 'app-history-module',
@@ -39,6 +40,7 @@ import { ModalConfirmationDeleteComponent } from 'src/app/shared-components/moda
     ModalBulkloadComponent,
     AutoCompleteComponent,
     TooltipDirective,
+    ButtonComponent,
     NavbarComponent,
     ModalComponent,
     TableComponent,
@@ -51,17 +53,22 @@ import { ModalConfirmationDeleteComponent } from 'src/app/shared-components/moda
   providers: [],
 })
 export class HistoryModuleComponent {
-
   public storageUrl = environment.storageUrl;
 
   public documents: Document[] = [];
   public customers: Customer[] = [];
 
+  public rangeDatesControl = new FormControl();
   public documentToDelete?: Document;
   public documentForm!: FormGroup;
 
   public textFilter = '';
-  public fieldsToFilter = ['name_customer', 'name', 'identification', 'description'];
+  public fieldsToFilter = [
+    'name_customer',
+    'name',
+    'identification',
+    'description',
+  ];
 
   public pdfSrc?: SafeResourceUrl;
   public selectedFilePdf?: File;
@@ -115,7 +122,10 @@ export class HistoryModuleComponent {
       error: (error: HttpErrorResponse) => {
         this.listStatus.loadingTable = false;
         this.notificationService.showNotification(
-          `Lo sentimos, ha ocurrido un error al consultar los ${homologateText(this.userLocalService?.user?.type_company!, 'clientes')}`,
+          `Lo sentimos, ha ocurrido un error al consultar los ${homologateText(
+            this.userLocalService?.user?.type_company!,
+            'clientes'
+          )}`,
           'danger',
           10000
         );
@@ -123,15 +133,21 @@ export class HistoryModuleComponent {
     });
   }
 
-  private getAllDocuments(): void {
-    this.documentService.getAllDocuments().subscribe({
+  public getAllDocuments(): void {
+    let rangeDates = this.rangeDatesControl?.value?.split(' to ');
+    if (rangeDates?.length !== 2) rangeDates = '';
+
+    this.documentService.getAllDocuments(rangeDates).subscribe({
       next: (documents) => {
         this.documents = documents;
       },
       error: (error: HttpErrorResponse) => {
         this.listStatus.loadingTable = false;
         this.notificationService.showNotification(
-          `Lo sentimos, ha ocurrido un error al consultar los ${homologateText(this.userLocalService?.user?.type_company!, 'documentos')}`,
+          `Lo sentimos, ha ocurrido un error al consultar los ${homologateText(
+            this.userLocalService?.user?.type_company!,
+            'documentos'
+          )}`,
           'danger',
           10000
         );
@@ -182,7 +198,10 @@ export class HistoryModuleComponent {
           if (response.status) {
             this.getAllDocuments();
             this.notificationService.showNotification(
-              `${homologateText(this.userLocalService?.user?.type_company!, 'documento')} se agrego exitosamente`,
+              `${homologateText(
+                this.userLocalService?.user?.type_company!,
+                'documento'
+              )} se agrego exitosamente`,
               'success'
             );
             this.closeModal();
@@ -199,7 +218,10 @@ export class HistoryModuleComponent {
         error: (error) => {
           this.listStatus.savingDocument = false;
           this.notificationService.showNotification(
-            `Lo sentimos, no se pudo crear ${homologateText(this.userLocalService?.user?.type_company!, 'documento')}`,
+            `Lo sentimos, no se pudo crear ${homologateText(
+              this.userLocalService?.user?.type_company!,
+              'documento'
+            )}`,
             'danger'
           );
         },
@@ -241,12 +263,27 @@ export class HistoryModuleComponent {
   }
 
   public exportTableToCsv(): void {
-    const headers = `Nombre del ${homologateText(this.userLocalService?.user?.type_company!, 'cliente')},Nombre documento, Identificación cliente, Descripción`;
-    const rows = this.documents.map(document => [document.name_customer, document.name, document.identification, document.description].map((value) =>
-      typeof value === 'string' && value.includes('\n')
-        ? `"${value.replace(/"/g, '""')}"` // Manejar saltos de línea y comillas dobles
-        : `"${String(value).replace(/"/g, '""')}"` // Encerrar todos los valores entre comillas dobles
-    ).join(',')).join('\n');
+    const headers = `Nombre del ${homologateText(
+      this.userLocalService?.user?.type_company!,
+      'cliente'
+    )},Nombre documento, Identificación cliente, Descripción`;
+    const rows = this.documents
+      .map((document) =>
+        [
+          document.name_customer,
+          document.name,
+          document.identification,
+          document.description,
+        ]
+          .map(
+            (value) =>
+              typeof value === 'string' && value.includes('\n')
+                ? `"${value.replace(/"/g, '""')}"` // Manejar saltos de línea y comillas dobles
+                : `"${String(value).replace(/"/g, '""')}"` // Encerrar todos los valores entre comillas dobles
+          )
+          .join(',')
+      )
+      .join('\n');
 
     const csvData = `${headers}\n${rows}`;
 
@@ -257,7 +294,12 @@ export class HistoryModuleComponent {
 
     const date = new Date();
 
-    const filename = `${homologateText(this.userLocalService?.user?.type_company!, 'documentos')}-${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}-${date.getHours()}-${date.getMinutes()}-${date.getSeconds()}.csv`
+    const filename = `${homologateText(
+      this.userLocalService?.user?.type_company!,
+      'documentos'
+    )}-${date.getDate()}-${
+      date.getMonth() + 1
+    }-${date.getFullYear()}-${date.getHours()}-${date.getMinutes()}-${date.getSeconds()}.csv`;
 
     link.setAttribute('href', url);
     link.setAttribute('download', filename);
@@ -269,18 +311,36 @@ export class HistoryModuleComponent {
   }
 
   public deleteDocument() {
-    this.documentService.deleteDocument(this.documentToDelete?.id_history!).subscribe({
-      next: (response) => {
-        if (response.status) {
-          this.notificationService.showNotification(`${homologateText(this.userLocalService?.user?.type_company!, 'documento')} eliminado exitosamente`, 'success');
-          this.documents = this.documents.filter(document => document.id_history !== this.documentToDelete?.id_history!);
-          this.globalService.detailCompany.documents.amount = this.documents.length;
-          this.documentToDelete = undefined;
-        }
-      },
-      error: (error: HttpErrorResponse) => {
-        this.notificationService.showNotification(`Lo sentimos, no se pudo eliminar ${homologateText(this.userLocalService?.user?.type_company!, 'documento')}`, 'danger');
-      }
-    })
+    this.documentService
+      .deleteDocument(this.documentToDelete?.id_history!)
+      .subscribe({
+        next: (response) => {
+          if (response.status) {
+            this.notificationService.showNotification(
+              `${homologateText(
+                this.userLocalService?.user?.type_company!,
+                'documento'
+              )} eliminado exitosamente`,
+              'success'
+            );
+            this.documents = this.documents.filter(
+              (document) =>
+                document.id_history !== this.documentToDelete?.id_history!
+            );
+            this.globalService.detailCompany.documents.amount =
+              this.documents.length;
+            this.documentToDelete = undefined;
+          }
+        },
+        error: (error: HttpErrorResponse) => {
+          this.notificationService.showNotification(
+            `Lo sentimos, no se pudo eliminar ${homologateText(
+              this.userLocalService?.user?.type_company!,
+              'documento'
+            )}`,
+            'danger'
+          );
+        },
+      });
   }
 }

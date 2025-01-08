@@ -1,5 +1,6 @@
 import {
   Component,
+  ElementRef,
   Injector,
   Input,
   OnChanges,
@@ -16,7 +17,10 @@ import {
 import { SharedModule } from '../../shared.module';
 import { TooltipDirective } from 'src/app/directives/tooltip.directive';
 
-type InputTypes = 'text' | 'email' | 'password' | 'number';
+import flatpickr from 'flatpickr';
+import { Options } from 'flatpickr/dist/types/options';
+
+type InputTypes = 'text' | 'email' | 'password' | 'number' | 'datepicker';
 
 @Component({
   standalone: true,
@@ -34,16 +38,18 @@ type InputTypes = 'text' | 'email' | 'password' | 'number';
 export class InputComponent implements OnInit, OnChanges, ControlValueAccessor {
   @Input() type: InputTypes = 'text';
   @Input() defaultLabelError!: boolean;
+  @Input() configDatePicker!: Options;
   @Input() placeholder: string = '';
+  @Input() iconSuffix!: string;
   @Input() maxLength!: number;
   @Input() id!: string;
 
-  private onChange: Function = (value: any) => { };
-  private onTouched: Function = () => { };
+  private onChange: Function = (value: any) => {};
+  private onTouched: Function = () => {};
 
   public ngControl!: NgControl;
 
-  public value = '';
+  public value: any = '';
   public tempType!: InputTypes;
   public iconPassword = 'fa-eye-slash';
 
@@ -59,6 +65,7 @@ export class InputComponent implements OnInit, OnChanges, ControlValueAccessor {
     return this.ngControl?.valid;
   }
 
+  private readonly elementRef = inject(ElementRef);
   private readonly injector = inject(Injector);
 
   ngOnInit(): void {
@@ -66,6 +73,18 @@ export class InputComponent implements OnInit, OnChanges, ControlValueAccessor {
       this.ngControl = this.injector.get(NgControl);
     } catch (error) {
       console.warn('form control no implemented');
+    }
+
+    if (this.type === 'datepicker') {
+      this.tempType = 'text';
+      setTimeout(() => {
+        const input =
+          this.elementRef.nativeElement.querySelector('#flatpickrInput');
+        flatpickr(input, {
+          dateFormat: 'Y-m-d', // Formato de fecha (puedes personalizarlo)
+          ...this.configDatePicker,
+        });
+      }, 1000);
     }
   }
 
@@ -101,7 +120,7 @@ export class InputComponent implements OnInit, OnChanges, ControlValueAccessor {
    * actualizar el valor del control
    *
    */
-  public onInput(value: string) {
+  public onInput(value: any) {
     if (this.ngControl) {
       this.value = value;
       this.onChange(this.value);
@@ -110,6 +129,7 @@ export class InputComponent implements OnInit, OnChanges, ControlValueAccessor {
 
   public togglePassword(): void {
     this.tempType = this.tempType === 'password' ? 'text' : 'password';
-    this.iconPassword = this.tempType === 'password' ? 'fa-eye-slash' : 'fa-eye';
+    this.iconPassword =
+      this.tempType === 'password' ? 'fa-eye-slash' : 'fa-eye';
   }
 }

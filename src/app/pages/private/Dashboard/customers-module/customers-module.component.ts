@@ -64,7 +64,14 @@ export class CustomersModuleComponent {
   public gridHeaderColumns =
     '10rem 10rem minmax(10rem, 1fr) minmax(10rem, 1fr) 10rem';
   public textFilter = '';
-  public fieldsToFilter = ['email', 'identification', 'name_company', 'name', 'phone', 'name_type_document'];
+  public fieldsToFilter = [
+    'email',
+    'identification',
+    'name_company',
+    'name',
+    'phone',
+    'name_type_document',
+  ];
 
   public listStatus = {
     loadingTableDocumentsByCustomer: true,
@@ -92,8 +99,13 @@ export class CustomersModuleComponent {
     this.getAllTypesDocument();
     this.getAllCustomers();
 
-    if (this.userLocalService?.user?.id_rol === 1 || this.userLocalService?.user?.id_rol === 4) {
-      this.gridHeaderColumns += ` minmax(10rem, 1fr) ${this.userLocalService?.user?.id_rol === 1 ? '2.8rem' : ''}`;
+    if (
+      this.userLocalService?.user?.id_rol === 1 ||
+      this.userLocalService?.user?.id_rol === 4
+    ) {
+      this.gridHeaderColumns += ` minmax(10rem, 1fr) ${
+        this.userLocalService?.user?.id_rol === 1 ? '2.8rem' : ''
+      }`;
 
       this.getAllCompanies();
 
@@ -125,7 +137,10 @@ export class CustomersModuleComponent {
       },
       error: (error: HttpErrorResponse) => {
         this.notificationService.showNotification(
-          `Lo sentimos, ha ocurrido un error al consultar los ${homologateText(this.userLocalService?.user?.type_company!, 'clientes')}`,
+          `Lo sentimos, ha ocurrido un error al consultar los ${homologateText(
+            this.userLocalService?.user?.type_company!,
+            'clientes'
+          )}`,
           'danger',
           10000
         );
@@ -175,7 +190,10 @@ export class CustomersModuleComponent {
       error: (error: HttpErrorResponse) => {
         this.listStatus.loadingTableDocumentsByCustomer = false;
         this.notificationService.showNotification(
-          `Lo sentimos, ha ocurrido un error al consultar los documentos del ${homologateText(this.userLocalService?.user?.type_company!, 'cliente')}`,
+          `Lo sentimos, ha ocurrido un error al consultar los documentos del ${homologateText(
+            this.userLocalService?.user?.type_company!,
+            'cliente'
+          )}`,
           'danger',
           10000
         );
@@ -204,7 +222,11 @@ export class CustomersModuleComponent {
           if (response.status) {
             this.getAllCustomers();
             this.notificationService.showNotification(
-              `${homologateText(this.userLocalService?.user?.type_company!, 'cliente')} ${this.idCustomerSelected ? 'actualizado' : 'agregado'
+              `${homologateText(
+                this.userLocalService?.user?.type_company!,
+                'cliente'
+              )} ${
+                this.idCustomerSelected ? 'actualizado' : 'agregado'
               } exitosamente`,
               'success'
             );
@@ -212,7 +234,6 @@ export class CustomersModuleComponent {
             if (!this.idCustomerSelected)
               this.globalService.detailCompany.customers.amount =
                 this.globalService.detailCompany.customers?.amount + 1;
-
           } else {
             this.notificationService.showNotification(
               response.message!,
@@ -224,8 +245,12 @@ export class CustomersModuleComponent {
         error: (error) => {
           this.listStatus.savingCustomer = false;
           this.notificationService.showNotification(
-            `Lo sentimos, no se pudo ${this.idCustomerSelected ? 'actualizar' : 'agregar'
-            } el ${homologateText(this.userLocalService?.user?.type_company!, 'cliente')}`,
+            `Lo sentimos, no se pudo ${
+              this.idCustomerSelected ? 'actualizar' : 'agregar'
+            } el ${homologateText(
+              this.userLocalService?.user?.type_company!,
+              'cliente'
+            )}`,
             'danger'
           );
         },
@@ -240,7 +265,7 @@ export class CustomersModuleComponent {
   }
 
   public setUpdateCustomer(customer: Customer) {
-    if ([1, 2].includes(this.userLocalService.user?.id_rol as number)) {
+    if (![4].includes(this.userLocalService.user?.id_rol as number)) {
       this.idCustomerSelected = customer.identification;
 
       Object.keys(this.customerForm.value).forEach((key) =>
@@ -257,18 +282,36 @@ export class CustomersModuleComponent {
   }
 
   public deleteCustomer(): void {
-    this.customerService.deleteCustomer(this.customerToDelete?.identification!).subscribe({
-      next: (response) => {
-        if (response.status) {
-          this.notificationService.showNotification(`${homologateText(this.userLocalService?.user?.type_company!, 'cliente')} eliminado exitosamente`, 'success');
-          this.customers = this.customers.filter(user => user.identification !== this.customerToDelete?.identification);
-          this.globalService.detailCompany.customers.amount = this.customers.length;
-          this.customerToDelete = undefined;
-        }
-      },
-      error: (error: HttpErrorResponse) => {
-        this.notificationService.showNotification(`Lo sentimos, no se pudo eliminar el ${homologateText(this.userLocalService?.user?.type_company!, 'cliente')}`, 'danger');
-      }
-    })
+    this.customerService
+      .deleteCustomer(this.customerToDelete?.identification!)
+      .subscribe({
+        next: (response) => {
+          if (response.status) {
+            this.notificationService.showNotification(
+              `${homologateText(
+                this.userLocalService?.user?.type_company!,
+                'cliente'
+              )} eliminado exitosamente`,
+              'success'
+            );
+            this.customers = this.customers.filter(
+              (user) =>
+                user.identification !== this.customerToDelete?.identification
+            );
+            this.globalService.detailCompany.customers.amount =
+              this.customers.length;
+            this.customerToDelete = undefined;
+          }
+        },
+        error: (error: HttpErrorResponse) => {
+          this.notificationService.showNotification(
+            `Lo sentimos, no se pudo eliminar el ${homologateText(
+              this.userLocalService?.user?.type_company!,
+              'cliente'
+            )}`,
+            'danger'
+          );
+        },
+      });
   }
 }

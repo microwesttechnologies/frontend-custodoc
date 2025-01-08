@@ -95,12 +95,21 @@
 @if(listStatus.showModal){
 <app-modal
   [primaryButton]="{
+    hidden: !!idCustomerSelected && userLocalService?.user?.id_rol === 3,
     text: !!idCustomerSelected ? 'Guardar cambios' : 'Guardar'
+  }"
+  [secondaryButton]="{
+    text:
+      !!idCustomerSelected && userLocalService?.user?.id_rol === 3
+        ? 'Cerrar'
+        : 'Cancelar'
   }"
   (eventButtonClick)="$event ? createOrUpdateCustomer() : closeModal()"
   [title]="
-    (!!idCustomerSelected ? 'Actualizar  ' : 'Crear ') +
-    homologateText(userLocalService?.user?.type_company!, 'cliente')
+    !!idCustomerSelected && userLocalService?.user?.id_rol === 3
+      ? ''
+      : (!!idCustomerSelected ? 'Actualizar  ' : 'Crear ') +
+        homologateText(userLocalService?.user?.type_company!, 'cliente')
   "
   [loadingButtons]="listStatus.savingCustomer"
   size="sm"
@@ -110,6 +119,9 @@
       <!-- Name -->
       <div class="col-auto mb-150-rem">
         <app-input
+          [appDisabledElement]="
+            !!idCustomerSelected && userLocalService?.user?.id_rol === 3
+          "
           placeholder="Escribir nombre"
           [defaultLabelError]="true"
           formControlName="name"
@@ -158,6 +170,9 @@
       <!-- Phone -->
       <div class="col-auto mb-150-rem">
         <app-input
+          [appDisabledElement]="
+            !!idCustomerSelected && userLocalService?.user?.id_rol === 3
+          "
           placeholder="Escribir teléfono"
           [defaultLabelError]="true"
           formControlName="phone"
@@ -174,6 +189,9 @@
       <!-- Email -->
       <div class="col-auto mb-150-rem">
         <app-input
+          [appDisabledElement]="
+            !!idCustomerSelected && userLocalService?.user?.id_rol === 3
+          "
           placeholder="Escribir correo electrónico"
           [defaultLabelError]="true"
           formControlName="email"

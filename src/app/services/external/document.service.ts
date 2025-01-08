@@ -12,10 +12,13 @@ import { Document } from 'src/app/models/documents.model';
 export class DocumentService {
   private readonly apiUrl = `${environment.apiUrl}document`;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
-  getAllDocuments(): Observable<Document[]> {
-    return this.http.get<Document[]>(this.apiUrl, headerAuthorization());
+  getAllDocuments(rangeDates: string): Observable<Document[]> {
+    return this.http.get<Document[]>(
+      `${this.apiUrl}${rangeDates ? '?rangeDates=' + rangeDates : ''}`,
+      headerAuthorization()
+    );
   }
 
   createDocument(document: FormData): Observable<GenericResponse> {

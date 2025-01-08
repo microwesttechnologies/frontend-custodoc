@@ -29,9 +29,7 @@ import {
   templateUrl: './table.component.html',
   imports: [ItemSkeletonComponent, SharedModule, DisabledElementDirective],
   standalone: true,
-  animations: [
-    fadeInCustomAnimation('fadeIn', '300ms'),
-  ],
+  animations: [fadeInCustomAnimation('fadeIn', '300ms')],
 })
 export class TableComponent implements OnChanges {
   @Input() itemsPerPage = 25;
@@ -62,11 +60,23 @@ export class TableComponent implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['list']) {
-      this.listFilter = this.list;
+      if (this.textFilter) {
+        this.listFilter = arrayFilter(
+          this.list,
+          this.textFilter,
+          this.fieldsToFilter
+        );
+      } else {
+        this.listFilter = this.list;
+      }
     }
 
     if (changes['textFilter']) {
-      this.listFilter = arrayFilter(this.list, this.textFilter, this.fieldsToFilter);
+      this.listFilter = arrayFilter(
+        this.list,
+        this.textFilter,
+        this.fieldsToFilter
+      );
     }
   }
 

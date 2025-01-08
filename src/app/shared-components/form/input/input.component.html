@@ -1,18 +1,40 @@
-<div [ngClass]="{
+<div
+  [ngClass]="{
     'invalid-form-field': invalid && touched,
     'valid-form-field': valid && touched
-  }" class="primary-form-field">
+  }"
+  class="primary-form-field"
+>
   <ng-content select="[labelInput]"></ng-content>
 
   <div class="container-input display-flex align-items-center">
-    <input [autocomplete]="
+    <input
+      [autocomplete]="
         type === 'password' ? 'new_password' : type === 'email' ? 'on' : 'off'
-      " (ngModelChange)="onInput($event)" [placeholder]="placeholder" [maxlength]="maxLength" [title]="placeholder"
-      (blur)="onBlur()" [ngModel]="value" [type]="tempType" [name]="id" [id]="id" />
+      "
+      [id]="type === 'datepicker' ? 'flatpickrInput' : id"
+      (ngModelChange)="onInput($event)"
+      [placeholder]="placeholder"
+      [maxlength]="maxLength"
+      [title]="placeholder"
+      (blur)="onBlur()"
+      [ngModel]="value"
+      [type]="tempType"
+      [name]="id"
+    />
 
-    @if(type === 'password'){
-    <div class="input-suffix" [appTooltip]="(tempType === 'password' ? 'Ver' : 'Ocultar') + ' contraseña'"
-      (click)="togglePassword()">
+    @if(iconSuffix){
+    <div class="input-suffix">
+      <i class="fa-solid fa-lg cursor-pointer" [ngClass]="iconSuffix"></i>
+    </div>
+    } @if(type === 'password'){
+    <div
+      class="input-suffix"
+      [appTooltip]="
+        (tempType === 'password' ? 'Ver' : 'Ocultar') + ' contraseña'
+      "
+      (click)="togglePassword()"
+    >
       <i class="fa-solid fa-lg cursor-pointer" [ngClass]="iconPassword"></i>
     </div>
     }

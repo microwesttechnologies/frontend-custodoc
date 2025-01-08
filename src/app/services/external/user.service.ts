@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, range } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { GenericResponse } from 'src/app/models/global.model';
@@ -12,7 +12,7 @@ import { headerAuthorization } from '../local/helper.service';
 export class UserService {
   private readonly apiUrl = `${environment.apiUrl}user`;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   login(email: string, password: string): Observable<GenericResponse> {
     return this.http.post<GenericResponse>(`${environment.apiUrl}login`, {
@@ -39,9 +39,11 @@ export class UserService {
     return this.http.get<User[]>(this.apiUrl, headerAuthorization());
   }
 
-  getAllRankingUsers(): Observable<any[]> {
+  getAllRankingUsers(rangeDates: string): Observable<any[]> {
     return this.http.get<any[]>(
-      `${this.apiUrl}/getAllRankingUsers`,
+      `${this.apiUrl}/getAllRankingUsers${
+        rangeDates ? '?rangeDates=' + rangeDates : ''
+      }`,
       headerAuthorization()
     );
   }

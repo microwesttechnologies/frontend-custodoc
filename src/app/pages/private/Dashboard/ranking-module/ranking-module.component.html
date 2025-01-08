@@ -1,10 +1,45 @@
 <div class="container-module-ranking">
-  <app-navbar description="En este modulo podrás ver el ranking de usuarios" [hiddenPrimaryButton]="true"
-    [(textFilter)]="textFilter" title="Ranking usuarios" module="ranking"></app-navbar>
+  <app-navbar
+    description="En este modulo podrás ver el ranking de usuarios"
+    [hiddenPrimaryButton]="true"
+    [(textFilter)]="textFilter"
+    title="Ranking usuarios"
+    module="ranking"
+  ></app-navbar>
+
   <div class="secondary-card">
-    <app-table gridHeaderColumns="10rem minmax(10rem, 1fr) minmax(10rem, 1fr) 10rem"
-      [loadingTable]="listStatus.loadingTable" [totalItems]="rankingUsers.length" [textFilter]="textFilter"
-      [list]="rankingUsers" [withPager]="true" [fieldsToFilter]="fieldsToFilter">
+    <div
+      class="container-filters mb-150-rem display-flex align-items-center"
+      [ngStyle]="{ 'column-gap': '1rem' }"
+    >
+      <app-input
+        placeholder="Seleccionar rango de fechas"
+        [formControl]="rangeDatesControl"
+        [ngStyle]="{ width: '21rem' }"
+        iconSuffix="fa-calendar-days"
+        [configDatePicker]="{
+          mode: 'range'
+        }"
+        type="datepicker"
+      ></app-input>
+
+      <app-button
+        (eventButtonClick)="getAllRankingUsers()"
+        classes="primary-button button-md"
+      >
+        Filtrar
+      </app-button>
+    </div>
+
+    <app-table
+      gridHeaderColumns="10rem minmax(10rem, 1fr) minmax(10rem, 1fr) 10rem"
+      [loadingTable]="listStatus.loadingTable"
+      [totalItems]="rankingUsers.length"
+      [fieldsToFilter]="fieldsToFilter"
+      [textFilter]="textFilter"
+      [list]="rankingUsers"
+      [withPager]="true"
+    >
       <ng-container tableHeader>
         <p class="font-subtitle-large">Identificación</p>
         <p class="font-subtitle-large">Nombre</p>
@@ -13,16 +48,25 @@
       </ng-container>
       <ng-template let-item>
         <p class="font-body-medium">{{ item?.identification }}</p>
-        <p class="font-body-medium white-space-nowrap text-overflow-ellipsis overflow-hidden"
-          [appTooltip]="validateLimitText(nameUser) ? item?.name_user : ''" #nameUser>
+        <p
+          class="font-body-medium white-space-nowrap text-overflow-ellipsis overflow-hidden"
+          [appTooltip]="validateLimitText(nameUser) ? item?.name_user : ''"
+          #nameUser
+        >
           {{ item?.name_user }}
         </p>
-        <p class="font-body-medium white-space-nowrap text-overflow-ellipsis overflow-hidden" [appTooltip]="
+        <p
+          class="font-body-medium white-space-nowrap text-overflow-ellipsis overflow-hidden"
+          [appTooltip]="
             validateLimitText(nameCompany) ? item?.name_company : ''
-          " #nameCompany>
+          "
+          #nameCompany
+        >
           {{ item?.name_company }}
         </p>
-        <p class="font-body-medium text-align-center">{{ item?.total_documents }}</p>
+        <p class="font-body-medium text-align-center">
+          {{ item?.total_documents }}
+        </p>
       </ng-template>
     </app-table>
   </div>

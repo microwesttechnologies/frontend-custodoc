@@ -15,7 +15,7 @@ import {
   standalone: true,
 })
 export class DisabledElementDirective implements OnInit, OnChanges, OnDestroy {
-  @Input() opacityElement: string | number = 0.6;
+  @Input() opacityElement: string | number = 0.7;
   @Input() appDisabledElement!: boolean;
 
   private mutationObserver!: MutationObserver;
