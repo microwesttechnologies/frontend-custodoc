@@ -1,0 +1,1 @@
+var t={IPS:{clientes:"pacientes",cliente:"paciente",empleado:"m\xE9dico",empleados:"m\xE9dicos",documentos:"historia cl\xEDnica",documento:"historia cl\xEDnica"}},c=(e,o)=>t?.[e]?.[o]??o;export{c as a};
