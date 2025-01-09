@@ -87,13 +87,13 @@
           {{ item?.description }}
         </p>
         <p class="font-body-medium">
-          {{ item?.created_at | date:'yyyy-MM-dd HH:mm' }}
+          {{ item?.created_at | date : "yyyy-MM-dd HH:mm" }}
         </p>
         <div class="center-all">
           <button
             class="primary-button button-md width-fit-content"
             [configTooltip]="{ position: 'left' }"
-            (click)="previewFile(item)"
+            (click)="previewFile(item.id_history)"
             appTooltip="Ver archivo"
             type="button"
           >

@@ -19,10 +19,7 @@ import {
 
 import { SharedModule } from '../shared.module';
 import { DisabledElementDirective } from 'src/app/directives/disabled-element.directive';
-import {
-  fadeInCustomAnimation,
-  slideCustomAnimation,
-} from 'src/app/animations/global.animations';
+import { fadeInCustomAnimation } from 'src/app/animations/global.animations';
 
 @Component({
   selector: 'app-table',

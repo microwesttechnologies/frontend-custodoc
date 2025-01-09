@@ -32,6 +32,8 @@ import { Document } from 'src/app/models/documents.model';
 import { DisabledElementDirective } from 'src/app/directives/disabled-element.directive';
 import { homologateText } from 'src/app/globals/homologate-text';
 import { ModalConfirmationDeleteComponent } from 'src/app/shared-components/modal-confirmation-delete/modal-confirmation-delete.component';
+import { ButtonComponent } from 'src/app/shared-components/form/button/button.component';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-customers-module',
@@ -43,6 +45,7 @@ import { ModalConfirmationDeleteComponent } from 'src/app/shared-components/moda
     TooltipDirective,
     SelectComponent,
     NavbarComponent,
+    ButtonComponent,
     InputComponent,
     TableComponent,
     ModalComponent,
@@ -57,6 +60,7 @@ export class CustomersModuleComponent {
   public customers: Customer[] = [];
   public companies: Company[] = [];
 
+  public rangeDatesControl = new FormControl();
   public customerToDelete?: Customer;
   public idCustomerSelected?: string;
   public customerForm!: FormGroup;
@@ -92,6 +96,7 @@ export class CustomersModuleComponent {
   private readonly globalService = inject(GlobalService);
   private readonly formBuilder = inject(FormBuilder);
   public userLocalService = inject(UserLocalService);
+  public router = inject(Router);
 
   ngOnInit(): void {
     this.initForm();
@@ -179,26 +184,32 @@ export class CustomersModuleComponent {
     });
   }
 
-  private getAllDocumentsByCustomer(id_customer: string): void {
+  public getAllDocumentsByCustomer(id_customer: string): void {
     this.listStatus.loadingTableDocumentsByCustomer = true;
     this.documentsByCustomer = [];
-    this.documentService.getAllDocumentsByCustomer(id_customer).subscribe({
-      next: (documents) => {
-        this.listStatus.loadingTableDocumentsByCustomer = false;
-        this.documentsByCustomer = documents;
-      },
-      error: (error: HttpErrorResponse) => {
-        this.listStatus.loadingTableDocumentsByCustomer = false;
-        this.notificationService.showNotification(
-          `Lo sentimos, ha ocurrido un error al consultar los documentos del ${homologateText(
-            this.userLocalService?.user?.type_company!,
-            'cliente'
-          )}`,
-          'danger',
-          10000
-        );
-      },
-    });
+
+    let rangeDates = this.rangeDatesControl?.value?.split(' to ');
+    if (rangeDates?.length !== 2) rangeDates = '';
+
+    this.documentService
+      .getAllDocumentsByCustomer(id_customer, rangeDates)
+      .subscribe({
+        next: (documents) => {
+          this.listStatus.loadingTableDocumentsByCustomer = false;
+          this.documentsByCustomer = documents;
+        },
+        error: (error: HttpErrorResponse) => {
+          this.listStatus.loadingTableDocumentsByCustomer = false;
+          this.notificationService.showNotification(
+            `Lo sentimos, ha ocurrido un error al consultar los documentos del ${homologateText(
+              this.userLocalService?.user?.type_company!,
+              'cliente'
+            )}`,
+            'danger',
+            10000
+          );
+        },
+      });
   }
 
   public openModalCreateCustomer() {

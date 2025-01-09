@@ -61,6 +61,11 @@ $properties-map: (
       fit-content,
     ),
   ),
+  max-height: (
+    values: (
+      100%,
+    ),
+  ),
   width: (
     values: (
       100%,
@@ -69,6 +74,11 @@ $properties-map: (
       25%,
       100vh,
       fit-content,
+    ),
+  ),
+  max-width: (
+    values: (
+      100%,
     ),
   ),
   overflow: (
@@ -102,6 +112,12 @@ $properties-map: (
   cursor: (
     values: (
       pointer,
+    ),
+  ),
+  text-decoration: (
+    values: (
+      underline,
+      overline,
     ),
   ),
 );

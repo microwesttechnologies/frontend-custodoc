@@ -1,9 +1,17 @@
 <div class="primary-sidebar" [ngClass]="{ 'sidebar-opened': isSidebarOpened }">
-  <button [appTooltip]="isSidebarOpened ? 'Cerrar' : 'Abrir'" class="sidebar-action center-all"
-    (click)="openAndCloseSidebar()" [configTooltip]="{
+  <button
+    [appTooltip]="isSidebarOpened ? 'Cerrar' : 'Abrir'"
+    class="sidebar-action center-all"
+    (click)="openAndCloseSidebar()"
+    [configTooltip]="{
       position: 'right'
-    }" type="button">
-    <i [ngClass]="{ 'fa-rotate-180': isSidebarOpened }" class="fa-solid fa-angle-right fa-lg"></i>
+    }"
+    type="button"
+  >
+    <i
+      [ngClass]="{ 'fa-rotate-180': isSidebarOpened }"
+      class="fa-solid fa-angle-right fa-lg"
+    ></i>
   </button>
   <div class="sidebar-content">
     <div class="sidebar-header center-all">
@@ -11,28 +19,50 @@
         class="logo"
         [class.small-logo]="!isSidebarOpened"
         [class.large-logo]="isSidebarOpened"
-        [src]="isSidebarOpened ? '/assets/img/LogoAzulL.png' : '/assets/img/LogoAzul.png'"
+        [src]="
+          isSidebarOpened
+            ? '/assets/img/LogoAzulL.png'
+            : '/assets/img/LogoAzul.png'
+        "
         alt="Logo"
       />
     </div>
-    
-    
-    
+
     <div class="sidebar-body">
       <ul>
         @for ( menu of userLocalService.menuSidebar; track indexMenu; let
         indexMenu = $index){ @for ( item of menu.items; track indexItem; let
         indexItem = $index){
-        <li [appTooltip]="
-            isSidebarOpened ? '' : 'Ver ' + (homologateText(userLocalService?.user?.type_company!, item.label| lowercase) | lowercase)
-          " [ngClass]="{ 'justify-content-center': !showContent }" routerLinkActive="sidebar-item-activate"
-          [routerLink]="[item.path]" class="sidebar-item" [configTooltip]="{
+        <li
+          [appTooltip]="
+            isSidebarOpened
+              ? ''
+              : 'Ver ' +
+                (homologateText(
+                  userLocalService?.user?.type_company!,
+                  item.label | lowercase
+                ) | lowercase)
+          "
+          [ngClass]="{ 'justify-content-center': !showContent }"
+          routerLinkActive="sidebar-item-activate"
+          [routerLink]="[item.path]"
+          class="sidebar-item"
+          [configTooltip]="{
             position: 'right'
-          }">
+          }"
+        >
           <i class="fa-solid fa-lg" [ngClass]="item.icon"></i>
           @if(isSidebarOpened){
-          <p class="font-body-large white-space-nowrap text-overflow-ellipsis overflow-hidden" @slideEnterAndLeaveLeft>
-            {{ homologateText(userLocalService?.user?.type_company!, item.label| lowercase) | titlecase }}
+          <p
+            class="font-body-large white-space-nowrap text-overflow-ellipsis overflow-hidden"
+            @slideEnterAndLeaveLeft
+          >
+            {{
+              homologateText(
+                userLocalService?.user?.type_company!,
+                item.label | lowercase
+              ) | titlecase
+            }}
           </p>
           }
         </li>
@@ -40,33 +70,62 @@
       </ul>
     </div>
     <div class="sidebar-footer">
-      <div [ngClass]="{ 'justify-content-center': !showContent }" class="sidebar-item display-flex align-items-center"
-        appTooltip="Mi perfil" [configTooltip]="{
+      <div
+        [ngClass]="{ 'justify-content-center': !showContent }"
+        class="sidebar-item display-flex align-items-center"
+        (click)="openModalProfile()"
+        appTooltip="Mi perfil"
+        [configTooltip]="{
           position: 'right'
-        }" aria-label="Mi perfil" role="button" tabindex="0">
+        }"
+        aria-label="Mi perfil"
+        role="button"
+        tabindex="0"
+      >
         <i class="fa-solid fa-circle-user fa-lg"></i>
         @if(isSidebarOpened){
         <section @slideEnterAndLeaveLeft>
-          <p class="font-subtitle-xlarge white-space-nowrap text-overflow-ellipsis overflow-hidden"
-            >
+          <p
+            class="font-subtitle-xlarge white-space-nowrap text-overflow-ellipsis overflow-hidden"
+          >
             {{ userLocalService?.user?.name }}
           </p>
-          <p class="font-body-medium white-space-nowrap text-overflow-ellipsis overflow-hidden"
-            >
-            {{ userLocalService?.user?.id_rol === 1 ? 'Super administrador' : userLocalService?.user?.id_rol === 2 ? 'Administrador' : userLocalService?.user?.id_rol === 3 ? 'Médico' : 'Cargador archivos' }}
+          <p
+            class="font-body-medium white-space-nowrap text-overflow-ellipsis overflow-hidden"
+          >
+            {{
+              userLocalService?.user?.id_rol === 1
+                ? "Super administrador"
+                : userLocalService?.user?.id_rol === 2
+                ? "Administrador"
+                : userLocalService?.user?.id_rol === 3
+                ? "Médico"
+                : "Cargador archivos"
+            }}
           </p>
         </section>
         }
       </div>
-      <div [ngClass]="{ 'justify-content-center': !showContent }" [appTooltip]="isSidebarOpened ? '' : 'Cerrar sesión'"
-        class="sidebar-item display-flex align-items-center" [configTooltip]="{
+      <div
+        [ngClass]="{ 'justify-content-center': !showContent }"
+        [appTooltip]="isSidebarOpened ? '' : 'Cerrar sesión'"
+        class="sidebar-item display-flex align-items-center"
+        [configTooltip]="{
           position: 'right'
-        }" (keydown.enter)="logout()" (keydown.space)="logout()" aria-label="Cerrar sesión" (click)="logout()"
-        role="button" tabindex="0">
+        }"
+        (keydown.enter)="logout()"
+        (keydown.space)="logout()"
+        aria-label="Cerrar sesión"
+        (click)="logout()"
+        role="button"
+        tabindex="0"
+      >
         <i class="fa-solid fa-arrow-right-from-bracket fa-lg"></i>
         @if(isSidebarOpened){
-        <p class="font-subtitle-xlarge white-space-nowrap text-overflow-ellipsis overflow-hidden"
-          @slideEnterAndLeaveLeft>
+        <p
+          class="font-subtitle-xlarge white-space-nowrap text-overflow-ellipsis overflow-hidden"
+          @slideEnterAndLeaveLeft
+        >
           Cerrar sesión
         </p>
         }
@@ -74,3 +133,138 @@
     </div>
   </div>
 </div>
+
+@if(listStatus.showModalProfile){
+<app-modal
+  (eventButtonClick)="!$event ? closeModalProfile() : null"
+  [secondaryButton]="{ text: 'Cerrar' }"
+  [primaryButton]="{ hidden: true }"
+  size="sm"
+>
+  <h3 class="font-title-large mb-150-rem">Datos personales</h3>
+  <form [formGroup]="userForm">
+    <div class="row">
+      <!-- Name -->
+      <div class="col col-xs-12 col-md-6 mb-150-rem">
+        <app-input
+          placeholder="Escribir nombre"
+          [defaultLabelError]="true"
+          formControlName="name"
+          id="name"
+        >
+          <label labelInput for="name">
+            Nombre <span class="cl-danger-background-status">*</span>
+          </label>
+        </app-input>
+      </div>
+      <!-- Type document -->
+      <div class="col col-xs-12 col-md-6 mb-150-rem">
+        <div
+          class="primary-form-field valid-form-field"
+          [appDisabledElement]="true"
+          [opacityElement]="1"
+        >
+          <label>Tipo de documento</label>
+          <div class="container-input display-flex align-items-center">
+            {{ userLocalService?.user?.name_type_document }}
+          </div>
+        </div>
+      </div>
+      <!-- Identification -->
+      <div class="col col-xs-12 col-md-6 mb-150-rem">
+        <div
+          class="primary-form-field valid-form-field"
+          [appDisabledElement]="true"
+          [opacityElement]="1"
+        >
+          <label>Identificación</label>
+          <div class="container-input display-flex align-items-center">
+            {{ userLocalService?.user?.identification }}
+          </div>
+        </div>
+      </div>
+      <!-- Phone -->
+      <div class="col col-xs-12 col-md-6 mb-150-rem">
+        <app-input
+          placeholder="Escribir teléfono"
+          [defaultLabelError]="true"
+          formControlName="phone"
+          type="number"
+          id="phone"
+        >
+          <label labelInput for="phone">
+            Teléfono <span class="cl-danger-background-status">*</span>
+          </label>
+        </app-input>
+      </div>
+      <!-- Email -->
+      <div class="col col-xs-12 mb-150-rem">
+        <div
+          class="primary-form-field valid-form-field"
+          [appDisabledElement]="true"
+          [opacityElement]="1"
+        >
+          <label>Correo electrónico</label>
+          <div class="container-input display-flex align-items-center">
+            {{ userLocalService?.user?.email }}
+          </div>
+        </div>
+      </div>
+      <div class="col col-xs-6 col-md-4 mb-150-rem">
+        <app-button
+          [loading]="listStatus.updatingUser"
+          classes="primary-button button-md"
+          (eventButtonClick)="updateUser()"
+        >
+          Actualizar
+        </app-button>
+      </div>
+    </div>
+  </form>
+
+  <h3 class="font-title-large mb-150-rem">Seguridad</h3>
+  <form [formGroup]="passwordForm">
+    <div class="row">
+      <!-- Password -->
+      <div class="col col-xs-12 col-md-6 mb-150-rem">
+        <app-input
+          placeholder="Escribir contraseña"
+          formControlName="password"
+          type="password"
+          id="password"
+        >
+          <label for="password" labelInput>Contraseña</label>
+          <label for="confirmPassword" labelInputError>
+            {{userForm?.get('password')?.errors?.['minlength'] ? 'La contraseña debe tener al menos 8 caracteres.' :
+              'Este campo es obligatorio'}}
+          </label>
+        </app-input>
+      </div>
+      <!-- Confirmar contraseña -->
+      <div class="col col-xs-12 col-md-6 mb-150-rem">
+        <app-input
+          placeholder="Escribir confirmación de contraseña"
+          formControlName="confirmPassword"
+          id="confirmPassword"
+          type="password"
+        >
+          <label for="confirmPassword" labelInput>Confirmar contraseña</label>
+          <label for="confirmPassword" labelInputError>
+            {{userForm?.errors?.['passwordMismatch'] ? 'Las contraseñas no coinciden' : 'Este campo es obligatorio'}}
+          </label>
+        </app-input>
+      </div>
+
+      <div class="col col-xs-6 col-md-4">
+        <app-button
+          [loading]="listStatus.updatingPassword"
+          (eventButtonClick)="updatePassword()"
+          classes="primary-button button-md"
+        >
+          Actualizar
+        </app-button>
+      </div>
+    </div>
+  </form>
+</app-modal>
+}

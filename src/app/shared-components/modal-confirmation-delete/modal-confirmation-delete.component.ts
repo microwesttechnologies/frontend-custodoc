@@ -19,21 +19,13 @@ interface ButtonsFooter {
   templateUrl: './modal-confirmation-delete.component.html',
   styleUrl: './modal-confirmation-delete.component.scss',
   animations: [
-    slideCustomAnimation(
-      'slideEnterAndLeaveTop',
-      'Y',
-      '-1rem',
-      '0',
-      { enter: '400ms', leave: '400ms' },
-      {
-        enter: true,
-        leave: true,
-      }
-    ),
+    slideCustomAnimation('slideEnterAndLeaveTop', 'Y', '-1rem', '0', {
+      enter: '400ms',
+      leave: '400ms',
+    }),
   ],
 })
 export class ModalConfirmationDeleteComponent {
-
   @Input() nameToValidate!: string;
   @Input() title!: string;
   @Input() primaryButton!: ButtonsFooter;
@@ -50,5 +42,4 @@ export class ModalConfirmationDeleteComponent {
       this.name.markAsTouched();
     }
   }
-
 }

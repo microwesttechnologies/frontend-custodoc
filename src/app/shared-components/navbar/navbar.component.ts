@@ -30,18 +30,9 @@ import { homologateText } from 'src/app/globals/homologate-text';
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.scss',
   animations: [
-    slideCustomAnimation(
-      'slideEnterRight',
-      'X',
-      '1rem',
-      '0',
-      {
-        enter: '300ms',
-      },
-      {
-        enter: true,
-      }
-    ),
+    slideCustomAnimation('slideEnterRight', 'X', '1rem', '0', {
+      enter: '300ms',
+    }),
   ],
 })
 export class NavbarComponent implements OnInit {
@@ -89,7 +80,7 @@ export class NavbarComponent implements OnInit {
       },
       4: {
         export: true,
-      }
+      },
     },
   };
 

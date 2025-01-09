@@ -3,6 +3,7 @@
 @include generate-styles("mb", "margin-bottom", rem, 200, 200);
 @include generate-styles("mb", "margin-bottom", rem, 150, 150);
 @include generate-styles("mb", "margin-bottom", rem, 100, 100);
+@include generate-styles("mb", "margin-bottom", rem, 50, 50);
 
 .bg-image {
   background-image: url("/assets/img/WallpaperDash.jpeg");
@@ -12,7 +13,39 @@
 }
 
 .container-form {
+  max-width: 500px;
   padding: 2rem;
   width: 100%;
-  max-width: 500px;
+}
+
+.container-modal-password-reset {
+  align-items: center;
+  display: flex;
+  height: 100%;
+
+  & .close-action {
+    position: absolute;
+    right: 1rem;
+    top: 1rem;
+  }
+
+  & section {
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    display: flex;
+    height: 100%;
+
+    @media (width > 768px) {
+      & img {
+        width: 45%;
+      }
+    }
+
+    @media (width <= 768px) {
+      & img {
+        width: 15rem;
+      }
+    }
+  }
 }

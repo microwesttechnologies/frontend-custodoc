@@ -1,40 +1,130 @@
 <div class="container-fluid height-100vh row overflow-y-auto">
   <div class="col col-md-6 hidden-xs hidden-sm bg-image"></div>
-  <div class="col col-md-6 center-all">
+  <div class="col col-xs-12 col-md-6 center-all">
     <form class="container-form" [formGroup]="loginForm">
-      <h2 class="font-headline-medium">
-        Custo<span class="cl-primary-background-palette">Docs</span>
+      <h2 class="font-headline-medium mb-200-rem">
+        Custo<span class="cl-tertiary-background-palette">Docs</span>
       </h2>
 
-      <p class="font-body-large mb-200-rem">
+      <!-- <p class="font-body-large mb-200-rem">
         Una forma diferente de administrar tus archivos
-      </p>
+      </p> -->
 
       <div class="mb-150-rem">
-        <app-input [defaultLabelError]="true" formControlName="email" id="email" (keyup.enter)="login()">
-          <label for="email" labelInput>Correo electronico</label>
+        <app-input
+          [defaultLabelError]="true"
+          formControlName="email"
+          (keyup.enter)="login()"
+          id="email"
+        >
+          <label for="email" labelInput>Correo electrónico</label>
         </app-input>
       </div>
 
       <div class="mb-200-rem">
-        <app-input [defaultLabelError]="true" formControlName="password" type="password" id="password"
-          (keyup.enter)="login()">
+        <app-input
+          [defaultLabelError]="true"
+          formControlName="password"
+          (keyup.enter)="login()"
+          type="password"
+          id="password"
+        >
           <label for="password" labelInput>Contraseña</label>
         </app-input>
       </div>
 
-      <app-button [loading]="listStatus.loadingLogin" classes="primary-button mb-100-rem" (eventButtonClick)="login()"
+      <app-button
+        [loading]="listStatus.loadingLogin"
+        (eventButtonClick)="login()"
         [styles]="{
           'margin-bottom': '1rem'
-        }">
+        }"
+        classes="primary-button"
+      >
         Iniciar sesión
       </app-button>
+      <section class="text-align-center">
+        <a
+          class="font-body-medium mb-50-rem cl-tertiary-background-palette-important cursor-pointer text-decoration-underline"
+          (click)="listStatus.showModalPasswordReset = true"
+        >
+          ¿Has olvidado tu contraseña?
+        </a>
+      </section>
 
       @if(messageError){
-      <p class="font-body-large cl-danger-background-status-important text-align-center">
+      <p
+        class="font-body-large cl-danger-background-status-important text-align-center"
+      >
         {{ messageError }}
       </p>
       }
     </form>
   </div>
 </div>
+
+@if(listStatus.showModalPasswordReset){
+<app-modal size="xs" [hideFooter]="true">
+  <div class="container-modal-password-reset">
+    <div class="close-action">
+      <app-button
+        classes="primary-button button-md bg-transparent"
+        (eventButtonClick)="closeModalResetPassword()"
+      >
+        <i class="fa-solid fa-lg fa-xmark cursor-pointer"></i>
+      </app-button>
+    </div>
+
+    @if(listStatus.emailSent){
+    <section @slideEnterRight>
+      <img
+        src="assets/img/SuccessSent.png"
+        alt="SuccessSent"
+        class="mb-150-rem"
+      />
+
+      <p class="font-body-large text-align-center mb-150-rem">
+        Hemos enviado un email al correo electrónico
+        <strong>{{ emailControl?.value }}</strong
+        >, tienes 30 minutos para cambiar tu contraseña antes de que el link
+        expire
+      </p>
+    </section>
+    }@else {
+    <section @slideEnterTop @slideLeaveLeft>
+      <img
+        src="assets/img/ForgottenPassword.png"
+        alt="ForgottenPassword"
+        class="mb-150-rem"
+      />
+
+      <p class="font-body-large text-align-center mb-150-rem">
+        Escribe tu correo electrónico y te enviaremos un email para restaurar tu
+        contraseña.
+      </p>
+
+      <div
+        class="display-flex align-items-center width-100"
+        [ngStyle]="{ 'column-gap': '1rem' }"
+      >
+        <app-input
+          (keyup.enter)="sendLinkResetPassword()"
+          placeholder="Correo electrónico"
+          [ngStyle]="{ width: '100%' }"
+          [formControl]="emailControl"
+          type="email"
+        ></app-input>
+        <app-button
+          (eventButtonClick)="sendLinkResetPassword()"
+          [loading]="listStatus.sendingEmail"
+          classes="primary-button button-md"
+          appTooltip="Enviar"
+        >
+          <i class="fa-solid fa-paper-plane cl-primary-background-theme"></i>
+        </app-button>
+      </div>
+    </section>
+    }
+  </div>
+</app-modal>
+}

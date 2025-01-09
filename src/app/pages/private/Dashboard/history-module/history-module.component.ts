@@ -31,6 +31,7 @@ import { UserLocalService } from 'src/app/services/local/user.service';
 import { homologateText } from 'src/app/globals/homologate-text';
 import { ModalConfirmationDeleteComponent } from 'src/app/shared-components/modal-confirmation-delete/modal-confirmation-delete.component';
 import { ButtonComponent } from 'src/app/shared-components/form/button/button.component';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-history-module',
@@ -71,6 +72,7 @@ export class HistoryModuleComponent {
   ];
 
   public pdfSrc?: SafeResourceUrl;
+  private idHistoryByUrl?: number;
   public selectedFilePdf?: File;
   public fileUrl?: string;
 
@@ -91,12 +93,15 @@ export class HistoryModuleComponent {
   private readonly notificationService = inject(NotificationService);
   private readonly documentService = inject(DocumentService);
   private readonly customerService = inject(CustomerService);
+  private readonly activatedRoute = inject(ActivatedRoute);
   private readonly globalService = inject(GlobalService);
   private readonly formBuilder = inject(FormBuilder);
   public userLocalService = inject(UserLocalService);
   private readonly sanitizer = inject(DomSanitizer);
 
   ngOnInit(): void {
+    this.idHistoryByUrl = this.activatedRoute.snapshot.queryParams['id_history'];
+
     this.initForm();
 
     this.getAllCustomers();
@@ -140,6 +145,10 @@ export class HistoryModuleComponent {
     this.documentService.getAllDocuments(rangeDates).subscribe({
       next: (documents) => {
         this.documents = documents;
+        if (this.idHistoryByUrl) {
+          this.previewFile(+this.idHistoryByUrl);
+          this.idHistoryByUrl = undefined;
+        }
       },
       error: (error: HttpErrorResponse) => {
         this.listStatus.loadingTable = false;
@@ -235,8 +244,8 @@ export class HistoryModuleComponent {
     this.pdfSrc = undefined;
   }
 
-  public previewFile(document: Document) {
-    this.documentService.getFile(document.id_history).subscribe({
+  public previewFile(id_history: number) {
+    this.documentService.getFile(id_history).subscribe({
       next: (file) => {
         this.listStatus.showModalPrewiew = true;
         this.fileUrl = `${URL.createObjectURL(file)}#toolbar=0&navpanes=0`;

@@ -235,7 +235,6 @@ export class UsersModuleComponent {
               } exitosamente`,
               'success'
             );
-            this.listStatus.showModal = false;
             this.closeModal();
             if (!this.idUserSelected)
               this.globalService.detailCompany.users.amount =

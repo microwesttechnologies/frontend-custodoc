@@ -16,23 +16,17 @@ interface ButtonsFooter {
   imports: [SharedModule, DisabledElementDirective, ButtonComponent],
   templateUrl: './modal.component.html',
   animations: [
-    slideCustomAnimation(
-      'slideEnterAndLeaveTop',
-      'Y',
-      '-1rem',
-      '0',
-      { enter: '400ms', leave: '400ms' },
-      {
-        enter: true,
-        leave: true,
-      }
-    ),
+    slideCustomAnimation('slideEnterAndLeaveTop', 'Y', '-1rem', '0', {
+      enter: '400ms',
+      leave: '400ms',
+    }),
   ],
 })
 export class ModalComponent implements OnInit {
   @Input() size: 'lg' | 'md' | 'sm' | 'xs' = 'lg';
   @Input() loadingButtons!: boolean;
   @Input() customStylesBody!: any;
+  @Input() hideFooter!: boolean;
   @Input() customStyles!: any;
   @Input() title!: string;
 
@@ -44,7 +38,7 @@ export class ModalComponent implements OnInit {
   ngOnInit(): void {
     this.customStyles = {
       ...this.customStyles,
-      'grid-template-rows': `${this.title ? 'auto' : ''} 1fr auto`
-    }
+      'grid-template-rows': `${this.title ? 'auto' : ''} 1fr auto`,
+    };
   }
 }

@@ -13,11 +13,10 @@ export const slideCustomAnimation = (
   from: string,
   to: string,
   time: { enter?: string; leave?: string },
-  withEnterAndLeave: { enter?: boolean; leave?: boolean }
 ): AnimationTriggerMetadata => {
   let triggerCustom = trigger(name, []);
 
-  if (withEnterAndLeave.leave) {
+  if (time.leave) {
     triggerCustom.definitions.push(
       transition(':leave', [
         animate(
@@ -31,7 +30,7 @@ export const slideCustomAnimation = (
     );
   }
 
-  if (withEnterAndLeave.enter) {
+  if (time.enter) {
     triggerCustom.definitions.push(
       transition(':enter', [
         style({

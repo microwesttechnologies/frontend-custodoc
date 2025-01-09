@@ -1,5 +1,9 @@
 <div class="primary-modal-background primary-typography center-all">
-  <div class="content-modal modal-{{ size }}" [@slideEnterAndLeaveTop] [ngStyle]="customStyles">
+  <div
+    class="content-modal modal-{{ size }}"
+    [@slideEnterAndLeaveTop]
+    [ngStyle]="customStyles"
+  >
     @if(title){
     <div class="content-modal-header">
       <h3 class="font-headline-small cl-secondary-background-theme-important">
@@ -10,25 +14,38 @@
     <div class="content-modal-body" [ngStyle]="customStylesBody">
       <ng-content></ng-content>
     </div>
-    <div class="content-modal-footer display-flex align-items-center justify-content-flex-end">
+    @if(!hideFooter){
+    <div
+      class="content-modal-footer display-flex align-items-center justify-content-flex-end"
+    >
       @if(!secondaryButton?.hidden){
-      <app-button [appDisabledElement]="secondaryButton?.disabled || loadingButtons"
-        classes="primary-button button-md bg-transparent" (eventButtonClick)="eventButtonClick.emit(false)"
-        [loading]="loadingButtons" [styles]="{
+      <app-button
+        [appDisabledElement]="secondaryButton?.disabled || loadingButtons"
+        classes="primary-button button-md bg-transparent"
+        (eventButtonClick)="eventButtonClick.emit(false)"
+        [loading]="loadingButtons"
+        [styles]="{
           width: '12rem'
-        }">
+        }"
+      >
         {{ secondaryButton?.text || "Cancelar" }}
       </app-button>
 
       } @if(!primaryButton?.hidden){
-      <app-button [appDisabledElement]="primaryButton?.disabled || loadingButtons" classes="primary-button button-md"
-        (eventButtonClick)="eventButtonClick.emit(true)" [loading]="loadingButtons" [styles]="{
+      <app-button
+        [appDisabledElement]="primaryButton?.disabled || loadingButtons"
+        classes="primary-button button-md"
+        (eventButtonClick)="eventButtonClick.emit(true)"
+        [loading]="loadingButtons"
+        [styles]="{
           'margin-left': '1rem',
           width: '12rem'
-        }">
+        }"
+      >
         {{ primaryButton?.text || "Crear" }}
       </app-button>
       }
     </div>
+    }
   </div>
 </div>

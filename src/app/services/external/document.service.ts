@@ -46,9 +46,14 @@ export class DocumentService {
     });
   }
 
-  getAllDocumentsByCustomer(id_customer: string): Observable<Document[]> {
+  getAllDocumentsByCustomer(
+    id_customer: string,
+    rangeDates: string
+  ): Observable<Document[]> {
     return this.http.get<Document[]>(
-      `${this.apiUrl}/getAllDocumentsByCustomer/${id_customer}`,
+      `${this.apiUrl}/getAllDocumentsByCustomer/${id_customer}${
+        rangeDates ? '?rangeDates=' + rangeDates : ''
+      }`,
       headerAuthorization()
     );
   }

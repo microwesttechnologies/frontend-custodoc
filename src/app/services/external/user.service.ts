@@ -21,6 +21,34 @@ export class UserService {
     });
   }
 
+  sendLinkResetPassword(email: string): Observable<GenericResponse> {
+    return this.http.post<GenericResponse>(
+      `${environment.apiUrl}sendLinkResetPassword`,
+      {
+        email,
+      }
+    );
+  }
+
+  resetPassword(password: string, token: string): Observable<GenericResponse> {
+    return this.http.post<GenericResponse>(
+      `${environment.apiUrl}resetPassword`,
+      {
+        token,
+        password,
+      }
+    );
+  }
+
+  validateIfTokenIsValid(token: string): Observable<GenericResponse> {
+    return this.http.post<GenericResponse>(
+      `${environment.apiUrl}validateIfTokenIsValid`,
+      {
+        token,
+      }
+    );
+  }
+
   getRoutesByRole(): Observable<User[]> {
     return this.http.get<User[]>(
       `${environment.apiUrl}getRoutesByRole`,
@@ -31,6 +59,13 @@ export class UserService {
   logout(): Observable<GenericResponse> {
     return this.http.get<GenericResponse>(
       `${environment.apiUrl}logout`,
+      headerAuthorization()
+    );
+  }
+
+  getUserProfile(): Observable<User> {
+    return this.http.get<User>(
+      `${this.apiUrl}/getUserProfile`,
       headerAuthorization()
     );
   }
@@ -60,6 +95,14 @@ export class UserService {
     return this.http.put<GenericResponse>(
       this.apiUrl,
       user,
+      headerAuthorization()
+    );
+  }
+
+  updatePassword(password: string): Observable<GenericResponse> {
+    return this.http.put<GenericResponse>(
+      `${this.apiUrl}/updatePassword`,
+      password,
       headerAuthorization()
     );
   }
