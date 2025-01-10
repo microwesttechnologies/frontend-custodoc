@@ -96,7 +96,7 @@
 <app-modal
   [primaryButton]="{
     hidden: !!idCustomerSelected && userLocalService?.user?.id_rol === 3,
-    text: !!idCustomerSelected ? 'Guardar cambios' : 'Guardar'
+    text: !!idCustomerSelected ? 'Guardar' : 'Guardar'
   }"
   [secondaryButton]="{
     text:
@@ -117,7 +117,7 @@
   <form [formGroup]="customerForm">
     <div class="row">
       <!-- Name -->
-      <div class="col-auto mb-150-rem">
+      <div class="col col-xs-12 col-md-6 mb-150-rem">
         <app-input
           [appDisabledElement]="
             !!idCustomerSelected && userLocalService?.user?.id_rol === 3
@@ -133,7 +133,7 @@
         </app-input>
       </div>
       <!-- Type document -->
-      <div class="col-auto mb-150-rem">
+      <div class="col col-xs-12 col-md-6 mb-150-rem">
         <app-select
           [configSelect]="{
           placeholder:'Seleccionar tipo de documento',
@@ -150,10 +150,8 @@
           <label for="id_document" labelSelect>Tipo de documento</label>
         </app-select>
       </div>
-    </div>
-    <div class="row">
       <!-- Identification -->
-      <div class="col-auto mb-150-rem">
+      <div class="col col-xs-12 col-md-6 mb-150-rem">
         <app-input
           [appDisabledElement]="!!idCustomerSelected"
           placeholder="Escribir identificación"
@@ -168,7 +166,7 @@
         </app-input>
       </div>
       <!-- Phone -->
-      <div class="col-auto mb-150-rem">
+      <div class="col col-xs-12 col-md-6 mb-150-rem">
         <app-input
           [appDisabledElement]="
             !!idCustomerSelected && userLocalService?.user?.id_rol === 3
@@ -184,10 +182,8 @@
           </label>
         </app-input>
       </div>
-    </div>
-    <div class="row">
       <!-- Email -->
-      <div class="col-auto mb-150-rem">
+      <div class="col col-xs-12 col-md-6 mb-150-rem">
         <app-input
           [appDisabledElement]="
             !!idCustomerSelected && userLocalService?.user?.id_rol === 3
@@ -207,7 +203,7 @@
       <!-- Company -->
       @if(userLocalService.user?.id_rol === 1 || userLocalService.user?.id_rol
       === 4){
-      <div class="col-auto">
+      <div class="col col-xs-12 col-md-6">
         <app-autocomplete
           [configAutoComplete]="{
             placeholder: 'Buscar compañía por nombre',
@@ -259,7 +255,9 @@
   </div>
 
   <app-table
-    (eventRowClick)="router.navigateByUrl('/documents?id_history=' + $event.id_history)"
+    (eventRowClick)="
+      router.navigateByUrl('/documents?id_history=' + $event.id_history)
+    "
     [loadingTable]="listStatus.loadingTableDocumentsByCustomer"
     [totalItems]="documentsByCustomer.length"
     gridHeaderColumns="1fr 1fr 9rem"

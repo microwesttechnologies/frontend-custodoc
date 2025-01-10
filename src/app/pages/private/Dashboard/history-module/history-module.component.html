@@ -154,7 +154,7 @@
   <form [formGroup]="documentForm">
     <div class="row">
       <!-- Name -->
-      <div class="col-auto mb-150-rem">
+      <div class="col col-xs-12 col-md-6 mb-150-rem">
         <app-input
           placeholder="Escribir nombre"
           [defaultLabelError]="true"
@@ -167,7 +167,7 @@
         </app-input>
       </div>
       <!-- Identification -->
-      <div class="col-auto mb-150-rem">
+      <div class="col col-xs-12 col-md-6 mb-150-rem">
         <app-autocomplete
           formControlName="identification"
           [configAutoComplete]="{
@@ -183,10 +183,8 @@
           <label for="identification" labelAutoComplete>Cliente</label>
         </app-autocomplete>
       </div>
-    </div>
-    <div class="row">
       <!-- Description -->
-      <div class="col-auto mb-150-rem">
+      <div class="col col-xs-12 mb-150-rem">
         <div class="primary-form-field">
           <label for="description" labelInput> Descripción </label>
           <textarea
@@ -196,9 +194,7 @@
           ></textarea>
         </div>
       </div>
-    </div>
-    <div class="row">
-      <div class="col-auto">
+      <div class="col col-xs-12">
         <div
           appTooltip="Click para seleccioar un archivo"
           class="primary-form-field-file"

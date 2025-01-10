@@ -1,11 +1,23 @@
 <div class="container-module-company">
-  <app-navbar description="En este modulo podrás gestionar las compañias" (eventClickButton)="openModalCreateCompany()"
-    title="Gestión de compañias" [(textFilter)]="textFilter" module="company"></app-navbar>
+  <app-navbar
+    description="En este modulo podrás gestionar las compañias"
+    (eventClickButton)="openModalCreateCompany()"
+    title="Gestión de compañias"
+    [(textFilter)]="textFilter"
+    module="company"
+  ></app-navbar>
   <div class="secondary-card">
-    <app-table gridHeaderColumns="10rem minmax(10rem, 1fr) 10rem 10rem 10rem 10rem 10rem 2.8rem"
-      [selectedItem]="['id_company', idCompanySelected]" (eventRowClick)="setUpdateCompany($event)"
-      [loadingTable]="listStatus.loadingTable" [totalItems]="companies.length" [textFilter]="textFilter"
-      [list]="companies" [withPager]="true" [fieldsToFilter]="fieldsToFilter">
+    <app-table
+      gridHeaderColumns="10rem minmax(10rem, 1fr) 10rem 10rem 10rem 10rem 10rem 2.8rem"
+      [selectedItem]="['id_company', idCompanySelected]"
+      (eventRowClick)="setUpdateCompany($event)"
+      [loadingTable]="listStatus.loadingTable"
+      [totalItems]="companies.length"
+      [textFilter]="textFilter"
+      [list]="companies"
+      [withPager]="true"
+      [fieldsToFilter]="fieldsToFilter"
+    >
       <ng-container tableHeader>
         <p class="font-subtitle-large">Nit</p>
         <p class="font-subtitle-large">Nombre</p>
@@ -17,8 +29,11 @@
       </ng-container>
       <ng-template let-item>
         <p class="font-body-medium">{{ item?.nit }}</p>
-        <p class="font-body-medium white-space-nowrap text-overflow-ellipsis overflow-hidden"
-          [appTooltip]="validateLimitText(nameCompany) ? item?.name : ''" #nameCompany>
+        <p
+          class="font-body-medium white-space-nowrap text-overflow-ellipsis overflow-hidden"
+          [appTooltip]="validateLimitText(nameCompany) ? item?.name : ''"
+          #nameCompany
+        >
           {{ item?.name }}
         </p>
         <p class="font-body-medium">
@@ -26,15 +41,24 @@
         </p>
         <p class="font-body-medium">{{ item?.country }}</p>
         <p class="font-body-medium">{{ item?.city }}</p>
-        <p class="font-body-medium white-space-nowrap text-overflow-ellipsis overflow-hidden"
-          [appTooltip]="validateLimitText(addressCompany) ? item?.address : ''" #addressCompany>
+        <p
+          class="font-body-medium white-space-nowrap text-overflow-ellipsis overflow-hidden"
+          [appTooltip]="validateLimitText(addressCompany) ? item?.address : ''"
+          #addressCompany
+        >
           {{ item?.address }}
         </p>
         <p class="font-body-medium">{{ item?.phone }}</p>
-        <button class="primary-button bg-danger button-md width-fit-content" [configTooltip]="{ position: 'left' }"
-          (click)="$event.stopPropagation();
-          companyToDelete = item" appTooltip="Eliminar compañía" type="button">
-          <i class="fa-solid fa-trash-can fa-lg cl-secondary-background-theme-important">
+        <button
+          class="primary-button bg-danger button-md width-fit-content"
+          [configTooltip]="{ position: 'left' }"
+          (click)="$event.stopPropagation(); companyToDelete = item"
+          appTooltip="Eliminar compañía"
+          type="button"
+        >
+          <i
+            class="fa-solid fa-trash-can fa-lg cl-secondary-background-theme-important"
+          >
           </i>
         </button>
       </ng-template>
@@ -43,71 +67,103 @@
 </div>
 
 @if(listStatus.showModal){
-<app-modal [primaryButton]="{ text: idCompanySelected ? 'Guardar cambios' : 'Crear' }"
+<app-modal
+  [primaryButton]="{ text: idCompanySelected ? 'Guardar' : 'Crear' }"
   [title]="idCompanySelected ? 'Actualizar compañía' : 'Crear compañía'"
-  (eventButtonClick)="$event ? createOrUpdateCompany() : closeModal()" [loadingButtons]="listStatus.savingCompany"
-  size="sm">
+  (eventButtonClick)="$event ? createOrUpdateCompany() : closeModal()"
+  [loadingButtons]="listStatus.savingCompany"
+  size="sm"
+>
   <form [formGroup]="companyForm">
     <div class="row">
       <!-- Name -->
-      <div class="col-auto mb-150-rem">
-        <app-input placeholder="Escribir nombre" [defaultLabelError]="true" formControlName="name" id="name">
+      <div class="col col-xs-12 mb-150-rem">
+        <app-input
+          placeholder="Escribir nombre"
+          [defaultLabelError]="true"
+          formControlName="name"
+          id="name"
+        >
           <label for="name" labelInput>
             Nombre <span class="cl-danger-background-status">*</span>
           </label>
         </app-input>
       </div>
-    </div>
-    <div class="row">
       <!-- Nit -->
-      <div class="col-auto mb-150-rem">
-        <app-input [appDisabledElement]="!!idCompanySelected" placeholder="Escribir nit" [defaultLabelError]="true"
-          formControlName="nit" id="nit">
+      <div class="col col-xs-12 col-md-6 mb-150-rem">
+        <app-input
+          [appDisabledElement]="!!idCompanySelected"
+          placeholder="Escribir nit"
+          [defaultLabelError]="true"
+          formControlName="nit"
+          id="nit"
+        >
           <label for="nit" labelInput>
             Nit <span class="cl-danger-background-status">*</span>
           </label>
         </app-input>
       </div>
       <!-- Type -->
-      <div class="col-auto mb-150-rem">
-        <app-input placeholder="Escribir tipo" [defaultLabelError]="true" formControlName="type" id="type">
+      <div class="col col-xs-12 col-md-6 mb-150-rem">
+        <app-input
+          placeholder="Escribir tipo"
+          [defaultLabelError]="true"
+          formControlName="type"
+          id="type"
+        >
           <label for="type" labelInput>
             Tipo <span class="cl-danger-background-status">*</span>
           </label>
         </app-input>
       </div>
-    </div>
-    <div class="row">
       <!-- Country -->
-      <div class="col-auto mb-150-rem">
-        <app-input placeholder="Escribir país" [defaultLabelError]="true" formControlName="country" id="country">
+      <div class="col col-xs-12 col-md-6 mb-150-rem">
+        <app-input
+          placeholder="Escribir país"
+          [defaultLabelError]="true"
+          formControlName="country"
+          id="country"
+        >
           <label for="country" labelInput>
             País <span class="cl-danger-background-status">*</span>
           </label>
         </app-input>
       </div>
       <!-- City -->
-      <div class="col-auto mb-150-rem">
-        <app-input placeholder="Escribir ciudad" [defaultLabelError]="true" formControlName="city" id="city">
+      <div class="col col-xs-12 col-md-6 mb-150-rem">
+        <app-input
+          placeholder="Escribir ciudad"
+          [defaultLabelError]="true"
+          formControlName="city"
+          id="city"
+        >
           <label for="city" labelInput>
             Ciudad <span class="cl-danger-background-status">*</span>
           </label>
         </app-input>
       </div>
-    </div>
-    <div class="row">
       <!-- Address -->
-      <div class="col-auto mb-150-rem">
-        <app-input placeholder="Escribir dirección" [defaultLabelError]="true" formControlName="address" id="address">
+      <div class="col col-xs-12 col-md-6 mb-150-rem">
+        <app-input
+          placeholder="Escribir dirección"
+          [defaultLabelError]="true"
+          formControlName="address"
+          id="address"
+        >
           <label for="address" labelInput>
             Dirección <span class="cl-danger-background-status">*</span>
           </label>
         </app-input>
       </div>
       <!-- Phone -->
-      <div class="col-auto">
-        <app-input placeholder="Escribir teléfono" [defaultLabelError]="true" formControlName="phone" type="number"
-          id="phone">
+      <div class="col col-xs-12 col-md-6">
+        <app-input
+          placeholder="Escribir teléfono"
+          [defaultLabelError]="true"
+          formControlName="phone"
+          type="number"
+          id="phone"
+        >
           <label for="phone" labelInput>
             Teléfono <span class="cl-danger-background-status">*</span>
           </label>
@@ -116,15 +172,16 @@
     </div>
   </form>
 </app-modal>
-}
-
-@if(companyToDelete){
-<app-modal-confirmation-delete [nameToValidate]="companyToDelete?.name!" title="Eliminar compañía"
-  [primaryButton]="{text:'Eliminar'}" (eventButtonClick)="$event ? deleteCompany() : companyToDelete = undefined">
-
+} @if(companyToDelete){
+<app-modal-confirmation-delete
+  [nameToValidate]="companyToDelete?.name!"
+  title="Eliminar compañía"
+  [primaryButton]="{ text: 'Eliminar' }"
+  (eventButtonClick)="$event ? deleteCompany() : (companyToDelete = undefined)"
+>
   <p class="font-body-large text-align-center mb-100-rem">
-    Recuerda que si eliminas la compañía también se eliminarán los empleados, clientes y documentos asociados.
+    Recuerda que si eliminas la compañía también se eliminarán los empleados,
+    clientes y documentos asociados.
   </p>
-
 </app-modal-confirmation-delete>
 }

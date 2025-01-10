@@ -17,5 +17,13 @@
   & .secondary-card {
     overflow: hidden;
     height: 100%;
+
+    @media (width > 576px) and (width <= 768px) {
+      min-height: 13.5rem;
+    }
+
+    @media (width <= 576px) {
+      min-height: 20rem;
+    }
   }
 }
