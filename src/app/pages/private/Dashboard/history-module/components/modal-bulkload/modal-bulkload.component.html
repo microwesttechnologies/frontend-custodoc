@@ -1,6 +1,6 @@
 <app-modal
   [primaryButton]="{
-    disabled: !!errorsMessage.length || !csvData.length || !selectedFilesPdf,
+    disabled: !!errorsMessage.length || !csvData.length || !selectedFilesPdf.length,
     text: 'Cargar documentos'
   }"
   (eventButtonClick)="bulkUploadDocuments($event)"

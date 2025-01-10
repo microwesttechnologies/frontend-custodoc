@@ -101,7 +101,7 @@ export class HistoryModuleComponent {
 
   ngOnInit(): void {
     this.idHistoryByUrl = this.activatedRoute.snapshot.queryParams['id_history'];
-
+    this.rangeDatesControl.markAsTouched();
     this.initForm();
 
     this.getAllCustomers();

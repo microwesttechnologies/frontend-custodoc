@@ -241,10 +241,10 @@ export class CustomersModuleComponent {
               } exitosamente`,
               'success'
             );
-            this.closeModal();
             if (!this.idCustomerSelected)
               this.globalService.detailCompany.customers.amount =
                 this.globalService.detailCompany.customers?.amount + 1;
+            this.closeModal();
           } else {
             this.notificationService.showNotification(
               response.message!,

@@ -70,7 +70,15 @@ export class UsersModuleComponent {
     '10rem 10rem minmax(10rem, 1fr) minmax(10rem, 1fr) 10rem 10rem';
 
   public textFilter = '';
-  public fieldsToFilter = ['email', 'name', 'name_type_document', 'name_rol', 'phone', 'identification', 'name_company'];
+  public fieldsToFilter = [
+    'email',
+    'name',
+    'name_type_document',
+    'name_rol',
+    'phone',
+    'identification',
+    'name_company',
+  ];
 
   public listStatus = {
     loadingTable: true,
@@ -98,17 +106,15 @@ export class UsersModuleComponent {
   }
 
   private initForm(): void {
-    this.userForm = this.formBuilder.group(
-      {
-        name: new FormControl('', [Validators.required]),
-        id_document: new FormControl('', [Validators.required]),
-        identification: new FormControl('', [Validators.required]),
-        email: new FormControl('', [Validators.required]),
-        phone: new FormControl('', [Validators.required]),
-        password: new FormControl(''),
-        confirmPassword: new FormControl(''),
-      },
-    );
+    this.userForm = this.formBuilder.group({
+      name: new FormControl('', [Validators.required]),
+      id_document: new FormControl('', [Validators.required]),
+      identification: new FormControl('', [Validators.required]),
+      email: new FormControl('', [Validators.required]),
+      phone: new FormControl('', [Validators.required]),
+      password: new FormControl(''),
+      confirmPassword: new FormControl(''),
+    });
 
     if (this.userLocalService.user?.id_rol === 1) {
       this.gridHeaderColumns += ' minmax(10rem, 1fr) 2.8rem';
@@ -141,9 +147,15 @@ export class UsersModuleComponent {
   private setFormMode(isCreating: boolean): void {
     if (isCreating) {
       // Agregar validadores para creación
-      this.userForm.get('password')?.setValidators([Validators.required, Validators.minLength(8)]);
-      this.userForm.get('confirmPassword')?.setValidators([Validators.required]);
-      this.userForm.setValidators(passwordMatchValidator('password', 'confirmPassword'));
+      this.userForm
+        .get('password')
+        ?.setValidators([Validators.required, Validators.minLength(8)]);
+      this.userForm
+        .get('confirmPassword')
+        ?.setValidators([Validators.required]);
+      this.userForm.setValidators(
+        passwordMatchValidator('password', 'confirmPassword')
+      );
     } else {
       // Remover validadores para actualización
       this.userForm.get('password')?.clearValidators();
@@ -170,7 +182,10 @@ export class UsersModuleComponent {
       },
       error: (error: HttpErrorResponse) => {
         this.notificationService.showNotification(
-          `Lo sentimos, ha ocurrido un error al consultar los ${homologateText(this.userLocalService?.user?.type_company!, 'empleados')}`,
+          `Lo sentimos, ha ocurrido un error al consultar los ${homologateText(
+            this.userLocalService?.user?.type_company!,
+            'empleados'
+          )}`,
           'danger',
           10000
         );
@@ -231,15 +246,18 @@ export class UsersModuleComponent {
           if (response.status) {
             this.getAllUsers();
             this.notificationService.showNotification(
-              `${homologateText(this.userLocalService?.user?.type_company!, 'empleado')} ${this.idUserSelected ? 'actualizado' : 'agregado'
+              `${homologateText(
+                this.userLocalService?.user?.type_company!,
+                'empleado'
+              )} ${
+                this.idUserSelected ? 'actualizado' : 'agregado'
               } exitosamente`,
               'success'
             );
-            this.closeModal();
             if (!this.idUserSelected)
               this.globalService.detailCompany.users.amount =
                 this.globalService.detailCompany.users.amount + 1;
-
+            this.closeModal();
           } else {
             this.notificationService.showNotification(
               response.message!,
@@ -251,8 +269,12 @@ export class UsersModuleComponent {
         error: (error) => {
           this.listStatus.savingUser = false;
           this.notificationService.showNotification(
-            `Lo sentimos, no se pudo ${this.idUserSelected ? 'actualizar' : 'agregar'
-            } el ${homologateText(this.userLocalService?.user?.type_company!, 'empleado')}`,
+            `Lo sentimos, no se pudo ${
+              this.idUserSelected ? 'actualizar' : 'agregar'
+            } el ${homologateText(
+              this.userLocalService?.user?.type_company!,
+              'empleado'
+            )}`,
             'danger'
           );
         },
@@ -283,16 +305,29 @@ export class UsersModuleComponent {
     this.userService.deleteUser(this.userToDelete?.identification!).subscribe({
       next: (response) => {
         if (response.status) {
-          this.notificationService.showNotification(`${homologateText(this.userLocalService?.user?.type_company!, 'empleado')} eliminado exitosamente`, 'success');
-          this.users = this.users.filter(user => user.identification !== this.userToDelete?.identification);
+          this.notificationService.showNotification(
+            `${homologateText(
+              this.userLocalService?.user?.type_company!,
+              'empleado'
+            )} eliminado exitosamente`,
+            'success'
+          );
+          this.users = this.users.filter(
+            (user) => user.identification !== this.userToDelete?.identification
+          );
           this.globalService.detailCompany.users.amount = this.users.length;
           this.userToDelete = undefined;
         }
       },
       error: (error: HttpErrorResponse) => {
-        this.notificationService.showNotification(`Lo sentimos, no se pudo eliminar el ${homologateText(this.userLocalService?.user?.type_company!, 'empleado')}`, 'danger');
-      }
-    })
+        this.notificationService.showNotification(
+          `Lo sentimos, no se pudo eliminar el ${homologateText(
+            this.userLocalService?.user?.type_company!,
+            'empleado'
+          )}`,
+          'danger'
+        );
+      },
+    });
   }
-
 }

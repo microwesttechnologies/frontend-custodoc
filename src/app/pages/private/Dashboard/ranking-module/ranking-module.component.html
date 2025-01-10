@@ -7,30 +7,30 @@
     module="ranking"
   ></app-navbar>
 
-  <div class="secondary-card">
-    <div
-      class="container-filters mb-150-rem display-flex align-items-center"
-      [ngStyle]="{ 'column-gap': '1rem' }"
+  <div
+    class="container-filters mb-150-rem mt-150-rem display-flex align-items-center"
+    [ngStyle]="{ 'column-gap': '1rem' }"
+  >
+    <app-input
+      placeholder="Seleccionar rango de fechas"
+      [formControl]="rangeDatesControl"
+      [ngStyle]="{ width: '21rem' }"
+      iconSuffix="fa-calendar-days"
+      [configDatePicker]="{
+        mode: 'range'
+      }"
+      type="datepicker"
+    ></app-input>
+
+    <app-button
+      (eventButtonClick)="getAllRankingUsers()"
+      classes="primary-button button-md"
     >
-      <app-input
-        placeholder="Seleccionar rango de fechas"
-        [formControl]="rangeDatesControl"
-        [ngStyle]="{ width: '21rem' }"
-        iconSuffix="fa-calendar-days"
-        [configDatePicker]="{
-          mode: 'range'
-        }"
-        type="datepicker"
-      ></app-input>
+      Filtrar
+    </app-button>
+  </div>
 
-      <app-button
-        (eventButtonClick)="getAllRankingUsers()"
-        classes="primary-button button-md"
-      >
-        Filtrar
-      </app-button>
-    </div>
-
+  <div class="secondary-card">
     <app-table
       gridHeaderColumns="10rem minmax(10rem, 1fr) minmax(10rem, 1fr) 10rem"
       [loadingTable]="listStatus.loadingTable"

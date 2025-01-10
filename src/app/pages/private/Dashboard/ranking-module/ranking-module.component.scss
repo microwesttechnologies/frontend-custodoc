@@ -3,6 +3,8 @@
 @include generate-styles("mb", "margin-bottom", rem, 150, 150);
 @include generate-styles("mb", "margin-bottom", rem, 100, 100);
 
+@include generate-styles("mt", "margin-top", rem, 150, 150);
+
 @include generate-styles("mr", "margin-right", rem, 50, 50);
 
 .container-module-ranking {
@@ -11,7 +13,6 @@
   display: flex;
 
   & .secondary-card {
-    margin-top: 2rem;
     overflow: hidden;
     height: 100%;
   }

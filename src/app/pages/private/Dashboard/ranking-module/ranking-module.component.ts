@@ -47,6 +47,7 @@ export class RankingModuleComponent implements OnInit {
   private readonly userService = inject(UserService);
 
   ngOnInit(): void {
+    this.rangeDatesControl.markAsTouched();
     this.getAllRankingUsers();
   }
 
