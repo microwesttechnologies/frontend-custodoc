@@ -2,77 +2,86 @@
   <app-navbar
     description="En este modulo podrás gestionar las compañias"
     (eventClickButton)="openModalCreateCompany()"
+    [searchControl]="searchControl"
     title="Gestión de compañias"
-    [(textFilter)]="textFilter"
+    codeModule="COMPANY"
     module="company"
   ></app-navbar>
-  <div class="secondary-card">
-    <app-table
-      gridHeaderColumns="10rem minmax(10rem, 1fr) 10rem 10rem 10rem 10rem 10rem 2.8rem"
-      [selectedItem]="['id_company', idCompanySelected]"
-      (eventRowClick)="setUpdateCompany($event)"
-      [loadingTable]="listStatus.loadingTable"
-      [totalItems]="companies.length"
-      [textFilter]="textFilter"
-      [list]="companies"
-      [withPager]="true"
-      [fieldsToFilter]="fieldsToFilter"
-    >
-      <ng-container tableHeader>
-        <p class="font-subtitle-large">Nit</p>
-        <p class="font-subtitle-large">Nombre</p>
-        <p class="font-subtitle-large">Tipo</p>
-        <p class="font-subtitle-large">País</p>
-        <p class="font-subtitle-large">Ciudad</p>
-        <p class="font-subtitle-large">Dirección</p>
-        <p class="font-subtitle-large">Teléfono</p>
-      </ng-container>
-      <ng-template let-item>
-        <p class="font-body-medium">{{ item?.nit }}</p>
-        <p
-          class="font-body-medium white-space-nowrap text-overflow-ellipsis overflow-hidden"
-          [appTooltip]="validateLimitText(nameCompany) ? item?.name : ''"
-          #nameCompany
-        >
-          {{ item?.name }}
-        </p>
-        <p class="font-body-medium">
-          {{ item?.type }}
-        </p>
-        <p class="font-body-medium">{{ item?.country }}</p>
-        <p class="font-body-medium">{{ item?.city }}</p>
-        <p
-          class="font-body-medium white-space-nowrap text-overflow-ellipsis overflow-hidden"
-          [appTooltip]="validateLimitText(addressCompany) ? item?.address : ''"
-          #addressCompany
-        >
-          {{ item?.address }}
-        </p>
-        <p class="font-body-medium">{{ item?.phone }}</p>
-        <button
-          class="primary-button bg-danger button-md width-fit-content"
-          [configTooltip]="{ position: 'left' }"
-          (click)="$event.stopPropagation(); companyToDelete = item"
-          appTooltip="Eliminar compañía"
-          type="button"
-        >
-          <i
-            class="fa-solid fa-trash-can fa-lg cl-secondary-background-theme-important"
+  <div class="container-general-panel overflow-hidden">
+    <div class="secondary-card">
+      <app-table
+        gridHeaderColumns="10rem minmax(10rem, 1fr) 10rem 10rem 10rem 10rem 10rem 1.9rem"
+        [selectedItem]="['id_company', idCompanySelected]"
+        (eventRowClick)="setUpdateCompany($event)"
+        [loadingTable]="listStatus.loadingTable"
+        [fieldsToFilter]="fieldsToFilter"
+        [totalItems]="companies.length"
+        [searchControl]="searchControl"
+        [list]="companies"
+        [withPager]="true"
+      >
+        <ng-container tableHeader>
+          <p class="font-subtitle-large">Nit</p>
+          <p class="font-subtitle-large">Nombre</p>
+          <p class="font-subtitle-large">Tipo</p>
+          <p class="font-subtitle-large">País</p>
+          <p class="font-subtitle-large">Ciudad</p>
+          <p class="font-subtitle-large">Dirección</p>
+          <p class="font-subtitle-large">Teléfono</p>
+        </ng-container>
+        <ng-template let-item>
+          <p class="font-caption-large">{{ item?.nit }}</p>
+          <p
+            class="font-caption-large white-space-nowrap text-overflow-ellipsis overflow-hidden"
+            [appTooltip]="validateLimitText(nameCompany) ? item?.name : ''"
+            #nameCompany
           >
-          </i>
-        </button>
-      </ng-template>
-    </app-table>
+            {{ item?.name }}
+          </p>
+          <p class="font-caption-large">
+            {{ item?.type }}
+          </p>
+          <p class="font-caption-large">{{ item?.country }}</p>
+          <p class="font-caption-large">{{ item?.city }}</p>
+          <p
+            class="font-caption-large white-space-nowrap text-overflow-ellipsis overflow-hidden"
+            [appTooltip]="
+              validateLimitText(addressCompany) ? item?.address : ''
+            "
+            #addressCompany
+          >
+            {{ item?.address }}
+          </p>
+          <p class="font-caption-large">{{ item?.phone }}</p>
+          <button
+            class="primary-button bg-danger button-sm width-fit-content"
+            (click)="$event.stopPropagation(); companyToDelete = item"
+            [configTooltip]="{ position: 'left' }"
+            appDisabledByPermission="COMPANY"
+            appTooltip="Eliminar compañía"
+            permission="DELETE"
+            type="button"
+          >
+            <i
+              class="fa-solid fa-trash-can cl-secondary-background-theme-important"
+            >
+            </i>
+          </button>
+        </ng-template>
+      </app-table>
+    </div>
   </div>
 </div>
 
 @if(listStatus.showModal){
 <app-modal
-  [primaryButton]="{ text: idCompanySelected ? 'Guardar' : 'Crear' }"
-  [title]="idCompanySelected ? 'Actualizar compañía' : 'Crear compañía'"
+  [primaryButton]="{ text: !!idCompanySelected ? 'Guardar' : 'Crear' }"
+  [title]="!!idCompanySelected ? 'Actualizar compañía' : 'Crear compañía'"
   (eventButtonClick)="$event ? createOrUpdateCompany() : closeModal()"
   [loadingButtons]="listStatus.savingCompany"
-  size="sm"
+  [isUpdate]="!!idCompanySelected"
+  codeModule="COMPANY"
+  size="md"
 >
   <form [formGroup]="companyForm">
     <div class="row">
@@ -82,6 +91,7 @@
           placeholder="Escribir nombre"
           [defaultLabelError]="true"
           formControlName="name"
+          [maxlength]="100"
           id="name"
         >
           <label for="name" labelInput>
@@ -96,6 +106,7 @@
           placeholder="Escribir nit"
           [defaultLabelError]="true"
           formControlName="nit"
+          [maxlength]="50"
           id="nit"
         >
           <label for="nit" labelInput>
@@ -105,10 +116,25 @@
       </div>
       <!-- Type -->
       <div class="col col-xs-12 col-md-6 mb-150-rem">
+        <!-- <app-select
+          [configSelect]="{
+            defaultLabelError: true,
+            fieldText: 'name',
+            id: 'selectType',
+            fieldId: 'name'
+          }"
+          [options]="companyTypes"
+          formControlName="type"
+        >
+          <label for="type" labelSelect>
+            Tipo <span class="cl-danger-background-status">*</span>
+          </label>
+        </app-select> -->
         <app-input
           placeholder="Escribir tipo"
           [defaultLabelError]="true"
           formControlName="type"
+          [maxlength]="50"
           id="type"
         >
           <label for="type" labelInput>
@@ -122,6 +148,7 @@
           placeholder="Escribir país"
           [defaultLabelError]="true"
           formControlName="country"
+          [maxlength]="100"
           id="country"
         >
           <label for="country" labelInput>
@@ -135,6 +162,7 @@
           placeholder="Escribir ciudad"
           [defaultLabelError]="true"
           formControlName="city"
+          [maxlength]="100"
           id="city"
         >
           <label for="city" labelInput>
@@ -148,6 +176,7 @@
           placeholder="Escribir dirección"
           [defaultLabelError]="true"
           formControlName="address"
+          [maxlength]="255"
           id="address"
         >
           <label for="address" labelInput>
@@ -156,11 +185,15 @@
         </app-input>
       </div>
       <!-- Phone -->
-      <div class="col col-xs-12 col-md-6">
+      <div
+        [ngClass]="{ 'mb-150-rem': !!idCompanySelected }"
+        class="col col-xs-12 col-md-6"
+      >
         <app-input
           placeholder="Escribir teléfono"
           [defaultLabelError]="true"
           formControlName="phone"
+          [maxlength]="30"
           type="number"
           id="phone"
         >
@@ -170,13 +203,115 @@
         </app-input>
       </div>
     </div>
+
+    @if(!!idCompanySelected){
+    <app-tabs-groups
+      [selectedTabIndex]="selectedTabIndex"
+      positionHeader="start"
+    >
+      <app-tab-item label="Empleados">
+        <ng-template>
+          <div class="pt-100-rem">
+            <app-table
+              gridHeaderColumns="10rem 10rem minmax(10rem, 1fr) minmax(10rem, 1fr) 10rem 10rem"
+              (eventRowClick)="
+                router.navigateByUrl(
+                  '/users?identification=' + $event.identification
+                )
+              "
+              [totalItems]="usersByCompany.length"
+              [list]="usersByCompany"
+              [withPager]="true"
+            >
+              <ng-container tableHeader>
+                <p class="font-subtitle-large">Identificación</p>
+                <p class="font-subtitle-large">Tipo documento</p>
+                <p class="font-subtitle-large">Nombre</p>
+                <p class="font-subtitle-large">Email</p>
+                <p class="font-subtitle-large">Teléfono</p>
+                <p class="font-subtitle-large">Rol</p>
+              </ng-container>
+              <ng-template let-item>
+                <p class="font-caption-large">{{ item?.identification }}</p>
+                <p class="font-caption-large">{{ item?.name_type_document }}</p>
+                <p
+                  class="font-caption-large white-space-nowrap text-overflow-ellipsis overflow-hidden"
+                  [appTooltip]="validateLimitText(nameUser) ? item?.name : ''"
+                  #nameUser
+                >
+                  {{ item?.name }}
+                </p>
+                <p
+                  class="font-caption-large white-space-nowrap text-overflow-ellipsis overflow-hidden"
+                  [appTooltip]="validateLimitText(emailUser) ? item?.email : ''"
+                  #emailUser
+                >
+                  {{ item?.email }}
+                </p>
+                <p class="font-caption-large">{{ item?.phone }}</p>
+                <p class="font-caption-large">{{ item?.name_rol }}</p>
+              </ng-template>
+            </app-table>
+          </div>
+        </ng-template>
+      </app-tab-item>
+      <app-tab-item label="Clientes">
+        <ng-template>
+          <div class="pt-100-rem">
+            <app-table
+              gridHeaderColumns="10rem 10rem minmax(10rem, 1fr) minmax(10rem, 1fr) 10rem"
+              (eventRowClick)="
+                router.navigateByUrl(
+                  '/customers?identification=' + $event.identification
+                )
+              "
+              [totalItems]="customersByCompany.length"
+              [list]="customersByCompany"
+              [withPager]="true"
+            >
+              <ng-container tableHeader>
+                <p class="font-subtitle-large">Identificación</p>
+                <p class="font-subtitle-large">Tipo documento</p>
+                <p class="font-subtitle-large">Nombre</p>
+                <p class="font-subtitle-large">Email</p>
+                <p class="font-subtitle-large">Teléfono</p>
+              </ng-container>
+              <ng-template let-item>
+                <p class="font-caption-large">{{ item?.identification }}</p>
+                <p class="font-caption-large">{{ item?.name_type_document }}</p>
+                <p
+                  class="font-caption-large white-space-nowrap text-overflow-ellipsis overflow-hidden"
+                  [appTooltip]="
+                    validateLimitText(nameCustomer) ? item?.name : ''
+                  "
+                  #nameCustomer
+                >
+                  {{ item?.name }}
+                </p>
+                <p
+                  class="font-caption-large white-space-nowrap text-overflow-ellipsis overflow-hidden"
+                  [appTooltip]="
+                    validateLimitText(emailCustomer) ? item?.email : ''
+                  "
+                  #emailCustomer
+                >
+                  {{ item?.email }}
+                </p>
+                <p class="font-caption-large">{{ item?.phone }}</p></ng-template
+              >
+            </app-table>
+          </div>
+        </ng-template>
+      </app-tab-item>
+    </app-tabs-groups>
+    }
   </form>
 </app-modal>
 } @if(companyToDelete){
 <app-modal-confirmation-delete
   [nameToValidate]="companyToDelete?.name!"
   title="Eliminar compañía"
-  [primaryButton]="{ text: 'Eliminar' }"
+  [primaryButton]="{ text: 'Aceptar' }"
   (eventButtonClick)="$event ? deleteCompany() : (companyToDelete = undefined)"
 >
   <p class="font-body-large text-align-center mb-100-rem">

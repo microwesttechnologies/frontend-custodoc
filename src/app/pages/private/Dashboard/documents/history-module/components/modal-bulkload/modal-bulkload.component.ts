@@ -42,8 +42,8 @@ export class ModalBulkloadComponent {
     'close' | 'show' | 'refresh'
   >();
 
-  public selectedIndexTabs = 0;
-  public selectedIndexStep = 0;
+  public selectedTabIndex = 0;
+  public selectedStepIndex = 0;
   public selectedFileCsv?: File;
   public csvData: any[] = []; // Array para almacenar los datos del CSV
   public selectedFilesPdf: File[] = [];
@@ -81,7 +81,7 @@ export class ModalBulkloadComponent {
         if (delimiter) {
           this.processCsvData(text, delimiter);
         } else {
-          this.selectedIndexTabs = 1;
+          this.selectedTabIndex = 1;
           this.errorsMessage.push(
             'El archivo CSV tiene un formato incorrecto o delimitador no válido.'
           );
@@ -89,7 +89,7 @@ export class ModalBulkloadComponent {
       };
 
       reader.onerror = () => {
-        this.selectedIndexTabs = 1;
+        this.selectedTabIndex = 1;
         this.errorsMessage.push(
           'Error al leer el archivo. Por favor, inténtalo de nuevo.'
         );
@@ -129,7 +129,7 @@ export class ModalBulkloadComponent {
       .map((header) => header.trim().replace(/^"|"$/g, '')); // Quitar espacios y comillas
 
     if (headers.length !== 4) {
-      this.selectedIndexTabs = 1;
+      this.selectedTabIndex = 1;
       this.errorsMessage.push(
         `El archivo solo puede tener <strong>4</strong> columnas y tiene <strong>${headers.length}</strong> en la fila <strong>1</strong>`
       );
@@ -185,12 +185,12 @@ export class ModalBulkloadComponent {
       this.errorsMessage.push('El archivo esta vacio');
     }
 
-    this.selectedIndexTabs = this.errorsMessage.length
+    this.selectedTabIndex = this.errorsMessage.length
       ? 1
-      : this.selectedIndexTabs;
+      : this.selectedTabIndex;
 
-    this.selectedIndexStep = this.errorsMessage.length
-      ? this.selectedIndexStep
+    this.selectedStepIndex = this.errorsMessage.length
+      ? this.selectedStepIndex
       : 1;
 
     this.notificationService.showNotification(
@@ -230,9 +230,9 @@ export class ModalBulkloadComponent {
         }
       });
 
-      this.selectedIndexTabs = this.errorsMessage.length
+      this.selectedTabIndex = this.errorsMessage.length
         ? 1
-        : this.selectedIndexTabs;
+        : this.selectedTabIndex;
 
       this.notificationService.showNotification(
         this.errorsMessage.length

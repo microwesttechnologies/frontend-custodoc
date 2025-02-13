@@ -20,6 +20,8 @@ import {
 import { SharedModule } from '../shared.module';
 import { DisabledElementDirective } from 'src/app/directives/disabled-element.directive';
 import { fadeInCustomAnimation } from 'src/app/animations/global.animations';
+import { FormControl } from '@angular/forms';
+import { debounceTime } from 'rxjs';
 
 @Component({
   selector: 'app-table',
@@ -28,7 +30,7 @@ import { fadeInCustomAnimation } from 'src/app/animations/global.animations';
   standalone: true,
   animations: [fadeInCustomAnimation('fadeIn', '300ms')],
 })
-export class TableComponent implements OnChanges {
+export class TableComponent implements OnInit, OnChanges {
   @Input() itemsPerPage = 25;
   @Input() selectedItem: [string, any] = [
     '',
@@ -36,11 +38,12 @@ export class TableComponent implements OnChanges {
   ]; /** La primera posición es el identificador y el siguiente el valor a comparar */
   @Input() fieldsToFilter: string[] = [];
   @Input() hiddenOptionsPager!: boolean;
+  @Input() searchControl!: FormControl;
   @Input() gridHeaderColumns!: string;
+  @Input() isNotSelectable!: boolean;
   @Input() gridBodyColumns!: string;
   @Input() loadingTable!: boolean;
   @Input() currentPage!: number;
-  @Input() textFilter!: string;
   @Input() totalItems!: number;
   @Input() withPager!: boolean;
   @Input() list: any[] = [];
@@ -55,25 +58,25 @@ export class TableComponent implements OnChanges {
 
   public createArrayByNumber = createArrayByNumber;
 
+  ngOnInit(): void {
+    this.searchControl?.valueChanges
+      ?.pipe(debounceTime(300))
+      .subscribe((value) => {
+        this.listFilter = arrayFilter(this.list, value, this.fieldsToFilter);
+      });
+  }
+
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['list']) {
-      if (this.textFilter) {
+      if (this.searchControl?.value) {
         this.listFilter = arrayFilter(
           this.list,
-          this.textFilter,
+          this.searchControl?.value,
           this.fieldsToFilter
         );
       } else {
         this.listFilter = this.list;
       }
-    }
-
-    if (changes['textFilter']) {
-      this.listFilter = arrayFilter(
-        this.list,
-        this.textFilter,
-        this.fieldsToFilter
-      );
     }
   }
 

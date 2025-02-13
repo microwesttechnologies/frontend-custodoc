@@ -1,66 +1,80 @@
-<div class="primary-navbar">
-  <div class="list-cards row">
-    @for ( key of globalService.detailCompany | getObjectProperties; track
-    indexItem; let indexItem = $index){
-    <div class="col-auto mb-100-rem" @slideEnterRight>
-      <div class="item-card display-flex align-items-center justify-content-space-around">
-        <i class="fa-solid cl-tertiary-background-palette center-all" [ngClass]="getValueByKey(key).icon"></i>
-        <section>
-          <p class="font-body-medium cl-secondary-background-theme-important mb-30-rem">
-            {{ homologateText(userLocalService?.user?.type_company!,getValueByKey(key).label | lowercase) | titlecase }}
-          </p>
-
-          <h2 class="font-headline-small cl-secondary-background-theme-important text-align-center">
-            {{ getValueByKey(key).amount | number }}
-          </h2>
-        </section>
-      </div>
-    </div>
-    }
-  </div>
-
+<div class="secondary-navbar">
   <div class="row align-items-flex-end">
     <div class="col col-xs-12 col-lg-7 mb-50-rem">
-      <h2 class="font-headline-small mb-50-rem">
+      <h3 class="font-title-large mb-50-rem">
         {{ title }}
-      </h2>
+      </h3>
 
-      <p class="font-body-large cl-secondary-color-theme-important">
+      <p class="font-body-medium cl-secondary-color-theme-important">
         {{ description }}
       </p>
     </div>
     <div class="col col-xs-12 col-lg-5 mb-50-rem">
       <div class="display-flex align-items-center justify-content-flex-end">
+        @if(searchControl){
         <div class="primary-form-field width-100">
           <input
-            placeholder="Buscar {{ homologateText(userLocalService?.user?.type_company!,homologateModule[module]) }}"
-            class="primary-input bg-secondary-background-theme-important" (keyup)="changeValueFilter($event)"
-            [value]="textFilter" type="text" />
+            placeholder="Buscar {{
+              homologateText(
+                userLocalService?.user?.type_company!,
+                homologateModule[module]
+              )
+            }}"
+            class="primary-input bg-secondary-background-theme-important"
+            [formControl]="searchControl"
+            type="text"
+          />
         </div>
-        @if(!hiddenPrimaryButton && !disabledByModuleAndRol?.primaryButton){
-        <button class="primary-button button-md width-fit-content ml-50-rem"
-          [appTooltip]="'Agregar ' + homologateText(userLocalService?.user?.type_company!,homologateModule[module])"
+        } @if(!hiddenPrimaryButton){
+        <button
+          class="primary-button button-md width-fit-content ml-50-rem"
+          [appTooltip]="
+            'Agregar ' +
+            homologateText(
+              userLocalService?.user?.type_company!,
+              homologateModule[module]
+            )
+          "
+          [appDisabledByPermission]="codeModule"
           [configTooltip]="{
             position: 'left'
-          }" (click)="eventClickButton.emit()">
-          <i class="fa-solid fa-plus fa-lg cl-secondary-background-theme-important"></i>
+          }"
+          (click)="eventClickButton.emit()"
+        >
+          <i
+            class="fa-solid fa-plus fa-lg cl-secondary-background-theme-important"
+          ></i>
         </button>
         } @if(actions.length){
-        <button class="primary-button button-md bg-transparent width-fit-content ml-50-rem"
-          [appDisabledElement]="disabledByModuleAndRol?.actions" [appOverlay]="overlayActions"
-          overlayPosition="left-center" [closeInsideOverlay]="true" overlayActivateBy="click" overlayWidth="6rem">
-          <i class="fa-solid fa-bars fa-lg"> </i>
+        <button
+          class="primary-button button-md bg-transparent width-fit-content ml-50-rem"
+          [appOverlay]="overlayActions"
+          overlayPosition="left-center"
+          [closeInsideOverlay]="true"
+          overlayActivateBy="click"
+          overlayWidth="6rem"
+        >
+          <i class="fa-solid fa-ellipsis-vertical fa-lg"> </i>
         </button>
 
         <ng-template #overlayActions>
-          <div class="primary-overlay">
+          <div class="primary-overlay" @fadeIn>
             <ul class="primary-list">
               @if(actions.includes('export')){
-              <li class="item-list" (click)="eventExport.emit()" [appDisabledElement]="disabledByModuleAndRol?.export">
+              <li
+                [appDisabledByPermission]="codeModule"
+                (click)="eventExport.emit()"
+                permission="EXPORT"
+                class="item-list"
+              >
                 <p class="font-caption-large">Exportar</p>
               </li>
               } @if(actions.includes('import')){
-              <li class="item-list" (click)="eventImport.emit()" [appDisabledElement]="disabledByModuleAndRol?.import">
+              <li
+                [appDisabledByPermission]="codeModule"
+                (click)="eventImport.emit()"
+                class="item-list"
+              >
                 <p class="font-caption-large">Importar</p>
               </li>
               }
@@ -72,4 +86,5 @@
       </div>
     </div>
   </div>
+  <div class="item-separator"></div>
 </div>

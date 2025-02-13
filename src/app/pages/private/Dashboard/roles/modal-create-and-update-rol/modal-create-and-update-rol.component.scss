@@ -1,0 +1,21 @@
+@import "src/styles/core/_mixins.scss";
+@import "src/styles/core/_theme.scss";
+
+@include generate-styles("mb", "margin-bottom", rem, 200, 200);
+
+.item-checkbox {
+  transition: background-color 0.3s ease-in-out;
+  border-radius: 0.325rem;
+  height: 1.3rem;
+  width: 1.3rem;
+
+  &:not(.item-checkbox-checked){
+    border: 1px solid get-theme-value(theme, secondary, color);
+    background-color: transparent;
+  }
+
+  &-checked {
+    border: 1px solid get-theme-value(palette, tertiary, background);
+    background-color: get-theme-value(palette, tertiary, background);
+  }
+}

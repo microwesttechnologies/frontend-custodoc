@@ -48,10 +48,10 @@ export class TooltipDirective implements AfterViewInit, OnDestroy {
   private setTimeoutTooltip?: number | ReturnType<typeof setTimeout>; // Timeout for tooltip delay actions.
   private listeners: (() => void)[] = []; // Array of listeners for event management.
 
-  private readonly changeDetectorRef= inject(ChangeDetectorRef);
-  private readonly viewContainerRef= inject(ViewContainerRef);
-  private readonly elementRef= inject(ElementRef);
-  private readonly renderer= inject(Renderer2);
+  private readonly changeDetectorRef = inject(ChangeDetectorRef);
+  private readonly viewContainerRef = inject(ViewContainerRef);
+  private readonly elementRef = inject(ElementRef);
+  private readonly renderer = inject(Renderer2);
 
   ngAfterViewInit(): void {
     this.observeParentSizeChanges();
@@ -81,48 +81,48 @@ export class TooltipDirective implements AfterViewInit, OnDestroy {
             this.elementRef.nativeElement,
             'mouseenter',
             () => {
-              if (this.setTimeoutTooltip) {
-                clearTimeout(this.setTimeoutTooltip);
-                this.setTimeoutTooltip = undefined;
-              }
+              if (window.innerWidth > 768) {
+                if (this.setTimeoutTooltip) {
+                  clearTimeout(this.setTimeoutTooltip);
+                  this.setTimeoutTooltip = undefined;
+                }
 
-              this.setTimeoutTooltip = setTimeout(
-                () => this.showTooltip(),
-                150,
-              );
-            },
-          ),
+                this.setTimeoutTooltip = setTimeout(
+                  () => this.showTooltip(),
+                  150
+                );
+              }
+            }
+          )
         );
         this.listeners.push(
           this.renderer.listen(
             this.elementRef.nativeElement,
             'mouseleave',
             () => {
-              if (this.setTimeoutTooltip) {
-                clearTimeout(this.setTimeoutTooltip);
-                this.setTimeoutTooltip = undefined;
+              if (window.innerWidth > 768) {
+                if (this.setTimeoutTooltip) {
+                  clearTimeout(this.setTimeoutTooltip);
+                  this.setTimeoutTooltip = undefined;
+                }
+                this.removeTooltip();
               }
-              this.removeTooltip();
-            },
-          ),
+            }
+          )
         );
         break;
       case 'click':
         this.listeners.push(
           this.renderer.listen(this.elementRef.nativeElement, 'click', () =>
-            this.toggleTooltip(),
-          ),
+            this.toggleTooltip()
+          )
         );
         break;
     }
 
     // Add listener to detect clicks outside the tooltip.
     this.listeners.push(
-      this.renderer.listen(
-        'document',
-        'click',
-        this.onDocumentClick.bind(this),
-      ),
+      this.renderer.listen('document', 'click', this.onDocumentClick.bind(this))
     );
   }
 
@@ -212,7 +212,7 @@ export class TooltipDirective implements AfterViewInit, OnDestroy {
     this.renderer.addClass(this.tooltipElement, `scale-${action}-center`);
     this.renderer.removeClass(
       this.tooltipElement,
-      `scale-${action === 'down' ? 'up' : 'down'}-center`,
+      `scale-${action === 'down' ? 'up' : 'down'}-center`
     );
   }
 
@@ -227,7 +227,7 @@ export class TooltipDirective implements AfterViewInit, OnDestroy {
 
     // Create arrow element and append it to the tooltip
     this.arrowTooltipElement = this.renderer.createElement(
-      'div',
+      'div'
     ) as HTMLElement;
     this.renderer.appendChild(this.tooltipElement, this.arrowTooltipElement);
     this.renderer.addClass(this.arrowTooltipElement, 'tooltip-arrow');
@@ -235,11 +235,11 @@ export class TooltipDirective implements AfterViewInit, OnDestroy {
     // Add content to the tooltip
     if (typeof this.tooltipContent !== 'string') {
       const view = this.viewContainerRef.createEmbeddedView(
-        this.tooltipContent,
+        this.tooltipContent
       );
 
       view.rootNodes.forEach((node) =>
-        this.renderer.appendChild(this.tooltipElement, node),
+        this.renderer.appendChild(this.tooltipElement, node)
       );
     } else {
       const tagP = this.renderer.createElement('p') as HTMLElement;
@@ -302,7 +302,7 @@ export class TooltipDirective implements AfterViewInit, OnDestroy {
           left = hostPos.left + hostPos.width / 2 - tooltipPos.width / 2;
           this.renderer.addClass(
             this.arrowTooltipElement,
-            'tooltip-arrow-bottom',
+            'tooltip-arrow-bottom'
           );
           break;
         case 'left':
@@ -314,7 +314,7 @@ export class TooltipDirective implements AfterViewInit, OnDestroy {
             extraMarginLeftAndRight;
           this.renderer.addClass(
             this.arrowTooltipElement,
-            'tooltip-arrow-right',
+            'tooltip-arrow-right'
           );
           break;
         case 'right':
@@ -322,7 +322,7 @@ export class TooltipDirective implements AfterViewInit, OnDestroy {
           left = hostPos.right + defaultMargin + extraMarginLeftAndRight;
           this.renderer.addClass(
             this.arrowTooltipElement,
-            'tooltip-arrow-left',
+            'tooltip-arrow-left'
           );
           break;
         default:
@@ -343,7 +343,7 @@ export class TooltipDirective implements AfterViewInit, OnDestroy {
         this.clearArrowClasses();
         this.renderer.addClass(
           this.arrowTooltipElement,
-          'tooltip-arrow-bottom',
+          'tooltip-arrow-bottom'
         );
       }
       if (left < 0) {

@@ -1,0 +1,96 @@
+<app-modal
+  [title]="
+    (documentToUpdate ? 'Actualizar ' : 'Crear ') +
+    homologateText(userLocalService?.user?.type_company!, 'documento')
+  "
+  (eventButtonClick)="$event ? createOrUpdateDocument() : closeModal()"
+  [primaryButton]="{
+    disabled: documentForm.invalid || !selectedFilePdf,
+    text: documentToUpdate ? 'Actualizar ' : 'Crear',
+    hidden: listStatus?.disabledPrimaryButton
+  }"
+  [loadingButtons]="listStatus?.savingDocument"
+  [customStyles]="{
+    height: '95vh'
+  }"
+  codeModule="DOCUMENT"
+  size="md"
+>
+  <form [formGroup]="documentForm">
+    <div class="row">
+      <!-- Name -->
+      <div class="col col-xs-12 col-md-6 mb-150-rem">
+        <app-input
+          placeholder="Escribir nombre"
+          [defaultLabelError]="true"
+          formControlName="name"
+          [maxlength]="100"
+          id="name"
+        >
+          <label for="name" labelInput>
+            Nombre documento <span class="cl-danger-background-status">*</span>
+          </label>
+        </app-input>
+      </div>
+      <!-- Identification -->
+      <div class="col col-xs-12 col-md-6 mb-150-rem">
+        <app-autocomplete
+          [configAutoComplete]="{
+            placeholder: 'Buscar cliente por nombre',
+            fieldText: ['identification', 'name'],
+            fieldId: 'identification',
+            assignOnlyFieldId: true,
+            defaultLabelError: true,
+            id: 'identification'
+          }"
+          [appDisabledElement]="!!documentToUpdate"
+          formControlName="identification"
+          [options]="customers"
+        >
+          <label for="identification" labelAutoComplete>Cliente</label>
+        </app-autocomplete>
+      </div>
+      <!-- Description -->
+      <div class="col col-xs-12 mb-150-rem">
+        <div class="primary-form-field">
+          <label for="description" labelInput> Descripción </label>
+          <textarea
+            formControlName="description"
+            class="primary-input"
+            [maxlength]="4000"
+            rows="5"
+          ></textarea>
+        </div>
+      </div>
+      <div class="col col-xs-12">
+        <div
+          appTooltip="Click para seleccioar un archivo"
+          class="primary-form-field-file"
+          (click)="inputPdf.click()"
+        >
+          <p class="font-body-medium">
+            {{
+              selectedFilePdf || fileUrl
+                ? "Archivo seleccionado: " + (selectedFilePdf?.name || (documentToUpdate?.path! | splitText:'/')?.[1])
+                : "Seleccionar archivo"
+            }}
+          </p>
+          <input
+            (change)="onFileSelected($event)"
+            accept="application/pdf"
+            type="file"
+            #inputPdf
+          />
+        </div>
+        @if(pdfSrc || fileUrl){
+        <iframe
+          [src]="pdfSrc || (fileUrl! | safeUrl)"
+          frameborder="0"
+          height="500px"
+          width="100%"
+        ></iframe>
+        }
+      </div>
+    </div>
+  </form>
+</app-modal>

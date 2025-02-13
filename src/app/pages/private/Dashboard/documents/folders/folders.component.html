@@ -1,0 +1,430 @@
+<div class="container-module-folders">
+  <app-navbar
+    description="En este modulo podrás gestionar documentos"
+    [searchControl]="searchControl"
+    title="Gestión de documentos"
+    [hiddenPrimaryButton]="true"
+    module="document"
+  ></app-navbar>
+  <div class="container-general-panel overflow-hidden">
+    <div class="secondary-card">
+      <!-- Vista documentos y carpetas -->
+      @defer (when !listStatus.loadingDocuments) {
+      <!-- Botón agregar -->
+      @if(listDocuments.length || listFolders.length || levelFolders.length > 1
+      || listStatus.loadingDocuments || filter){
+      <div
+        class="display-flex align-items-center justify-content-space-between mb-150-rem"
+      >
+        <app-button
+          [classes]="
+            'primary-button button-md ' + (filter ? '' : 'bg-transparent')
+          "
+          overlayPosition="bottom-left"
+          [appOverlay]="overlayFilters"
+          [closeInsideOverlay]="true"
+          overlayActivateBy="click"
+          overlayWidth="12rem"
+          @fadeInOut
+        >
+          <i
+            [ngClass]="{
+              'fa-filter-circle-xmark cl-secondary-background-theme': filter,
+              'fa-filter': !filter
+            }"
+            class="fa-solid fa-lg"
+          ></i>
+        </app-button>
+
+        <app-button
+          classes="primary-button button-md"
+          overlayPosition="bottom-right"
+          [appOverlay]="overlayCreate"
+          [closeInsideOverlay]="true"
+          overlayActivateBy="click"
+          overlayWidth="12rem"
+          @fadeInOut
+        >
+          Agregar
+        </app-button>
+      </div>
+
+      <app-breadcumb-folders
+        (eventGoSpecificFolder)="previousAndNextFolder(undefined, $event)"
+        [levelFolders]="levelFolders"
+      ></app-breadcumb-folders>
+      }
+
+      <!-- Acción volver anterior -->
+      @if(levelFolders.length > 1){
+      <div class="content-item-document-and-folder" @fadeIn>
+        <p
+          class="font-caption-large name-document-and-folder cursor-pointer width-fit-content"
+          [configTooltip]="{ position: 'right' }"
+          (click)="previousAndNextFolder()"
+          appTooltip="Volver"
+        >
+          ...
+        </p>
+      </div>
+      }
+      <!-- Formulario agregar carpeta -->
+      @if(listStatus.creatingFolder){
+      <ng-container
+        *ngTemplateOutlet="
+          creatingOrUpdatingFolder;
+          context: {
+            control: nameFolderControl,
+            type: 'create'
+          }
+        "
+      ></ng-container>
+      }
+      <!-- Skeleton loading -->
+      @if(listStatus.loadingDocuments){ @for(item of createArrayByNumber(5);
+      track i; let i = $index){
+      <app-item-skeleton
+        [customStyles]="{
+          'margin-bottom': '0.3rem',
+          height: '3rem'
+        }"
+      ></app-item-skeleton>
+      }
+      <!--  -->
+      } @else {
+      <!-- Validación carpetas y documentos -->
+      @if(listDocuments.length || listFolders.length || filter){
+      <!-- Recorrer carpetas -->
+      @for(folder of listFoldersFiltered; track folder.id_folder; let i =
+      $index){
+      <ng-container
+        *ngTemplateOutlet="
+          contentItem;
+          context: {
+            param: 'id_folder',
+            item: folder,
+            index: i
+          }
+        "
+      ></ng-container>
+      }
+      <!-- Recorrer documentos -->
+      @for(document of listDocumentsFiltered; track document.id_history; let i =
+      $index){
+      <ng-container
+        *ngTemplateOutlet="
+          contentItem;
+          context: {
+            param: 'id_history',
+            item: document,
+            index: i
+          }
+        "
+      ></ng-container>
+      }
+      <!-- Sin registros encontrador por filtro -->
+      @if(!listDocumentsFiltered.length && !listFoldersFiltered.length){
+      <div class="center-all flex-direction-column height-100" @fadeIn>
+        <img
+          src="/assets/img/NoResults.png"
+          [ngStyle]="{ width: '8rem' }"
+          alt="NoReults"
+        />
+        <h3 class="font-title-large text-align-center">
+          No se encontraron resultados con el termino:
+        </h3>
+
+        <h3
+          class="font-title-large cl-primary-background-palette-important word-break-break-all"
+        >
+          {{ searchControl?.value }}
+        </h3>
+      </div>
+      }
+      <!--  -->
+      } @else if(!listStatus.creatingFolder && !filter) {
+      <div class="center-all flex-direction-column height-100" @fadeIn>
+        <img
+          src="/assets/img/NoResults.png"
+          [ngStyle]="{ width: '8rem' }"
+          alt="NoReults"
+        />
+        <h3 class="font-title-large text-align-center mb-100-rem">
+          No se encontraron carpetas ni documentos creados
+        </h3>
+        <app-button
+          classes="primary-button button-md"
+          [appOverlay]="overlayCreate"
+          [closeInsideOverlay]="true"
+          overlayActivateBy="click"
+          overlayWidth="12rem"
+        >
+          Crear
+        </app-button>
+      </div>
+      } } } @placeholder(minimum 500ms) {
+
+      <app-item-skeleton
+        [customStyles]="{
+          'margin-bottom': '1.5rem',
+          height: '2.625rem',
+          width: '5.625rem'
+        }"
+      ></app-item-skeleton>
+
+      <app-item-skeleton
+        [customStyles]="{
+          'margin-bottom': '1rem',
+          height: '1.5rem',
+          width: '3.625rem'
+        }"
+      ></app-item-skeleton>
+
+      @for(item of createArrayByNumber(5); track i; let i = $index){
+      <app-item-skeleton
+        [customStyles]="{
+          'margin-bottom': '0.3rem',
+          height: '3.399rem'
+        }"
+      ></app-item-skeleton>
+      }
+      <!--  -->
+      }
+    </div>
+  </div>
+</div>
+
+<!-- Contenedor de los items -->
+<ng-template #contentItem let-param="param" let-item="item" let-index="index">
+  @if(item?.isEditing){
+  <ng-container
+    *ngTemplateOutlet="
+      creatingOrUpdatingFolder;
+      context: {
+        control: item?.nameControl,
+        type: 'update',
+        index
+      }
+    "
+  ></ng-container>
+  }@else {
+  <div class="content-item-document-and-folder" @slideEnterRight>
+    <section class="display-flex align-items-center">
+      <i
+        [ngStyle]="{ color: param === 'id_history' ? '#ef5350' : null }"
+        [ngClass]="{
+          'fa-folder cl-secondary-background-palette': param === 'id_folder',
+          ' fa-file-pdf': param === 'id_history'
+        }"
+        class="fa-lg fa-solid mr-50-rem"
+      ></i>
+
+      <p
+        class="font-caption-large name-document-and-folder cursor-pointer white-space-nowrap text-overflow-ellipsis overflow-hidden"
+        (click)="
+          param === 'id_history'
+            ? previewFile(item[param])
+            : previousAndNextFolder({ id_folder: item[param], name: item.name })
+        "
+        [appTooltip]="validateLimitText(name) ? item.name : ''"
+        #name
+      >
+        {{ item.name }}
+      </p>
+    </section>
+    <p
+      [ngClass]="{
+        'cl-secondary-color-theme-important': param === 'id_folder'
+      }"
+      class="font-caption-large"
+    >
+      @if(param === 'id_history'){
+      {{ item.identification }} - {{ item.name_customer }}
+      }@else {
+      {{ item.created_at | date : "medium" }}
+      }
+    </p>
+    <div class="display-flex align-items-center justify-content-flex-end">
+      @if(item?.isFavorite){
+      <i
+        class="fa-solid fa-star cl-typographyWarning-color-status cursor-pointer mr-50-rem"
+        [configTooltip]="{ position: 'left' }"
+        appTooltip="Marcado como favorito"
+        @fadeInOut
+      ></i>
+      }
+      <button
+        class="primary-badge badge-gray-hover border-radius-100 mr-50-rem center-all"
+        [overlayContext]="{param,item,index}"
+        overlayPosition="bottom-right"
+        [appOverlay]="overlayOptions"
+        [closeInsideOverlay]="true"
+        overlayActivateBy="click"
+        overlayWidth="12rem"
+      >
+        <i class="fa-solid fa-ellipsis-vertical fa-lg"></i>
+      </button>
+    </div>
+  </div>
+  }
+</ng-template>
+
+<!-- Crear o actualizar carpeta -->
+<ng-template
+  #creatingOrUpdatingFolder
+  let-control="control"
+  let-index="index"
+  let-type="type"
+>
+  <div
+    class="display-flex align-items-center width-100 cg-100-rem mb-30-rem"
+    @slideEnterRight
+  >
+    <app-input
+      placeholder="Escribir nombre de la carpeta carpeta"
+      [ngStyle]="{ width: '100%' }"
+      [formControl]="control"
+      [maxlength]="100"
+    ></app-input>
+
+    <app-button
+      (eventButtonClick)="cancelCreateOrUpdateFolder(type, control, index)"
+      classes="primary-button bg-transparent button-md"
+    >
+      <i class="fa-solid fa-close fa-lg"></i>
+    </app-button>
+    <app-button
+      (eventButtonClick)="createOrUpdateFolder(type, control, index)"
+      [appDisabledElement]="control.invalid"
+      classes="primary-button button-md"
+    >
+      <i class="fa-solid fa-check fa-lg cl-secondary-background-theme"></i>
+    </app-button>
+  </div>
+</ng-template>
+
+<!-- Overlay filtros -->
+<ng-template #overlayFilters>
+  <div class="primary-overlay" @fadeIn>
+    <ul class="primary-list">
+      <li
+        [ngClass]="{ 'item-list-selected': filter === 'isFavorite' }"
+        class="item-list display-flex align-items-center cg-50-rem"
+        (click)="executeFilterFavoriteOrViewed('isFavorite')"
+      >
+        <i class="fa-solid fa-star cl-typographyWarning-color-status"></i>
+        <p class="font-caption-large">Favoritos</p>
+      </li>
+      <li
+        [ngClass]="{ 'item-list-selected': filter === 'isViewed' }"
+        class="item-list display-flex align-items-center cg-50-rem"
+        (click)="executeFilterFavoriteOrViewed('isViewed')"
+      >
+        <i class="fa-solid fa-eye cl-secondary-background-palette"></i>
+        <p class="font-caption-large">Vistos recientemente</p>
+      </li>
+    </ul>
+  </div>
+</ng-template>
+
+<!-- Overlay crear carpeta o documento -->
+<ng-template #overlayCreate>
+  <div class="primary-overlay" @fadeIn>
+    <ul class="primary-list">
+      <li
+        [disabledAnyWay]="listStatus.creatingFolder || editingFolder"
+        class="item-list display-flex align-items-center cg-50-rem"
+        (click)="listStatus.creatingFolder = true"
+        appDisabledByPermission="DOCUMENT"
+      >
+        <i class="fa-solid fa-folder cl-secondary-background-palette"></i>
+        <p class="font-caption-large">Carpeta</p>
+      </li>
+      <li
+        class="item-list display-flex align-items-center cg-50-rem"
+        (click)="listStatus.showModalDocument = true"
+        appDisabledByPermission="DOCUMENT"
+      >
+        <i class="fa-solid fa-file-pdf" [ngStyle]="{ color: '#ef5350' }"></i>
+        <p class="font-caption-large">Documento</p>
+      </li>
+    </ul>
+  </div>
+</ng-template>
+
+<!-- Overlay opciones de la carpeta o documento -->
+<ng-template #overlayOptions let-context>
+  <div class="primary-overlay" @fadeIn>
+    <ul class="primary-list">
+      <li
+        (click)="setUpdateDocumentOrFolder(context.param, context.item)"
+        [disabledAnyWay]="
+          context?.param === 'id_folder' && listStatus.creatingFolder
+        "
+        appDisabledByPermission="DOCUMENT"
+        permission="UPDATE"
+        class="item-list"
+      >
+        <p class="font-caption-large">Actualizar</p>
+      </li>
+      <li
+        class="item-list"
+        (click)="
+          markAndDesmarkFavorite(
+            context?.item?.id_history ?? context?.item?.id_folder!,
+            context?.param,
+            context?.index
+          )
+        "
+      >
+        <p class="font-caption-large">
+          {{
+            (context?.item?.isFavorite ? "Des" : "") + "marcar como favorito"
+              | titlecase
+          }}
+        </p>
+      </li>
+      <li
+        (click)="
+          context?.param === 'id_history'
+            ? (this.documentToDelete = context.item)
+            : (this.folderToDelete = context.item)
+        "
+        appDisabledByPermission="DOCUMENT"
+        permission="DELETE"
+        class="item-list"
+      >
+        <p class="font-caption-large">Eliminar</p>
+      </li>
+    </ul>
+  </div>
+</ng-template>
+
+@if(listStatus.showModalDocument){
+<app-modal-create-and-update-document
+  (eventRefresh)="getDocumentsByFolder()"
+  [documentToUpdate]="documentToUpdate"
+  [id_folder]="lastIdFolder"
+  [listStatus]="listStatus"
+  [customers]="customers"
+></app-modal-create-and-update-document>
+} @if(listStatus.showModalPreview){
+<app-modal-preview-document
+  [listStatus]="listStatus"
+  [fileUrl]="fileUrl"
+></app-modal-preview-document>
+}@if(documentToDelete || folderToDelete){
+<app-modal-confirmation-delete
+  [nameToValidate]="documentToDelete?.name! ?? folderToDelete?.name!"
+  [title]="'Eliminar ' + (documentToDelete ? 'documento' : 'carpeta')"
+  (eventButtonClick)="
+    documentToDelete ? deleteDocument($event) : deleteFolder($event)
+  "
+  [primaryButton]="{ text: 'Aceptar' }"
+>
+  <p class="font-body-large text-align-center mb-100-rem">
+    ¿Estas seguro que quieres eliminar
+    {{ documentToDelete ? "el documento" : "la carpeta" }}?
+  </p>
+</app-modal-confirmation-delete>
+}

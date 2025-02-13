@@ -1,0 +1,17 @@
+<app-modal
+  (eventButtonClick)="listStatus.showModalPreview = false"
+  [customStylesBody]="{ padding: 0, overflow: 'hidden' }"
+  [primaryButton]="{ text: 'Cerrar' }"
+  [secondaryButton]="{ hidden: true }"
+  [customStyles]="{ height: '95vh' }"
+  size="md"
+>
+  @if(fileUrl){
+  <iframe
+    [src]="fileUrl! | safeUrl"
+    frameborder="0"
+    height="100%"
+    width="100%"
+  ></iframe>
+  }
+</app-modal>

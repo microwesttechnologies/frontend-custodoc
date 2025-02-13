@@ -1,51 +1,92 @@
-<div class="primary-table" [ngStyle]="{ height: height }">
+<div
+  [ngClass]="{ 'primary-table-not-selectable': isNotSelectable }"
+  [ngStyle]="{ height: height }"
+  class="primary-table"
+>
   <div class="container-header-and-body">
-    <div [ngStyle]="{ 'grid-template-columns': gridHeaderColumns }" class="primary-table-header">
+    <div
+      [ngStyle]="{ 'grid-template-columns': gridHeaderColumns }"
+      class="primary-table-header"
+    >
       <ng-content select="[tableHeader]"></ng-content>
     </div>
     <div class="primary-table-body">
       <ng-content select="[tableBody]"></ng-content>
-      @if(loadingTable){ @for(item of createArrayByNumber(list.length > 5 ?
-      list.length : 5); track i; let i = $index){
-
-      <app-item-skeleton @fadeIn [customStyles]="{ height: '3.25rem', 'margin-top': '0.3rem' }"></app-item-skeleton>
-
-      } }@else{ @if(list.length === 0){
-      <div class="center-all height-100" @fadeIn>
-        <h3 class="font-title-large">No se encontraron registros</h3>
+      @defer(when !loadingTable){ @if(list.length === 0){
+      <div
+        class="center-all flex-direction-column height-100"
+        [ngStyle]="{ padding: '1rem' }"
+        @fadeIn
+      >
+        <img
+          src="/assets/img/NoResults.png"
+          [ngStyle]="{ width: '8rem' }"
+          alt="NoReults"
+        />
+        <h3 class="font-title-large text-align-center">
+          No se encontraron registros
+        </h3>
       </div>
-      }@else if(listFilter.length === 0 && textFilter){
+      }@else if(listFilter.length === 0 && searchControl?.value){
       <div class="center-all flex-direction-column height-100" @fadeIn>
-        <h3 class="font-title-large">
+        <img
+          src="/assets/img/NoResults.png"
+          [ngStyle]="{ width: '8rem' }"
+          alt="NoReults"
+        />
+        <h3 class="font-title-large text-align-center">
           No se encontraron resultados con el termino:
         </h3>
-        <h3 class="font-title-large cl-primary-background-palette-important word-break-break-all">
-          {{ textFilter }}
+        <h3
+          class="font-title-large cl-primary-background-palette-important word-break-break-all"
+        >
+          {{ searchControl?.value }}
         </h3>
       </div>
       }@else {@for(item of listFilter; track i; let i = $index){
-      <div [ngClass]="{
+      <div
+        [ngStyle]="{
+          'grid-template-columns': gridBodyColumns || gridHeaderColumns
+        }"
+        [ngClass]="{
           'primary-table-item-selected':
             item[selectedItem[0]] === selectedItem[1]
-        }" [ngStyle]="{
-          'grid-template-columns': gridBodyColumns || gridHeaderColumns
-        }" (keydown.enter)="eventRowClick.emit(item)" [appDisabledElement]="item?.disabled"
-        (click)="eventRowClick.emit(item)" class="primary-table-item" aria-label="Fila" @fadeIn role="button"
-        tabindex="0">
-        <ng-container *ngTemplateOutlet="
+        }"
+        (keydown.enter)="eventRowClick.emit(item)"
+        [appDisabledElement]="item?.disabled"
+        (click)="eventRowClick.emit(item)"
+        class="primary-table-item"
+        aria-label="Fila"
+        role="button"
+        tabindex="0"
+        @fadeIn
+      >
+        <ng-container
+          *ngTemplateOutlet="
             templateRef;
             context: {
               $implicit: item,
-              gridColumns: gridHeaderColumns
+              gridColumns: gridHeaderColumns,
+              index: i
             }
-          "></ng-container>
+          "
+        ></ng-container>
       </div>
-      }} }
+      }} }@placeholder(minimum 500ms) { @for(item of
+      createArrayByNumber(list.length > 5 ? list.length : 5); track i; let i =
+      $index){
+
+      <app-item-skeleton
+        [customStyles]="{ height: '3.25rem', 'margin-top': '0.3rem' }"
+        @fadeIn
+      ></app-item-skeleton>
+
+      } }
     </div>
   </div>
   @if(withPager){
   <!-- <div class="primary-table-footer"> -->
-    <!-- <app-pager
+  <!-- <app-pager
       (changePage)="changeCurrentPage($event)"
       [hiddenOptions]="hiddenOptionsPager"
       [itemsPerPage]="itemsPerPage"

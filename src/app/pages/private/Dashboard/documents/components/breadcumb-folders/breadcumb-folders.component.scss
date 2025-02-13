@@ -1,0 +1,14 @@
+.container-breadcumb-folders {
+  margin-bottom: 1rem;
+  column-gap: 0.5rem;
+  flex-wrap: wrap;
+  display: flex;
+
+  & p {
+    &:not(:last-child) {
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}

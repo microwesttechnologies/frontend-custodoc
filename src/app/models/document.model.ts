@@ -4,7 +4,11 @@ export interface Document {
   name: string;
   path: string;
   description: string;
-  created_at: Date;
-  updated_at: Date;
+  id_folder: number | null;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string;
   name_customer?: string;
+  user_identification?: string;
+  isFavorite: number;
 }

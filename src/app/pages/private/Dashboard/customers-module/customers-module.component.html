@@ -9,93 +9,95 @@
       'Gestión de ' +
       homologateText(userLocalService?.user?.type_company!, 'clientes')
     "
-    [(textFilter)]="textFilter"
+    [searchControl]="searchControl"
+    codeModule="CUSTOMER"
     module="customer"
   ></app-navbar>
-  <div class="secondary-card">
-    <app-table
-      [selectedItem]="['identification', idCustomerSelected]"
-      (eventRowClick)="setUpdateCustomer($event)"
-      [loadingTable]="listStatus.loadingTable"
-      [gridHeaderColumns]="gridHeaderColumns"
-      [totalItems]="customers.length"
-      [textFilter]="textFilter"
-      [list]="customers"
-      [withPager]="true"
-      [fieldsToFilter]="fieldsToFilter"
-    >
-      <ng-container tableHeader>
-        <p class="font-subtitle-large">Identificación</p>
-        <p class="font-subtitle-large">Tipo documento</p>
-        <p class="font-subtitle-large">Nombre</p>
-        <p class="font-subtitle-large">Email</p>
-        <p class="font-subtitle-large">Teléfono</p>
-        <p
-          [ngClass]="{
-            'display-none':
-              userLocalService?.user?.id_rol !== 1 &&
-              userLocalService?.user?.id_rol !== 4
-          }"
-          class="font-subtitle-large"
-        >
-          Compañía
-        </p>
-      </ng-container>
-      <ng-template let-item>
-        <p class="font-body-medium">{{ item?.identification }}</p>
-        <p class="font-body-medium">{{ item?.name_type_document }}</p>
-        <p
-          class="font-body-medium white-space-nowrap text-overflow-ellipsis overflow-hidden"
-          [appTooltip]="validateLimitText(nameCustomer) ? item?.name : ''"
-          #nameCustomer
-        >
-          {{ item?.name }}
-        </p>
-        <p
-          class="font-body-medium white-space-nowrap text-overflow-ellipsis overflow-hidden"
-          [appTooltip]="validateLimitText(emailCustomer) ? item?.email : ''"
-          #emailCustomer
-        >
-          {{ item?.email }}
-        </p>
-        <p class="font-body-medium">{{ item?.phone }}</p>
-        @if(userLocalService?.user?.id_rol === 1 ||
-        userLocalService?.user?.id_rol === 4){
-        <p
-          class="font-body-medium white-space-nowrap text-overflow-ellipsis overflow-hidden"
-          [appTooltip]="
-            validateLimitText(nameCompany) ? item?.name_company : ''
-          "
-          #nameCompany
-        >
-          {{ item?.name_company }}
-        </p>
-        } @if(userLocalService?.user?.id_rol === 1){
-        <button
-          class="primary-button bg-danger button-md width-fit-content"
-          [configTooltip]="{ position: 'left' }"
-          (click)="$event.stopPropagation(); customerToDelete = item"
-          [appTooltip]="
-            'Eliminar ' +
-            homologateText(userLocalService?.user?.type_company!, 'cliente')
-          "
-          type="button"
-        >
-          <i
-            class="fa-solid fa-trash-can fa-lg cl-secondary-background-theme-important"
+  <div class="container-general-panel overflow-hidden">
+    <div class="secondary-card">
+      <app-table
+        [selectedItem]="['identification', idCustomerSelected]"
+        (eventRowClick)="setUpdateCustomer($event)"
+        [loadingTable]="listStatus.loadingTable"
+        [gridHeaderColumns]="gridHeaderColumns"
+        [fieldsToFilter]="fieldsToFilter"
+        [totalItems]="customers.length"
+        [searchControl]="searchControl"
+        [list]="customers"
+        [withPager]="true"
+      >
+        <ng-container tableHeader>
+          <p class="font-subtitle-large">Identificación</p>
+          <p class="font-subtitle-large">Tipo documento</p>
+          <p class="font-subtitle-large">Nombre</p>
+          <p class="font-subtitle-large">Email</p>
+          <p class="font-subtitle-large">Teléfono</p>
+          <p
+            [ngClass]="{
+              'display-none':
+                userLocalService?.user?.id_rol !== 1 &&
+                userLocalService?.user?.id_rol !== 4
+            }"
+            class="font-subtitle-large"
           >
-          </i>
-        </button>
-        }
-      </ng-template>
-    </app-table>
+            Compañía
+          </p>
+        </ng-container>
+        <ng-template let-item>
+          <p class="font-caption-large">{{ item?.identification }}</p>
+          <p class="font-caption-large">{{ item?.name_type_document }}</p>
+          <p
+            class="font-caption-large white-space-nowrap text-overflow-ellipsis overflow-hidden"
+            [appTooltip]="validateLimitText(nameCustomer) ? item?.name : ''"
+            #nameCustomer
+          >
+            {{ item?.name }}
+          </p>
+          <p
+            class="font-caption-large white-space-nowrap text-overflow-ellipsis overflow-hidden"
+            [appTooltip]="validateLimitText(emailCustomer) ? item?.email : ''"
+            #emailCustomer
+          >
+            {{ item?.email }}
+          </p>
+          <p class="font-caption-large">{{ item?.phone }}</p>
+          @if(userLocalService?.user?.id_rol === 1 ||
+          userLocalService?.user?.id_rol === 4){
+          <p
+            class="font-caption-large white-space-nowrap text-overflow-ellipsis overflow-hidden"
+            [appTooltip]="
+              validateLimitText(nameCompany) ? item?.name_company : ''
+            "
+            #nameCompany
+          >
+            {{ item?.name_company }}
+          </p>
+          } @if(withDeletePermission){
+          <button
+            [appTooltip]="
+              'Eliminar ' +
+              homologateText(userLocalService?.user?.type_company!, 'cliente')
+            "
+            class="primary-button bg-danger button-sm width-fit-content"
+            (click)="$event.stopPropagation(); customerToDelete = item"
+            [configTooltip]="{ position: 'left' }"
+            type="button"
+          >
+            <i
+              class="fa-solid fa-trash-can cl-secondary-background-theme-important"
+            >
+            </i>
+          </button>
+          }
+        </ng-template>
+      </app-table>
+    </div>
   </div>
 </div>
 
 @if(listStatus.showModal){
 <app-modal
   [primaryButton]="{
-    hidden: !!idCustomerSelected && userLocalService?.user?.id_rol === 3,
     text: !!idCustomerSelected ? 'Guardar' : 'Guardar'
   }"
   [secondaryButton]="{
@@ -112,19 +114,21 @@
         homologateText(userLocalService?.user?.type_company!, 'cliente')
   "
   [loadingButtons]="listStatus.savingCustomer"
-  size="sm"
+  [isUpdate]="!!idCustomerSelected"
+  codeModule="CUSTOMER"
+  size="md"
 >
   <form [formGroup]="customerForm">
     <div class="row">
       <!-- Name -->
       <div class="col col-xs-12 col-md-6 mb-150-rem">
         <app-input
-          [appDisabledElement]="
-            !!idCustomerSelected && userLocalService?.user?.id_rol === 3
-          "
+          [permission]="!!idCustomerSelected ? 'UPDATE' : 'CREATE'"
+          appDisabledByPermission="CUSTOMER"
           placeholder="Escribir nombre"
           [defaultLabelError]="true"
           formControlName="name"
+          [maxlength]="200"
           id="name"
         >
           <label labelInput for="name">
@@ -135,6 +139,7 @@
       <!-- Type document -->
       <div class="col col-xs-12 col-md-6 mb-150-rem">
         <app-select
+          [permission]="!!idCustomerSelected ? 'UPDATE' : 'CREATE'"
           [configSelect]="{
           placeholder:'Seleccionar tipo de documento',
           defaultLabelError: true,
@@ -143,7 +148,8 @@
             id: 'id_document',
             fieldText: 'name',
           }"
-          [appDisabledElement]="!!idCustomerSelected"
+          [disabledAnyWay]="!!idCustomerSelected"
+          appDisabledByPermission="CUSTOMER"
           formControlName="id_document"
           [options]="typesDocument"
         >
@@ -153,11 +159,14 @@
       <!-- Identification -->
       <div class="col col-xs-12 col-md-6 mb-150-rem">
         <app-input
-          [appDisabledElement]="!!idCustomerSelected"
+          [permission]="!!idCustomerSelected ? 'UPDATE' : 'CREATE'"
+          [disabledAnyWay]="!!idCustomerSelected"
           placeholder="Escribir identificación"
+          appDisabledByPermission="CUSTOMER"
           formControlName="identification"
           [defaultLabelError]="true"
           id="identification"
+          [maxlength]="20"
           type="number"
         >
           <label labelInput for="identification">
@@ -168,12 +177,12 @@
       <!-- Phone -->
       <div class="col col-xs-12 col-md-6 mb-150-rem">
         <app-input
-          [appDisabledElement]="
-            !!idCustomerSelected && userLocalService?.user?.id_rol === 3
-          "
+          [permission]="!!idCustomerSelected ? 'UPDATE' : 'CREATE'"
+          appDisabledByPermission="CUSTOMER"
           placeholder="Escribir teléfono"
           [defaultLabelError]="true"
           formControlName="phone"
+          [maxlength]="30"
           type="number"
           id="phone"
         >
@@ -185,12 +194,12 @@
       <!-- Email -->
       <div class="col col-xs-12 col-md-6 mb-150-rem">
         <app-input
-          [appDisabledElement]="
-            !!idCustomerSelected && userLocalService?.user?.id_rol === 3
-          "
+          [permission]="!!idCustomerSelected ? 'UPDATE' : 'CREATE'"
           placeholder="Escribir correo electrónico"
+          appDisabledByPermission="CUSTOMER"
           [defaultLabelError]="true"
           formControlName="email"
+          [maxlength]="100"
           type="email"
           id="email"
         >
@@ -203,8 +212,9 @@
       <!-- Company -->
       @if(userLocalService.user?.id_rol === 1 || userLocalService.user?.id_rol
       === 4){
-      <div class="col col-xs-12 col-md-6">
+      <div class="col col-xs-12 col-md-6 mb-150-rem">
         <app-autocomplete
+          [permission]="!!idCustomerSelected ? 'UPDATE' : 'CREATE'"
           [configAutoComplete]="{
             placeholder: 'Buscar compañía por nombre',
             defaultLabelError: true,
@@ -213,6 +223,7 @@
             fieldText: 'name',
             id: 'id_company'
           }"
+          appDisabledByPermission="CUSTOMER"
           formControlName="id_company"
           [options]="companies"
         >
@@ -225,33 +236,34 @@
 
   @if(!!idCustomerSelected){
 
-  <div
-    class="container-filters mb-150-rem display-flex align-items-center justify-content-space-between"
-  >
-    <h3 class="font-title-medium">Documentos registrados</h3>
-
-    <section
-      class="display-flex align-items-center"
-      [ngStyle]="{ 'column-gap': '1rem' }"
-    >
-      <app-input
-        placeholder="Seleccionar rango de fechas"
-        [formControl]="rangeDatesControl"
-        [ngStyle]="{ width: '21rem' }"
-        iconSuffix="fa-calendar-days"
-        [configDatePicker]="{
-          mode: 'range'
-        }"
-        type="datepicker"
-      ></app-input>
-
-      <app-button
-        (eventButtonClick)="getAllDocumentsByCustomer(idCustomerSelected)"
-        classes="primary-button button-md"
+  <div class="row">
+    <div class="col col-xs-12 col-md-6 mb-150-rem">
+      <h3 class="font-title-medium">Documentos registrados</h3>
+    </div>
+    <div class="col col-xs-12 col-md-6 mb-150-rem">
+      <section
+        class="display-flex align-items-center justify-content-flex-end"
+        [ngStyle]="{ 'column-gap': '1rem' }"
       >
-        Filtrar
-      </app-button>
-    </section>
+        <app-input
+          placeholder="Seleccionar rango de fechas"
+          [formControl]="rangeDatesControl"
+          [ngStyle]="{ width: '21rem' }"
+          iconSuffix="fa-calendar-days"
+          [configDatePicker]="{
+            mode: 'range'
+          }"
+          type="datepicker"
+        ></app-input>
+
+        <app-button
+          (eventButtonClick)="getAllDocumentsByCustomer(idCustomerSelected)"
+          classes="primary-button button-md"
+        >
+          <i class="fa-solid fa-search fa-lg cl-secondary-background-theme"></i>
+        </app-button>
+      </section>
+    </div>
   </div>
 
   <app-table
@@ -259,8 +271,8 @@
       router.navigateByUrl('/documents?id_history=' + $event.id_history)
     "
     [loadingTable]="listStatus.loadingTableDocumentsByCustomer"
+    gridHeaderColumns="minmax(9rem, 1fr) 1fr 11rem"
     [totalItems]="documentsByCustomer.length"
-    gridHeaderColumns="1fr 1fr 9rem"
     [list]="documentsByCustomer"
     [withPager]="true"
     height="auto"
@@ -272,14 +284,14 @@
     </ng-container>
     <ng-template let-item>
       <p
-        class="font-body-medium white-space-nowrap text-overflow-ellipsis overflow-hidden"
+        class="font-caption-large white-space-nowrap text-overflow-ellipsis overflow-hidden"
         [appTooltip]="validateLimitText(nameDocument) ? item?.name : ''"
         #nameDocument
       >
         {{ item?.name }}
       </p>
       <p
-        class="font-body-medium white-space-nowrap text-overflow-ellipsis overflow-hidden"
+        class="font-caption-large white-space-nowrap text-overflow-ellipsis overflow-hidden"
         [appTooltip]="
           validateLimitText(descriptionCustomer) ? item?.description : ''
         "
@@ -287,8 +299,8 @@
       >
         {{ item?.description }}
       </p>
-      <p class="font-body-medium">
-        {{ item?.created_at | date : "YYYY-MM-dd hh:mm:ss" }}
+      <p class="font-caption-large">
+        {{ item?.created_at | date : "medium" }}
       </p>
     </ng-template>
   </app-table>
@@ -296,15 +308,15 @@
 </app-modal>
 } @if(customerToDelete){
 <app-modal-confirmation-delete
-  [nameToValidate]="customerToDelete?.name!"
   [title]="
     'Eliminar ' +
     homologateText(userLocalService?.user?.type_company!, 'cliente')
   "
-  [primaryButton]="{ text: 'Eliminar' }"
   (eventButtonClick)="
     $event ? deleteCustomer() : (customerToDelete = undefined)
   "
+  [nameToValidate]="customerToDelete?.name!"
+  [primaryButton]="{ text: 'Aceptar' }"
 >
   <p class="font-body-large text-align-center mb-100-rem">
     Recuerda que si eliminas el

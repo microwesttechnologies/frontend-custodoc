@@ -14,15 +14,20 @@ import { GetObjectPropertiesPipe } from 'src/app/pipes/get-object-properties.pip
 import { TooltipDirective } from 'src/app/directives/tooltip.directive';
 import { OverlayDirective } from 'src/app/directives/overlay.directive';
 import { DisabledElementDirective } from 'src/app/directives/disabled-element.directive';
-import { slideCustomAnimation } from 'src/app/animations/global.animations';
+import {
+  fadeInCustomAnimation,
+  slideCustomAnimation,
+} from 'src/app/animations/global.animations';
 import { homologateText } from 'src/app/globals/homologate-text';
+import { DisabledByPermissionDirective } from 'src/app/directives/disabled-by-permissions.directive';
+import { ModulesKeys } from 'src/app/models/permissions.model';
+import { FormControl } from '@angular/forms';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
   imports: [
-    DisabledElementDirective,
-    GetObjectPropertiesPipe,
+    DisabledByPermissionDirective,
     OverlayDirective,
     TooltipDirective,
     SharedModule,
@@ -33,62 +38,37 @@ import { homologateText } from 'src/app/globals/homologate-text';
     slideCustomAnimation('slideEnterRight', 'X', '1rem', '0', {
       enter: '300ms',
     }),
+    fadeInCustomAnimation('fadeIn', '300ms'),
   ],
 })
 export class NavbarComponent implements OnInit {
-  @Input() module!: 'company' | 'user' | 'customer' | 'document' | 'ranking';
+  @Input() module!:
+    | 'customer'
+    | 'company'
+    | 'document'
+    | 'ranking'
+    | 'trash'
+    | 'user'
+    | 'rol';
   @Input() description!: string;
-  @Input() textFilter = '';
+  @Input() searchControl!: FormControl;
   @Input() title!: string;
   @Input() hiddenPrimaryButton!: boolean;
   @Input() actions: ('export' | 'import')[] = [];
+  @Input() codeModule!: ModulesKeys;
 
-  @Output() textFilterChange = new EventEmitter<string>();
   @Output() eventClickButton = new EventEmitter<void>();
   @Output() eventExport = new EventEmitter<void>();
   @Output() eventImport = new EventEmitter<void>();
 
-  public countColumns!: number;
-
   public homologateModule: any = {
-    company: 'compañía',
-    user: 'empleado',
-    customer: 'cliente',
     document: 'documento',
+    company: 'compañía',
+    customer: 'cliente',
     ranking: 'ranking',
+    user: 'empleado',
+    rol: 'rol',
   };
-
-  public disabledOptions: any = {
-    customer: {
-      3: {
-        primaryButton: true,
-        actions: true,
-      },
-      2: {
-        primaryButton: true,
-        actions: true,
-      },
-    },
-    document: {
-      2: {
-        primaryButton: true,
-        actions: true,
-      },
-      3: {
-        primaryButton: true,
-        actions: true,
-      },
-      4: {
-        export: true,
-      },
-    },
-  };
-
-  public get disabledByModuleAndRol() {
-    return this.disabledOptions[this.module]?.[
-      this.userLocalService?.user?.id_rol as number
-    ];
-  }
 
   public homologateText = homologateText;
 
@@ -96,7 +76,7 @@ export class NavbarComponent implements OnInit {
   public globalService = inject(GlobalService);
 
   ngOnInit(): void {
-    if (this.userLocalService.user?.id_rol !== 3) this.getDetailCompany();
+    // if (this.userLocalService.user?.id_rol !== 3) this.getDetailCompany();
   }
 
   private getDetailCompany(): void {
@@ -111,10 +91,5 @@ export class NavbarComponent implements OnInit {
     return this.globalService.detailCompany[
       key as keyof typeof this.globalService.detailCompany
     ] as Detail;
-  }
-
-  public changeValueFilter(event: KeyboardEvent) {
-    this.textFilter = (event.target as HTMLInputElement).value;
-    this.textFilterChange.emit(this.textFilter);
   }
 }

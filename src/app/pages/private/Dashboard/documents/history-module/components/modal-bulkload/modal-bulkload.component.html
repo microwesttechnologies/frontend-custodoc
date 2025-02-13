@@ -1,7 +1,7 @@
 <app-modal
   [primaryButton]="{
     disabled: !!errorsMessage.length || !csvData.length || !selectedFilesPdf.length,
-    text: 'Cargar documentos'
+    text: 'Cargar'
   }"
   (eventButtonClick)="bulkUploadDocuments($event)"
   [loadingButtons]="listStatus.uploadingFiles"
@@ -23,7 +23,7 @@
     Descargar formato
   </a>
 
-  @if(selectedIndexStep === 0){
+  @if(selectedStepIndex === 0){
   <p class="font-body-large mb-100-rem">
     Una vez descargado y agregado toda la información a guardar se debe subir el
     archivo CSV
@@ -47,7 +47,7 @@
       #inputCsv
     />
   </div>
-  }@else if(selectedIndexStep === 1){
+  }@else if(selectedStepIndex === 1){
   <p class="font-body-large mb-100-rem">
     Después de cargar el archivo CSV y no tener errores se cargan los archivos
     PDF, recuerda que el nombre del archivo PDF debe coincidir con el nombre de
@@ -73,12 +73,12 @@
   <div class="display-flex justify-content-flex-end">
     <button
       class="primary-button button-md width-fit-content border-radius-100"
-      [appTooltip]="selectedIndexStep === 0 ? 'Siguiente' : 'Volver'"
-      (click)="selectedIndexStep = selectedIndexStep === 0 ? 1 : 0"
+      [appTooltip]="selectedStepIndex === 0 ? 'Siguiente' : 'Volver'"
+      (click)="selectedStepIndex = selectedStepIndex === 0 ? 1 : 0"
     >
       <i
         class="fa-solid fa-angle-right fa-lg cl-secondary-background-theme-important rotate-icon"
-        [ngClass]="{ 'fa-rotate-180': selectedIndexStep === 1 }"
+        [ngClass]="{ 'fa-rotate-180': selectedStepIndex === 1 }"
       >
       </i>
     </button>
@@ -86,7 +86,7 @@
 
   @if(!!csvData.length || !!errorsMessage.length){
 
-  <app-tabs-groups [selectedTabIndex]="selectedIndexTabs">
+  <app-tabs-groups [selectedTabIndex]="selectedTabIndex">
     <app-tab-item
       [disabled]="!csvData.length"
       [label]="'Registros (' + csvData.length + ')'"

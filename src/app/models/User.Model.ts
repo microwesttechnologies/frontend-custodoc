@@ -1,5 +1,4 @@
 import { TypesDocument } from './types-document.model';
-import { Company } from './company.model';
 import { Rol } from './rol.model';
 
 export interface User {
@@ -17,7 +16,7 @@ export interface User {
   email: string;
   id_rol: number | Rol;
   state: number;
-  id_company: Company | number;
+  id_company: any;
   id_document: TypesDocument | string;
   name_company?: string;
   name_type_document?: string;

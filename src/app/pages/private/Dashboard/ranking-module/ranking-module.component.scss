@@ -8,20 +8,12 @@
 @include generate-styles("mr", "margin-right", rem, 50, 50);
 
 .container-module-ranking {
-  height: calc(100vh - 4rem);
   flex-direction: column;
   display: flex;
+  height: 100%;
 
   & .secondary-card {
     overflow: hidden;
     height: 100%;
-
-    @media (width > 576px) and (width <= 768px) {
-      min-height: 13.5rem;
-    }
-
-    @media (width <= 576px) {
-      min-height: 20rem;
-    }
   }
 }

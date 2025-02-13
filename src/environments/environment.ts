@@ -1,5 +1,5 @@
 export const environment = {
-  storageUrl: 'http://127.0.0.1:8000/storage/',
-  apiUrl: 'http://127.0.0.1:8000/api/',
+  storageUrl: 'http://192.168.1.6:8000/storage/',
+  apiUrl: 'http://192.168.1.6:8000/api/',
   production: false,
 };

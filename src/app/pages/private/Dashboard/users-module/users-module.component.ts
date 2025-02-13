@@ -1,5 +1,5 @@
 import { UserLocalService } from 'src/app/services/local/user.service';
-import { Component, inject } from '@angular/core';
+import { Component, HostBinding, inject } from '@angular/core';
 import { SharedModule } from 'src/app/shared-components/shared.module';
 import { ModalComponent } from 'src/app/shared-components/modal/modal.component';
 import { TypesDocumentService } from 'src/app/services/external/types-document.service';
@@ -32,12 +32,16 @@ import { TableComponent } from 'src/app/shared-components/table/table.component'
 import { homologateText } from 'src/app/globals/homologate-text';
 import { DisabledElementDirective } from 'src/app/directives/disabled-element.directive';
 import { ModalConfirmationDeleteComponent } from 'src/app/shared-components/modal-confirmation-delete/modal-confirmation-delete.component';
+import { ActivatedRoute } from '@angular/router';
+import { DisabledByPermissionDirective } from 'src/app/directives/disabled-by-permissions.directive';
+import { RolService } from 'src/app/services/external/rol.service';
 
 @Component({
   selector: 'app-users-module',
   standalone: true,
   imports: [
     ModalConfirmationDeleteComponent,
+    DisabledByPermissionDirective,
     DisabledElementDirective,
     AutoCompleteComponent,
     TooltipDirective,
@@ -52,24 +56,27 @@ import { ModalConfirmationDeleteComponent } from 'src/app/shared-components/moda
   styleUrl: './users-module.component.scss',
 })
 export class UsersModuleComponent {
+  @HostBinding('style') defaultStyle = {
+    height: '100%',
+  };
+
   public typesDocument: TypesDocument[] = [];
   public companies: Company[] = [];
   public users: User[] = [];
 
-  public roles: Rol[] = [
-    { id_rol: 2, name: 'Administrador' },
-    { id_rol: 3, name: 'Médico' },
-    { id_rol: 4, name: 'Cargador de archivos' },
-  ];
+  public roles: Rol[] = [];
 
+  public identificationByUrl?: number;
   public idUserSelected?: string;
   public userForm!: FormGroup;
   public userToDelete?: User;
 
+  public withDeletePermission = false;
+
   public gridHeaderColumns =
     '10rem 10rem minmax(10rem, 1fr) minmax(10rem, 1fr) 10rem 10rem';
 
-  public textFilter = '';
+  public searchControl = new FormControl();
   public fieldsToFilter = [
     'email',
     'name',
@@ -93,12 +100,16 @@ export class UsersModuleComponent {
   private readonly typesDocumentService = inject(TypesDocumentService);
   private readonly notificationService = inject(NotificationService);
   private readonly companyService = inject(CompanyService);
+  private readonly activatedRoute = inject(ActivatedRoute);
   private readonly globalService = inject(GlobalService);
   private readonly userService = inject(UserService);
   private readonly formBuilder = inject(FormBuilder);
   public userLocalService = inject(UserLocalService);
+  private readonly rolService = inject(RolService);
 
   ngOnInit(): void {
+    this.identificationByUrl =
+      +this.activatedRoute.snapshot.queryParams['identification'];
     this.initForm();
 
     this.getAllTypesDocument();
@@ -109,15 +120,22 @@ export class UsersModuleComponent {
     this.userForm = this.formBuilder.group({
       name: new FormControl('', [Validators.required]),
       id_document: new FormControl('', [Validators.required]),
-      identification: new FormControl('', [Validators.required]),
+      id_rol: new FormControl('', [Validators.required]),
+      identification: new FormControl('', [
+        Validators.required,
+        Validators.maxLength(20),
+      ]),
       email: new FormControl('', [Validators.required]),
-      phone: new FormControl('', [Validators.required]),
+      phone: new FormControl('', [
+        Validators.required,
+        Validators.maxLength(30),
+      ]),
       password: new FormControl(''),
       confirmPassword: new FormControl(''),
     });
 
     if (this.userLocalService.user?.id_rol === 1) {
-      this.gridHeaderColumns += ' minmax(10rem, 1fr) 2.8rem';
+      this.gridHeaderColumns += ' minmax(10rem, 1fr)';
 
       this.getAllCompanies();
 
@@ -125,23 +143,20 @@ export class UsersModuleComponent {
         'id_company',
         new FormControl('', [Validators.required])
       );
-      this.userForm.addControl(
-        'id_rol',
-        new FormControl('', [Validators.required])
-      );
-    } else if (this.userLocalService.user?.id_rol === 2) {
-      this.gridHeaderColumns += ' 2.8rem';
     }
 
-    this.userForm.get('id_rol')?.valueChanges.subscribe((rol) => {
-      if (+rol === 4) {
-        this.userForm.get('id_company')?.reset();
-        this.userForm.get('id_company')?.clearValidators();
-      } else {
-        this.userForm.get('id_company')?.setValidators([Validators.required]);
-      }
-      this.userForm.get('id_company')?.updateValueAndValidity();
-    });
+    this.withDeletePermission = !!this.userLocalService?.menuSidebar?.find(
+      (module) => module.code === 'USER' && module.DELETE
+    );
+
+    if (this.withDeletePermission) this.gridHeaderColumns += ' 1.9rem';
+
+    if (this.userLocalService?.user?.id_company)
+      this.getRolesByCompany(
+        this.userLocalService?.user?.type_company === 'IPS'
+          ? null
+          : this.userLocalService?.user?.id_company
+      );
   }
 
   private setFormMode(isCreating: boolean): void {
@@ -176,8 +191,33 @@ export class UsersModuleComponent {
         this.users = users.map((user) => {
           user.disabled =
             user.identification === this.userLocalService.user?.identification;
+          user.id_company = user.id_company ?? 'IPS';
           return user;
         });
+
+        if (
+          this.identificationByUrl ===
+          this.userLocalService.user?.identification
+        ) {
+          this.identificationByUrl = undefined;
+        } else if (this.identificationByUrl) {
+          const user = this.users.find(
+            (user) => user.identification === this.identificationByUrl
+          );
+          if (user) {
+            this.setUpdateUser(user);
+          } else {
+            this.notificationService.showNotification(
+              `Lo sentimos, el ${homologateText(
+                this.userLocalService?.user?.type_company!,
+                'empleado'
+              )} no existe`,
+              'danger'
+            );
+          }
+          this.identificationByUrl = undefined;
+        }
+
         this.listStatus.loadingTable = false;
       },
       error: (error: HttpErrorResponse) => {
@@ -209,10 +249,31 @@ export class UsersModuleComponent {
     });
   }
 
+  public getRolesByCompany(id_company?: any): void {
+    if (id_company === 'IPS' && this.userLocalService?.user?.id_rol === 1) {
+      this.roles = [
+        {
+          name: 'Cargador de archivos',
+          id_rol: 4,
+        },
+      ];
+    } else {
+      this.rolService
+        .getRolesByCompany(id_company === 'null' ? undefined : id_company)
+        .subscribe({
+          next: (roles) => (this.roles = roles),
+        });
+    }
+  }
+
   private getAllCompanies(): void {
     this.companyService.getAllCompanies().subscribe({
       next: (companies) => {
         this.companies = companies;
+        this.companies.unshift({
+          name: 'Compañías IPS',
+          id_company: 'IPS',
+        });
       },
       error: (error: HttpErrorResponse) => {
         this.notificationService.showNotification(
@@ -237,6 +298,8 @@ export class UsersModuleComponent {
 
       this.listStatus.savingUser = true;
 
+      user.id_company = user.id_company === 'null' ? null : user.id_company;
+
       const endpointToExecute = this.idUserSelected
         ? this.userService.updateUser(user)
         : this.userService.createUser(user);
@@ -254,9 +317,9 @@ export class UsersModuleComponent {
               } exitosamente`,
               'success'
             );
-            if (!this.idUserSelected)
-              this.globalService.detailCompany.users.amount =
-                this.globalService.detailCompany.users.amount + 1;
+            // if (!this.idUserSelected)
+            //   this.globalService.detailCompany.users.amount =
+            //     this.globalService.detailCompany.users.amount + 1;
             this.closeModal();
           } else {
             this.notificationService.showNotification(
@@ -297,6 +360,10 @@ export class UsersModuleComponent {
         ?.setValue(user[key as keyof typeof user], { emitEvent: false })
     );
 
+    if (this.userLocalService?.user?.id_rol === 1)
+      this.getRolesByCompany(
+        user.type_company === 'IPS' ? null : user.id_company
+      );
     this.userForm.markAllAsTouched();
     this.listStatus.showModal = true;
   }
@@ -315,7 +382,7 @@ export class UsersModuleComponent {
           this.users = this.users.filter(
             (user) => user.identification !== this.userToDelete?.identification
           );
-          this.globalService.detailCompany.users.amount = this.users.length;
+          // this.globalService.detailCompany.users.amount = this.users.length;
           this.userToDelete = undefined;
         }
       },

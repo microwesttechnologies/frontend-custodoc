@@ -8,6 +8,5 @@ import { User } from 'src/app/models/user.model';
 export class UserLocalService {
   public user!: User;
 
-  public allowedRouteIds: number[] = [];
   public menuSidebar: any[] = [];
 }

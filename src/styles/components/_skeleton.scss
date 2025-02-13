@@ -18,9 +18,9 @@
         #f4f4f4 100%
       );
       animation-name: skeletonShimmer;
-      border-radius: 4px 4px 0px 0px;
       animation-fill-mode: forwards;
       background-size: 200% 100%;
+      border-radius: 0.3125rem;
       animation-duration: 2s;
       position: absolute;
       height: 100%;

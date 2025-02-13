@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, HostBinding, inject, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { TooltipDirective } from 'src/app/directives/tooltip.directive';
 import { UserService } from 'src/app/services/external/user.service';
@@ -26,8 +26,12 @@ import { TableComponent } from 'src/app/shared-components/table/table.component'
   styleUrl: './ranking-module.component.scss',
 })
 export class RankingModuleComponent implements OnInit {
+  @HostBinding('style') defaultStyle = {
+    height: '100%',
+  };
+
   public rankingUsers: any[] = [];
-  public textFilter = '';
+  public searchControl = new FormControl();
   public fieldsToFilter = [
     'name_user',
     'name_company',

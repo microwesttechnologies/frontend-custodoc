@@ -1,10 +1,23 @@
-<app-modal [title]="title" [primaryButton]="primaryButton" size="xs"
-  (eventButtonClick)="$event ? executeDelete() : eventButtonClick?.emit($event)">
+<app-modal
+  (eventButtonClick)="$event ? executeDelete() : eventButtonClick?.emit($event)"
+  [customStyles]="{ height: 'auto' }"
+  [primaryButton]="primaryButton"
+  [title]="title"
+  size="xs"
+>
   <div class="center-all flex-direction-column height-100">
     <ng-content></ng-content>
 
-    <p class="font-body-large mb-100-rem">Para confirmar la eliminación debes ingresar el nombre</p>
-    <p class="font-body-large mb-100-rem"><strong>{{nameToValidate}}</strong></p>
-    <app-input [formControl]="name" placeholder="Escribir nombre" [ngStyle]="{width: '100%'}"></app-input>
+    <p class="font-body-large mb-100-rem">
+      Para confirmar la eliminación debes ingresar el nombre
+    </p>
+    <p class="font-body-large mb-100-rem">
+      <strong>{{ nameToValidate }}</strong>
+    </p>
+    <app-input
+      [formControl]="name"
+      placeholder="Escribir nombre"
+      [ngStyle]="{ width: '100%' }"
+    ></app-input>
   </div>
 </app-modal>

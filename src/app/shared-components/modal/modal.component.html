@@ -1,4 +1,4 @@
-<div class="primary-modal-background primary-typography center-all">
+<div class="primary-modal-background center-all">
   <div
     class="content-modal modal-{{ size }}"
     [@slideEnterAndLeaveTop]
@@ -20,12 +20,12 @@
     >
       @if(!secondaryButton?.hidden){
       <app-button
-        [appDisabledElement]="secondaryButton?.disabled || loadingButtons"
+        (eventButtonClick)="!loadingButtons && eventButtonClick.emit(false)"
+        [appDisabledElement]="secondaryButton?.disabled!"
         classes="primary-button button-md bg-transparent"
-        (eventButtonClick)="eventButtonClick.emit(false)"
         [loading]="loadingButtons"
         [styles]="{
-          width: '9.5rem'
+          'min-width': '10rem'
         }"
       >
         {{ secondaryButton?.text || "Cancelar" }}
@@ -33,13 +33,15 @@
 
       } @if(!primaryButton?.hidden){
       <app-button
-        [appDisabledElement]="primaryButton?.disabled || loadingButtons"
+        (eventButtonClick)="!loadingButtons && eventButtonClick.emit(true)"
+        [appDisabledElement]="primaryButton?.disabled!"
+        [permission]="isUpdate ? 'UPDATE' : 'CREATE'"
+        [appDisabledByPermission]="codeModule"
         classes="primary-button button-md"
-        (eventButtonClick)="eventButtonClick.emit(true)"
         [loading]="loadingButtons"
         [styles]="{
           'margin-left': '1rem',
-          width: '9.5rem'
+          'min-width': '10rem'
         }"
       >
         {{ primaryButton?.text || "Crear" }}

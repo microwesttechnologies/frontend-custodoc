@@ -120,6 +120,21 @@ $properties-map: (
       overline,
     ),
   ),
+  position: (
+    values: (
+      relative,
+      absolute,
+      fixed,
+      sticky,
+    ),
+  ),
+
+  font-weight: (
+    values: (
+      400,
+      500,
+    ),
+  ),
 );
 
 // Mixin para generar una clase específica con el nombre de clase, propiedad CSS y valor proporcionados.

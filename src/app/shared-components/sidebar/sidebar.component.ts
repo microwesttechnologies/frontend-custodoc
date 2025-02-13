@@ -5,6 +5,7 @@ import {
   Input,
   OnInit,
   Output,
+  HostListener,
 } from '@angular/core';
 import { UserLocalService } from 'src/app/services/local/user.service';
 import { SharedModule } from '../shared.module';
@@ -25,6 +26,9 @@ import { DisabledElementDirective } from 'src/app/directives/disabled-element.di
 import { HttpErrorResponse } from '@angular/common/http';
 import { NotificationService } from '../notification/notification.service';
 import { passwordMatchValidator } from 'src/app/services/local/helper.service';
+import { DestroyObs } from 'src/app/abstract-classes/destroy.abstract';
+import { debounceTime, fromEvent, takeUntil } from 'rxjs';
+import { OverlayDirective } from 'src/app/directives/overlay.directive';
 
 @Component({
   selector: 'app-sidebar',
@@ -44,9 +48,13 @@ import { passwordMatchValidator } from 'src/app/services/local/helper.service';
       enter: '300ms',
       leave: '300ms',
     }),
+    slideCustomAnimation('slideEnterAndLeaveRight', 'X', '1rem', '0', {
+      enter: '300ms',
+      leave: '300ms',
+    }),
   ],
 })
-export class SidebarComponent implements OnInit {
+export class SidebarComponent extends DestroyObs implements OnInit {
   @Output() isSidebarOpenedChange = new EventEmitter<boolean>();
   @Input() isSidebarOpened = false;
 
@@ -54,6 +62,8 @@ export class SidebarComponent implements OnInit {
   public userForm!: FormGroup;
 
   public showContent = this.isSidebarOpened;
+  public isMobile = window.innerWidth <= 768;
+  public widthPage = window.innerWidth;
 
   public listStatus = {
     updatingPassword: false,
@@ -74,6 +84,13 @@ export class SidebarComponent implements OnInit {
     });
 
     this.initForm();
+
+    fromEvent(window, 'resize')
+      .pipe(takeUntil(this.$destroy))
+      .subscribe(() => {
+        this.isMobile = window.innerWidth <= 768;
+        this.widthPage = window.innerWidth;
+      });
   }
 
   private initForm(): void {

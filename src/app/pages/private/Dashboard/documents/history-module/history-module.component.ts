@@ -1,18 +1,10 @@
-import { Component, inject } from '@angular/core';
+import { Component, HostBinding, inject, Input } from '@angular/core';
 import { SharedModule } from 'src/app/shared-components/shared.module';
-import { ModalComponent } from 'src/app/shared-components/modal/modal.component';
 import { GlobalService } from 'src/app/services/external/global.service';
 import { DocumentService } from 'src/app/services/external/document.service';
-import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  Validators,
-} from '@angular/forms';
-import { CustomerService } from 'src/app/services/external/customer.service';
+import { FormControl } from '@angular/forms';
 import { Customer } from 'src/app/models/customer.model';
 import { TableComponent } from 'src/app/shared-components/table/table.component';
-import { AutoCompleteComponent } from 'src/app/shared-components/form/autocomplete/autocomplete.component';
 import { InputComponent } from 'src/app/shared-components/form/input/input.component';
 import { NavbarComponent } from 'src/app/shared-components/navbar/navbar.component';
 import {
@@ -21,49 +13,53 @@ import {
 } from 'src/app/services/local/helper.service';
 import { NotificationService } from 'src/app/shared-components/notification/notification.service';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Document } from 'src/app/models/documents.model';
+import { Document } from 'src/app/models/document.model';
 import { TooltipDirective } from 'src/app/directives/tooltip.directive';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { SafeUrlPipe } from 'src/app/pipes/safe-url.pipe';
 import { ModalBulkloadComponent } from './components/modal-bulkload/modal-bulkload.component';
 import { environment } from 'src/environments/environment';
 import { UserLocalService } from 'src/app/services/local/user.service';
-import { homologateText } from 'src/app/globals/homologate-text';
 import { ModalConfirmationDeleteComponent } from 'src/app/shared-components/modal-confirmation-delete/modal-confirmation-delete.component';
 import { ButtonComponent } from 'src/app/shared-components/form/button/button.component';
 import { ActivatedRoute } from '@angular/router';
+import { ModalCreateAndUpdateDocumentComponent } from '../components/modal-create-and-update-document/modal-create-and-update-document.component';
+import { ModalPreviewDocumentComponent } from '../components/modal-preview-document/modal-preview-document.component';
+import { homologateText } from 'src/app/globals/homologate-text';
 
 @Component({
   selector: 'app-history-module',
   standalone: true,
   imports: [
+    ModalCreateAndUpdateDocumentComponent,
     ModalConfirmationDeleteComponent,
+    ModalPreviewDocumentComponent,
     ModalBulkloadComponent,
-    AutoCompleteComponent,
     TooltipDirective,
     ButtonComponent,
     NavbarComponent,
-    ModalComponent,
     TableComponent,
     InputComponent,
     SharedModule,
-    SafeUrlPipe,
   ],
   templateUrl: './history-module.component.html',
   styleUrl: './history-module.component.scss',
   providers: [],
 })
 export class HistoryModuleComponent {
+  @HostBinding('style') defaultStyle = {
+    height: '100%',
+  };
+
+  @Input() customers: Customer[] = [];
+
   public storageUrl = environment.storageUrl;
 
   public documents: Document[] = [];
-  public customers: Customer[] = [];
 
   public rangeDatesControl = new FormControl();
   public documentToDelete?: Document;
-  public documentForm!: FormGroup;
 
-  public textFilter = '';
+  public searchControl = new FormControl();
+
   public fieldsToFilter = [
     'name_customer',
     'name',
@@ -71,79 +67,49 @@ export class HistoryModuleComponent {
     'description',
   ];
 
-  public pdfSrc?: SafeResourceUrl;
   private idHistoryByUrl?: number;
-  public selectedFilePdf?: File;
   public fileUrl?: string;
 
   public listStatus = {
     disabledPrimaryButton: false,
-    showModalPrewiew: false,
+    showModalDocument: false,
     showModalBulkload: false,
+    showModalPreview: false,
     uploadingFiles: false,
     savingDocument: false,
     loadingTable: true,
-    showModal: false,
   };
+
+  public withDeletePermission = false;
 
   public validateLimitText = validateLimitText;
   public validateFormField = validateFormField;
-  public homologateText = homologateText;
 
   private readonly notificationService = inject(NotificationService);
   private readonly documentService = inject(DocumentService);
-  private readonly customerService = inject(CustomerService);
   private readonly activatedRoute = inject(ActivatedRoute);
-  private readonly globalService = inject(GlobalService);
-  private readonly formBuilder = inject(FormBuilder);
   public userLocalService = inject(UserLocalService);
-  private readonly sanitizer = inject(DomSanitizer);
 
   ngOnInit(): void {
-    this.idHistoryByUrl = this.activatedRoute.snapshot.queryParams['id_history'];
+    this.idHistoryByUrl =
+      this.activatedRoute.snapshot.queryParams['id_history'];
     this.rangeDatesControl.markAsTouched();
-    this.initForm();
 
-    this.getAllCustomers();
+    this.withDeletePermission = !!this.userLocalService?.menuSidebar?.find(
+      (module) => module.code === 'DOCUMENT' && module.DELETE
+    );
+
     this.getAllDocuments();
-  }
-
-  private initForm(): void {
-    this.documentForm = this.formBuilder.group({
-      id_history: new FormControl(''),
-      name: new FormControl('', [Validators.required]),
-      identification: new FormControl('', [Validators.required]),
-      description: new FormControl(''),
-    });
-  }
-
-  private getAllCustomers(): void {
-    this.listStatus.loadingTable = true;
-    this.customerService.getAllCustomers().subscribe({
-      next: (customers) => {
-        this.listStatus.loadingTable = false;
-        this.customers = customers;
-      },
-      error: (error: HttpErrorResponse) => {
-        this.listStatus.loadingTable = false;
-        this.notificationService.showNotification(
-          `Lo sentimos, ha ocurrido un error al consultar los ${homologateText(
-            this.userLocalService?.user?.type_company!,
-            'clientes'
-          )}`,
-          'danger',
-          10000
-        );
-      },
-    });
   }
 
   public getAllDocuments(): void {
     let rangeDates = this.rangeDatesControl?.value?.split(' to ');
     if (rangeDates?.length !== 2) rangeDates = '';
 
+    this.listStatus.loadingTable = true;
     this.documentService.getAllDocuments(rangeDates).subscribe({
       next: (documents) => {
+        this.listStatus.loadingTable = false;
         this.documents = documents;
         if (this.idHistoryByUrl) {
           this.previewFile(+this.idHistoryByUrl);
@@ -153,10 +119,7 @@ export class HistoryModuleComponent {
       error: (error: HttpErrorResponse) => {
         this.listStatus.loadingTable = false;
         this.notificationService.showNotification(
-          `Lo sentimos, ha ocurrido un error al consultar los ${homologateText(
-            this.userLocalService?.user?.type_company!,
-            'documentos'
-          )}`,
+          `Lo sentimos, ha ocurrido un error al consultar las historias clínicas`,
           'danger',
           10000
         );
@@ -166,88 +129,13 @@ export class HistoryModuleComponent {
 
   public openModalCreateDocument() {
     this.listStatus.disabledPrimaryButton = false;
-    this.listStatus.showModal = true;
-    this.documentForm.reset();
-  }
-
-  public onFileSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      const file = input.files[0];
-      this.selectedFilePdf = file;
-
-      if (file.type === 'application/pdf') {
-        this.pdfSrc = this.sanitizer.bypassSecurityTrustResourceUrl(
-          `${URL.createObjectURL(file)}#toolbar=0&navpanes=0`
-        );
-      } else {
-        this.notificationService.showNotification(
-          `Solo se permiten archivos PDF`,
-          'danger'
-        );
-      }
-    } else {
-      this.selectedFilePdf = undefined;
-      this.pdfSrc = undefined;
-    }
-  }
-
-  public createDocument(): void {
-    this.documentForm.markAllAsTouched();
-    if (this.documentForm.valid && this.selectedFilePdf) {
-      const formData = new FormData();
-
-      Object.entries(this.documentForm.value).forEach((elm: any[]) => {
-        formData.append(elm[0], elm[1] ?? '');
-      });
-      formData.append('file', this.selectedFilePdf!);
-
-      this.documentService.createDocument(formData).subscribe({
-        next: (response) => {
-          if (response.status) {
-            this.getAllDocuments();
-            this.notificationService.showNotification(
-              `${homologateText(
-                this.userLocalService?.user?.type_company!,
-                'documento'
-              )} se agrego exitosamente`,
-              'success'
-            );
-            this.closeModal();
-            this.globalService.detailCompany.documents.amount =
-              this.globalService.detailCompany.documents.amount + 1;
-          } else {
-            this.notificationService.showNotification(
-              response.message!,
-              'danger'
-            );
-          }
-          this.listStatus.savingDocument = false;
-        },
-        error: (error) => {
-          this.listStatus.savingDocument = false;
-          this.notificationService.showNotification(
-            `Lo sentimos, no se pudo crear ${homologateText(
-              this.userLocalService?.user?.type_company!,
-              'documento'
-            )}`,
-            'danger'
-          );
-        },
-      });
-    }
-  }
-
-  public closeModal(): void {
-    this.listStatus.showModal = false;
-    this.selectedFilePdf = undefined;
-    this.pdfSrc = undefined;
+    this.listStatus.showModalDocument = true;
   }
 
   public previewFile(id_history: number) {
     this.documentService.getFile(id_history).subscribe({
       next: (file) => {
-        this.listStatus.showModalPrewiew = true;
+        this.listStatus.showModalPreview = true;
         this.fileUrl = `${URL.createObjectURL(file)}#toolbar=0&navpanes=0`;
       },
       error: (err) => {
@@ -303,10 +191,7 @@ export class HistoryModuleComponent {
 
     const date = new Date();
 
-    const filename = `${homologateText(
-      this.userLocalService?.user?.type_company!,
-      'documentos'
-    )}-${date.getDate()}-${
+    const filename = `historias-clinicas-${date.getDate()}-${
       date.getMonth() + 1
     }-${date.getFullYear()}-${date.getHours()}-${date.getMinutes()}-${date.getSeconds()}.csv`;
 
@@ -326,27 +211,19 @@ export class HistoryModuleComponent {
         next: (response) => {
           if (response.status) {
             this.notificationService.showNotification(
-              `${homologateText(
-                this.userLocalService?.user?.type_company!,
-                'documento'
-              )} eliminado exitosamente`,
+              `Historia clínica eliminada exitosamente`,
               'success'
             );
             this.documents = this.documents.filter(
               (document) =>
                 document.id_history !== this.documentToDelete?.id_history!
             );
-            this.globalService.detailCompany.documents.amount =
-              this.documents.length;
             this.documentToDelete = undefined;
           }
         },
         error: (error: HttpErrorResponse) => {
           this.notificationService.showNotification(
-            `Lo sentimos, no se pudo eliminar ${homologateText(
-              this.userLocalService?.user?.type_company!,
-              'documento'
-            )}`,
+            `Lo sentimos, no se pudo eliminar la historia clínica`,
             'danger'
           );
         },

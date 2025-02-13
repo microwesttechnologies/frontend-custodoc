@@ -1,0 +1,233 @@
+<div class="container-module-trash">
+  <app-navbar
+    description="En este modulo podrás gestionar la papelera"
+    [searchControl]="searchControl"
+    [hiddenPrimaryButton]="true"
+    title="Gestionar papelera"
+    module="trash"
+  ></app-navbar>
+  <div class="container-general-panel overflow-hidden">
+    <div class="secondary-card">
+      <!-- Vista documentos y carpetas -->
+      @defer (when !listStatus.loadingDocuments) {
+
+      <!-- Breadcumb -->
+      @if(listDocuments.length || listFolders.length || levelFolders.length > 1
+      || listStatus.loadingDocuments){
+      <app-breadcumb-folders
+        (eventGoSpecificFolder)="previousAndNextFolder(undefined, $event)"
+        [levelFolders]="levelFolders"
+        @fadeIn
+      ></app-breadcumb-folders>
+      }
+      <!-- Acción volver anterior -->
+      @if(levelFolders.length > 1){
+      <div class="content-item-document-and-folder" @fadeIn>
+        <p
+          class="font-caption-large name-document-and-folder cursor-pointer width-fit-content"
+          [configTooltip]="{ position: 'right' }"
+          (click)="previousAndNextFolder()"
+          appTooltip="Volver"
+        >
+          ...
+        </p>
+      </div>
+      }
+      <!-- Skeleton loading -->
+      @if(listStatus.loadingDocuments){ @for(item of createArrayByNumber(5);
+      track i; let i = $index){
+      <app-item-skeleton
+        [customStyles]="{
+          'margin-bottom': '0.3rem',
+          height: '3rem'
+        }"
+      ></app-item-skeleton>
+      } }
+      <!-- Validación carpetas y documentos -->
+      @if(listDocuments.length || listFolders.length){
+      <!-- Recorrer carpetas -->
+      @for(folder of listFoldersFiltered; track folder.id_folder; let i =
+      $index){
+      <ng-container
+        *ngTemplateOutlet="
+          contentItem;
+          context: {
+            param: 'id_folder',
+            item: folder,
+            index: i
+          }
+        "
+      ></ng-container>
+      }
+      <!-- Recorrer documentos -->
+      @for(document of listDocumentsFiltered; track document.id_history; let i =
+      $index){
+      <ng-container
+        *ngTemplateOutlet="
+          contentItem;
+          context: {
+            param: 'id_history',
+            item: document,
+            index: i
+          }
+        "
+      ></ng-container>
+
+      } @if(!listDocumentsFiltered.length && !listFoldersFiltered.length){
+      <div class="center-all flex-direction-column height-100" @fadeIn>
+        <img
+          src="/assets/img/NoResults.png"
+          [ngStyle]="{ width: '8rem' }"
+          alt="NoReults"
+        />
+        <h3 class="font-title-large text-align-center">
+          No se encontraron resultados con el termino:
+        </h3>
+
+        <h3
+          class="font-title-large cl-primary-background-palette-important word-break-break-all"
+        >
+          {{ searchControl?.value }}
+        </h3>
+      </div>
+      } } @else if(!listStatus.loadingDocuments) {
+      <div class="center-all flex-direction-column height-100" @fadeIn>
+        <img
+          src="/assets/img/NoResults.png"
+          [ngStyle]="{ width: '8rem' }"
+          alt="NoReults"
+        />
+        <h3 class="font-title-large text-align-center mb-100-rem">
+          No se encontraron carpetas ni documentos en papelera
+        </h3>
+      </div>
+      } } @placeholder(minimum 500ms) {
+
+      <app-item-skeleton
+        [customStyles]="{
+          'margin-bottom': '1rem',
+          height: '1.5rem',
+          width: '3.625rem'
+        }"
+      ></app-item-skeleton>
+
+      @for(item of createArrayByNumber(5); track i; let i = $index){
+      <app-item-skeleton
+        [customStyles]="{
+          'margin-bottom': '0.3rem',
+          height: '3.399rem'
+        }"
+      ></app-item-skeleton>
+      } }
+    </div>
+  </div>
+</div>
+
+<!-- Contenedor de los items -->
+<ng-template #contentItem let-param="param" let-item="item" let-index="index">
+  <div class="content-item-document-and-folder" @slideEnterRight>
+    <section class="display-flex align-items-center">
+      <i
+        [ngStyle]="{ color: param === 'id_history' ? '#ef5350' : null }"
+        [ngClass]="{
+          'fa-folder cl-secondary-background-palette': param === 'id_folder',
+          ' fa-file-pdf': param === 'id_history'
+        }"
+        class="fa-lg fa-solid mr-50-rem"
+      ></i>
+
+      <p
+        class="font-caption-large name-document-and-folder cursor-pointer white-space-nowrap text-overflow-ellipsis overflow-hidden"
+        (click)="
+          param === 'id_history'
+            ? previewFile(item[param])
+            : previousAndNextFolder({ id_folder: item[param], name: item.name })
+        "
+        [appTooltip]="validateLimitText(name) ? item.name : ''"
+        #name
+      >
+        {{ item.name }}
+      </p>
+    </section>
+    <p
+      [ngClass]="{
+        'cl-secondary-color-theme-important': param === 'id_folder'
+      }"
+      class="font-caption-large"
+    >
+      @if(param === 'id_history'){
+      {{ item.identification }} - {{ item.name_customer }}
+      }@else {
+      {{ item.deleted_at | date : "medium" }}
+      }
+    </p>
+    <div class="display-flex align-items-center justify-content-flex-end">
+      <button
+        class="primary-badge badge-gray-hover border-radius-100 mr-50-rem center-all"
+        [overlayContext]="{param,item,index}"
+        overlayPosition="bottom-right"
+        [appOverlay]="overlayOptions"
+        [closeInsideOverlay]="true"
+        overlayActivateBy="click"
+        overlayWidth="12rem"
+      >
+        <i class="fa-solid fa-ellipsis-vertical fa-lg"></i>
+      </button>
+    </div>
+  </div>
+</ng-template>
+
+<!-- Overlay opciones de la carpeta o documento -->
+<ng-template #overlayOptions let-context>
+  <div class="primary-overlay" @fadeIn>
+    <ul class="primary-list">
+      <li
+        (click)="
+          context?.param === 'id_history'
+            ? restoreDocument(context?.item?.id_history)
+            : restoreFolder(context?.item?.id_folder)
+        "
+        [disabledAnyWay]="levelFolders.length > 1"
+        appDisabledByPermission="TRASH"
+        permission="UPDATE"
+        class="item-list"
+        [hidden]="true"
+      >
+        <p class="font-caption-large">Restaurar</p>
+      </li>
+      <li
+        (click)="
+          context?.param === 'id_history'
+            ? (this.documentToDelete = context.item)
+            : (this.folderToDelete = context.item)
+        "
+        appDisabledByPermission="TRASH"
+        permission="DELETE"
+        class="item-list"
+      >
+        <p class="font-caption-large">Eliminar definitivamente</p>
+      </li>
+    </ul>
+  </div>
+</ng-template>
+
+@if(listStatus.showModalPreview){
+<app-modal-preview-document
+  [listStatus]="listStatus"
+  [fileUrl]="fileUrl"
+></app-modal-preview-document>
+}@if(documentToDelete || folderToDelete){
+<app-modal-confirmation-delete
+  [nameToValidate]="documentToDelete?.name! ?? folderToDelete?.name!"
+  [title]="'Eliminar ' + (documentToDelete ? 'documento' : 'carpeta')"
+  (eventButtonClick)="
+    documentToDelete ? deleteDocument($event) : deleteFolder($event)
+  "
+  [primaryButton]="{ text: 'Aceptar' }"
+>
+  <p class="font-body-large text-align-center mb-100-rem">
+    ¿Estas seguro que quieres eliminar definitivamente
+    {{ documentToDelete ? "el documento" : "la carpeta" }}?
+  </p>
+</app-modal-confirmation-delete>
+}

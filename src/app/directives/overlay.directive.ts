@@ -63,6 +63,7 @@ export class OverlayDirective implements OnInit, OnChanges, OnDestroy {
   @Input() closeOverlay!: boolean; // Input to programmatically close the overlay.
   @Input() openOverlay!: boolean; // Input to programmatically open the overlay.
   @Input() overlayWidth!: string; // Sets a specific width for the overlay.
+  @Input() overlayContext: any;
 
   @Output() statusOverlayChange = new EventEmitter<boolean>(); // Emits the status change of the overlay (opened/closed).
 
@@ -264,7 +265,9 @@ export class OverlayDirective implements OnInit, OnChanges, OnDestroy {
 
     this.renderer.setStyle(this.overlayElement, 'visibility', 'hidden');
 
-    const view = this.viewContainerRef.createEmbeddedView(this.overlayHTML);
+    const view = this.viewContainerRef.createEmbeddedView(this.overlayHTML, {
+    $implicit: this.overlayContext, // Pasar el contexto como $implicit
+  });
     view.rootNodes.forEach((node) =>
       this.renderer.appendChild(this.overlayElement, node)
     );

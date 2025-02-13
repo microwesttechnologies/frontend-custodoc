@@ -8,14 +8,15 @@ import { jwtDecode } from 'jwt-decode';
 import { UserLocalService } from '../services/local/user.service';
 import { isTokenExpired } from '../services/local/helper.service';
 import { UserService } from '../services/external/user.service';
-import { catchError, map, Observable, of } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
+import { RoutesService } from '../services/external/routes.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthGuard {
   private readonly userLocalService = inject(UserLocalService);
+  private readonly routesService = inject(RoutesService);
   private readonly userService = inject(UserService);
   private readonly router = inject(Router);
 
@@ -55,21 +56,19 @@ export class AuthGuard {
 
   private getRoutesByRole(route: ActivatedRouteSnapshot): Promise<boolean> {
     return new Promise<boolean>((resolve) => {
-      this.userService.getRoutesByRole().subscribe({
-        next: (response: any) => {
-          this.userLocalService.allowedRouteIds = response?.allowedRouteIds;
-          this.userLocalService.menuSidebar = response?.menu;
-
+      this.routesService.getRoutesByRole().subscribe({
+        next: (menu: any) => {
+          this.userLocalService.menuSidebar = menu;
+          const allowedRouteIds = menu.map((item: any) => item.id_route);
           const moduleId = route.data['id'];
 
-          if (this.userLocalService.allowedRouteIds.includes(moduleId)) {
+          if (allowedRouteIds.includes(moduleId)) {
             return resolve(true);
           }
 
           // Redirigir al primer módulo permitido en el menú
-          if (this.userLocalService.menuSidebar?.length > 0) {
-            const firstPath =
-              this.userLocalService.menuSidebar[0].items[0]?.path || '/';
+          if (menu?.length > 0) {
+            const firstPath = menu[0]?.path || '/';
             this.router.navigate([firstPath]);
             return resolve(true);
           }

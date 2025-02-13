@@ -4,17 +4,16 @@
   background-color: #00000080;
   position: fixed;
   z-index: 1000;
-  height: 100vh;
+  height: 100%;
   width: 100vw;
   left: 0;
   top: 0;
   & .content-modal {
     background-color: get-theme-value(theme, secondary, background);
     box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.08);
+    flex-direction: column;
     border-radius: 0.5rem;
-    display: grid;
-    left: 50%;
-    top: 50%;
+    display: flex;
 
     @media (width > 768px) {
       &.modal-lg {
@@ -38,11 +37,6 @@
       }
     }
 
-    @media (width <= 768px) {
-      height: 90vh;
-      width: 90vw;
-    }
-
     &-header {
       background-color: get-theme-value(palette, tertiary, background);
       border-radius: 0.5rem 0.5rem 0 0;
@@ -53,11 +47,22 @@
       overflow: hidden auto;
       position: relative;
       padding: 2rem;
+      height: 100%;
     }
 
     &-footer {
       padding: 1rem 2rem;
       border-top: 1px solid get-theme-value(theme, primary, border);
+    }
+
+    @media (width <= 768px) {
+      height: 100% !important;
+      width: 100% !important;
+      border-radius: 0rem;
+
+      &-header {
+        border-radius: 0rem;
+      }
     }
   }
 }

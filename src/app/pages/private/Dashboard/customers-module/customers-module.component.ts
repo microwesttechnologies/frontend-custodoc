@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, HostBinding, inject } from '@angular/core';
 import { SharedModule } from 'src/app/shared-components/shared.module';
 import { ModalComponent } from 'src/app/shared-components/modal/modal.component';
 import { TypesDocumentService } from 'src/app/services/external/types-document.service';
@@ -28,18 +28,20 @@ import { InputComponent } from 'src/app/shared-components/form/input/input.compo
 import { SelectComponent } from 'src/app/shared-components/form/select/select.component';
 import { AutoCompleteComponent } from 'src/app/shared-components/form/autocomplete/autocomplete.component';
 import { DocumentService } from 'src/app/services/external/document.service';
-import { Document } from 'src/app/models/documents.model';
+import { Document } from 'src/app/models/document.model';
 import { DisabledElementDirective } from 'src/app/directives/disabled-element.directive';
 import { homologateText } from 'src/app/globals/homologate-text';
 import { ModalConfirmationDeleteComponent } from 'src/app/shared-components/modal-confirmation-delete/modal-confirmation-delete.component';
 import { ButtonComponent } from 'src/app/shared-components/form/button/button.component';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { DisabledByPermissionDirective } from 'src/app/directives/disabled-by-permissions.directive';
 
 @Component({
   selector: 'app-customers-module',
   standalone: true,
   imports: [
     ModalConfirmationDeleteComponent,
+    DisabledByPermissionDirective,
     DisabledElementDirective,
     AutoCompleteComponent,
     TooltipDirective,
@@ -55,19 +57,24 @@ import { Router } from '@angular/router';
   styleUrl: './customers-module.component.scss',
 })
 export class CustomersModuleComponent {
+  @HostBinding('style') defaultStyle = {
+    height: '100%',
+  };
   public documentsByCustomer: Document[] = [];
   public typesDocument: TypesDocument[] = [];
   public customers: Customer[] = [];
   public companies: Company[] = [];
 
   public rangeDatesControl = new FormControl();
+  public identificationByUrl?: number;
   public customerToDelete?: Customer;
   public idCustomerSelected?: string;
   public customerForm!: FormGroup;
 
   public gridHeaderColumns =
     '10rem 10rem minmax(10rem, 1fr) minmax(10rem, 1fr) 10rem';
-  public textFilter = '';
+
+  public searchControl = new FormControl();
   public fieldsToFilter = [
     'email',
     'identification',
@@ -76,6 +83,8 @@ export class CustomersModuleComponent {
     'phone',
     'name_type_document',
   ];
+
+  public withDeletePermission = false;
 
   public listStatus = {
     loadingTableDocumentsByCustomer: true,
@@ -92,6 +101,7 @@ export class CustomersModuleComponent {
   private readonly notificationService = inject(NotificationService);
   private readonly customerService = inject(CustomerService);
   private readonly documentService = inject(DocumentService);
+  private readonly activatedRoute = inject(ActivatedRoute);
   private readonly companyService = inject(CompanyService);
   private readonly globalService = inject(GlobalService);
   private readonly formBuilder = inject(FormBuilder);
@@ -99,6 +109,8 @@ export class CustomersModuleComponent {
   public router = inject(Router);
 
   ngOnInit(): void {
+    this.identificationByUrl =
+      +this.activatedRoute.snapshot.queryParams['identification'];
     this.initForm();
 
     this.getAllTypesDocument();
@@ -108,9 +120,7 @@ export class CustomersModuleComponent {
       this.userLocalService?.user?.id_rol === 1 ||
       this.userLocalService?.user?.id_rol === 4
     ) {
-      this.gridHeaderColumns += ` minmax(10rem, 1fr) ${
-        this.userLocalService?.user?.id_rol === 1 ? '2.8rem' : ''
-      }`;
+      this.gridHeaderColumns += ` minmax(10rem, 1fr)`;
 
       this.getAllCompanies();
 
@@ -118,8 +128,14 @@ export class CustomersModuleComponent {
         'id_company',
         new FormControl('', [Validators.required])
       );
-    } else if (this.userLocalService?.user?.id_rol === 2) {
-      // this.gridHeaderColumns += ' 2.8rem';
+    }
+
+    this.withDeletePermission = !!this.userLocalService?.menuSidebar?.find(
+      (module) => module.code === 'CUSTOMER' && module.DELETE
+    );
+
+    if (this.withDeletePermission) {
+      this.gridHeaderColumns += ' 1.9rem';
     }
   }
 
@@ -127,9 +143,9 @@ export class CustomersModuleComponent {
     this.customerForm = this.formBuilder.group({
       name: new FormControl('', [Validators.required]),
       id_document: new FormControl('', [Validators.required]),
-      identification: new FormControl('', [Validators.required]),
+      identification: new FormControl('', [Validators.required,Validators.maxLength(20)]),
       email: new FormControl('', [Validators.required]),
-      phone: new FormControl('', [Validators.required]),
+      phone: new FormControl('', [Validators.required,Validators.maxLength(30)]),
     });
   }
 
@@ -138,6 +154,25 @@ export class CustomersModuleComponent {
     this.customerService.getAllCustomers().subscribe({
       next: (customers) => {
         this.customers = customers;
+
+        if (this.identificationByUrl) {
+          const customer = this.customers.find(
+            (customer) => +customer.identification! === this.identificationByUrl
+          );
+          if (customer) {
+            this.setUpdateCustomer(customer);
+          } else {
+            this.notificationService.showNotification(
+              `Lo sentimos, el ${homologateText(
+                this.userLocalService?.user?.type_company!,
+                'cliente'
+              )} no existe`,
+              'danger'
+            );
+          }
+          this.identificationByUrl = undefined;
+        }
+
         this.listStatus.loadingTable = false;
       },
       error: (error: HttpErrorResponse) => {
@@ -241,9 +276,9 @@ export class CustomersModuleComponent {
               } exitosamente`,
               'success'
             );
-            if (!this.idCustomerSelected)
-              this.globalService.detailCompany.customers.amount =
-                this.globalService.detailCompany.customers?.amount + 1;
+            // if (!this.idCustomerSelected)
+            //   this.globalService.detailCompany.customers.amount =
+            //     this.globalService.detailCompany.customers?.amount + 1;
             this.closeModal();
           } else {
             this.notificationService.showNotification(
@@ -276,20 +311,18 @@ export class CustomersModuleComponent {
   }
 
   public setUpdateCustomer(customer: Customer) {
-    if (![4].includes(this.userLocalService.user?.id_rol as number)) {
-      this.idCustomerSelected = customer.identification;
+    this.idCustomerSelected = customer.identification;
 
-      Object.keys(this.customerForm.value).forEach((key) =>
-        this.customerForm
-          .get(key)
-          ?.setValue(customer[key as keyof typeof customer])
-      );
+    Object.keys(this.customerForm.value).forEach((key) =>
+      this.customerForm
+        .get(key)
+        ?.setValue(customer[key as keyof typeof customer])
+    );
 
-      this.customerForm.markAllAsTouched();
-      this.listStatus.showModal = true;
+    this.customerForm.markAllAsTouched();
+    this.listStatus.showModal = true;
 
-      this.getAllDocumentsByCustomer(customer.identification!);
-    }
+    this.getAllDocumentsByCustomer(customer.identification!);
   }
 
   public deleteCustomer(): void {
@@ -309,8 +342,8 @@ export class CustomersModuleComponent {
               (user) =>
                 user.identification !== this.customerToDelete?.identification
             );
-            this.globalService.detailCompany.customers.amount =
-              this.customers.length;
+            // this.globalService.detailCompany.customers.amount =
+            //   this.customers.length;
             this.customerToDelete = undefined;
           }
         },

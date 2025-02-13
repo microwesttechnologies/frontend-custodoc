@@ -12,10 +12,13 @@ import { GenericResponse } from 'src/app/models/global.model';
 export class CustomerService {
   private readonly apiUrl = `${environment.apiUrl}customer`;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
-  getAllCustomers(): Observable<Customer[]> {
-    return this.http.get<Customer[]>(this.apiUrl, headerAuthorization());
+  getAllCustomers(id_company?: number): Observable<Customer[]> {
+    return this.http.get<Customer[]>(
+      `${this.apiUrl}${id_company ? `/${id_company}` : ''}`,
+      headerAuthorization()
+    );
   }
 
   createCustomer(customer: Customer): Observable<GenericResponse> {

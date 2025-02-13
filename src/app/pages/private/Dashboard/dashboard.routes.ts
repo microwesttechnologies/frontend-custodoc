@@ -9,7 +9,7 @@ export const DASHBOARD_ROUTES: Routes = [
     children: [
       {
         path: 'companies',
-        data: { id: 2 },
+        data: { id: 1 },
         canActivate: [AuthGuard],
         loadComponent: () =>
           import('./company-module/company-module.component').then(
@@ -17,17 +17,8 @@ export const DASHBOARD_ROUTES: Routes = [
           ),
       },
       {
-        path: 'documents',
-        data: { id: 7 },
-        canActivate: [AuthGuard],
-        loadComponent: () =>
-          import('./history-module/history-module.component').then(
-            (c) => c.HistoryModuleComponent
-          ),
-      },
-      {
         path: 'users',
-        data: { id: 4 },
+        data: { id: 2 },
         canActivate: [AuthGuard],
         loadComponent: () =>
           import('./users-module/users-module.component').then(
@@ -36,7 +27,7 @@ export const DASHBOARD_ROUTES: Routes = [
       },
       {
         path: 'customers',
-        data: { id: 5 },
+        data: { id: 3 },
         canActivate: [AuthGuard],
         loadComponent: () =>
           import('./customers-module/customers-module.component').then(
@@ -44,15 +35,37 @@ export const DASHBOARD_ROUTES: Routes = [
           ),
       },
       {
+        path: 'documents',
+        data: { id: 4 },
+        canActivate: [AuthGuard],
+        loadComponent: () =>
+          import('./documents/documents.component').then(
+            (c) => c.DocumentsComponent
+          ),
+      },
+      {
         path: 'ranking',
-        data: { id: 8 },
+        data: { id: 5 },
         canActivate: [AuthGuard],
         loadComponent: () =>
           import('./ranking-module/ranking-module.component').then(
             (c) => c.RankingModuleComponent
           ),
       },
-      { path: '', redirectTo: 'companies', pathMatch: 'full' },
+      {
+        path: 'roles',
+        data: { id: 7 },
+        canActivate: [AuthGuard],
+        loadComponent: () =>
+          import('./roles/roles.component').then((c) => c.RolesComponent),
+      },
+      {
+        path: 'trash',
+        data: { id: 8 },
+        canActivate: [AuthGuard],
+        loadComponent: () =>
+          import('./documents/trash/trash.component').then((c) => c.TrashComponent),
+      },
       { path: '**', redirectTo: 'companies', pathMatch: 'full' },
     ],
   },

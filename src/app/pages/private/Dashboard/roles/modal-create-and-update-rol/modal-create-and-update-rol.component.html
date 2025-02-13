@@ -1,0 +1,80 @@
+<app-modal
+  (eventButtonClick)="$event ? createOrUpdateRol() : eventCloseModal.emit()"
+  [title]="(!!rolAndPermissionSelected ? 'Actualizar' : 'Crear') + ' rol'"
+  [primaryButton]="{
+    disabled: nameControl.invalid,
+    text: !!rolAndPermissionSelected ? 'Guardar cambios' : 'Crear'
+  }"
+  [isUpdate]="!!rolAndPermissionSelected"
+  [loadingButtons]="listStatus.savingRol"
+  [customStyles]="{ height: '95vh' }"
+  codeModule="ROLES"
+  size="md"
+>
+  <div class="width-50 mb-200-rem">
+    <app-input [formControl]="nameControl" id="name">
+      <label labelInput for="name">
+        Nombre <span class="cl-danger-background-status">*</span>
+      </label>
+    </app-input>
+  </div>
+  <app-table
+    gridHeaderColumns="minmax(10rem, 1fr) 5rem 5rem 5rem 5rem 5rem"
+    [list]="routesAndPermissionsForm"
+    [isNotSelectable]="true"
+    height="auto"
+  >
+    <ng-container tableHeader>
+      <p class="font-subtitle-large">Modulo</p>
+      <p class="font-subtitle-large text-align-center">Ver</p>
+      <p class="font-subtitle-large text-align-center">Crear</p>
+      <p class="font-subtitle-large text-align-center">Editar</p>
+      <p class="font-subtitle-large text-align-center">Eliminar</p>
+      <p class="font-subtitle-large text-align-center">Exportar</p>
+    </ng-container>
+    <ng-template let-item let-index="index">
+      <p class="font-caption-large">
+        {{ item.name }}
+      </p>
+      @for(permission of listPermissions; track i; let i = $index){
+      <ng-container
+        *ngTemplateOutlet="
+          checkbox;
+          context: {
+            permission: permission,
+            index: index,
+            route: item
+          }
+        "
+      ></ng-container>
+      }
+    </ng-template>
+  </app-table>
+</app-modal>
+
+<ng-template
+  let-permission="permission"
+  let-index="index"
+  let-route="route"
+  #checkbox
+>
+  <div class="center-all">
+    @if([0,1].includes(route.permissions?.[permission])){
+    <button
+      [appDisabledElement]="
+        permission !== 'ACCESS' && !route.permissions.ACCESS
+      "
+      [ngClass]="{ 'item-checkbox-checked': route.permissions[permission] }"
+      class="item-checkbox cursor-pointer center-all"
+      (click)="actionCheckbox(permission, index)"
+    >
+      @if(route.permissions[permission]){
+      <i
+        class="fa-solid fa-check cl-secondary-background-theme-important"
+        @fadeInOut
+      ></i>
+      }
+    </button>
+    }
+  </div>
+</ng-template>

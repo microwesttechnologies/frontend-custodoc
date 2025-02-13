@@ -1,0 +1,16 @@
+<div class="container-breadcumb-folders">
+  @for(folder of levelFolders; track folder.id_folder; let i = $index){
+  <p
+    (click)="i < levelFolders.length - 1 ? goToSpecificFolder(i) : ''"
+    [ngClass]="{
+      'font-weight-500-important': i === 0 || i < levelFolders.length - 1,
+      'cursor-pointer': i < levelFolders.length - 1,
+      'cl-secondary-background-palette-important':
+        i === 0 || i < levelFolders.length - 1
+    }"
+    class="font-body-medium white-space-nowrap overflow-hidden"
+  >
+    {{ folder.name }} /
+  </p>
+  }
+</div>

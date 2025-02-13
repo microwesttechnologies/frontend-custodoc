@@ -7,23 +7,13 @@
 
 @include generate-styles("ml", "margin-left", rem, 50, 50);
 
-.primary-navbar {
-  border-bottom: 1px solid get-theme-value(theme, primary, border);
-  & .list-cards {
-    & .item-card {
-      background-color: get-theme-value(palette, tertiary, background);
-      box-shadow: 0px 0px 62px 0px rgba(0, 0, 0, 0.05);
-      border-radius: 0.375rem;
-      padding: 1rem;
+.secondary-navbar {
+  @media (width > 768px) {
+    padding: 2rem 2rem 0 3rem;
+  }
 
-      & i {
-        background-color: #ececec;
-        border-radius: 100%;
-        font-size: 2.5rem;
-        height: 4.5rem;
-        width: 4.5rem;
-      }
-    }
+  @media (width <= 768px) {
+    padding: 2rem 2rem 0 2rem;
   }
 
   & .primary-form-field {
@@ -32,6 +22,10 @@
     }
   }
 
-  & .list-actions {
+  & .item-separator {
+    background-color: get-theme-value(theme, primary, border);
+    margin-top: 0.3rem;
+    width: 100%;
+    height: 1px;
   }
 }

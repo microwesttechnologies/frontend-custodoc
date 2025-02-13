@@ -1,0 +1,30 @@
+@import "../core/theme";
+
+.primary-badge {
+  transition: background-color 0.3s ease-in-out;
+  background-color: transparent;
+
+  cursor: pointer;
+  padding: 0.5rem;
+  outline: none;
+  border: none;
+
+  &.badge-gray {
+    &-hover {
+      &:hover,
+      &:focus {
+        background-color: get-theme-value(theme, primary, transparent);
+      }
+    }
+  }
+
+  &:not(.badge-lg) {
+    min-height: 1.8rem;
+    min-width: 1.8rem;
+  }
+
+  &.badge-lg {
+    min-height: 2rem;
+    min-width: 2rem;
+  }
+}

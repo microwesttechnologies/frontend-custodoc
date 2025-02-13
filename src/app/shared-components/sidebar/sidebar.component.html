@@ -1,4 +1,59 @@
-<div class="primary-sidebar" [ngClass]="{ 'sidebar-opened': isSidebarOpened }">
+@if(isMobile){
+<div class="primary-navbar">
+  <img src="/assets/img/LogoAzul.png" alt="Logo" />
+  <section class="display-flex align-items-center">
+    <button
+      class="primary-badge badge-gray-hover border-radius-100 badge-lg center-all mr-100-rem"
+      (click)="logout()"
+    >
+      <i class="fa-solid fa-arrow-right-from-bracket fa-2xl"></i>
+    </button>
+    <button
+      class="primary-badge badge-gray-hover border-radius-100 badge-lg center-all mr-100-rem"
+      (click)="openModalProfile()"
+    >
+      <i class="fa-solid fa-circle-user fa-2xl"></i>
+    </button>
+    <button
+      class="primary-badge badge-gray-hover border-radius-100 badge-lg center-all"
+      (click)="openAndCloseSidebar()"
+    >
+      <i
+        [ngClass]="{
+          'rotate-icon-activate': isSidebarOpened,
+          'fa-close': isSidebarOpened,
+          'fa-bars': !isSidebarOpened
+        }"
+        class="fa-solid fa-bars fa-2xl rotate-icon"
+      ></i>
+    </button>
+  </section>
+</div>
+
+@if(isSidebarOpened){
+<ul class="content-list-routes" @slideEnterAndLeaveRight>
+  @for ( itemMenu of userLocalService.menuSidebar; track indexMenu; let
+  indexMenu = $index){
+  <li
+    routerLinkActive="sidebar-item-activate"
+    (click)="openAndCloseSidebar()"
+    [routerLink]="[itemMenu.path]"
+    class="item-route"
+  >
+    <i class="fa-solid fa-lg" [ngClass]="itemMenu.icon"></i>
+    <p class="font-body-large">
+      {{
+        homologateText(
+          userLocalService?.user?.type_company!,
+          itemMenu.name | lowercase
+        ) | titlecase
+      }}
+    </p>
+  </li>
+  }
+</ul>
+} }@else {
+<div [ngClass]="{ 'sidebar-opened': isSidebarOpened }" class="primary-sidebar">
   <button
     [appTooltip]="isSidebarOpened ? 'Cerrar' : 'Abrir'"
     class="sidebar-action center-all"
@@ -30,9 +85,8 @@
 
     <div class="sidebar-body">
       <ul>
-        @for ( menu of userLocalService.menuSidebar; track indexMenu; let
-        indexMenu = $index){ @for ( item of menu.items; track indexItem; let
-        indexItem = $index){
+        @for ( itemMenu of userLocalService.menuSidebar; track indexMenu; let
+        indexMenu = $index){
         <li
           [appTooltip]="
             isSidebarOpened
@@ -40,18 +94,18 @@
               : 'Ver ' +
                 (homologateText(
                   userLocalService?.user?.type_company!,
-                  item.label | lowercase
+                  itemMenu.name | lowercase
                 ) | lowercase)
           "
           [ngClass]="{ 'justify-content-center': !showContent }"
           routerLinkActive="sidebar-item-activate"
-          [routerLink]="[item.path]"
+          [routerLink]="[itemMenu.path]"
           class="sidebar-item"
           [configTooltip]="{
             position: 'right'
           }"
         >
-          <i class="fa-solid fa-lg" [ngClass]="item.icon"></i>
+          <i class="fa-solid fa-lg" [ngClass]="itemMenu.icon"></i>
           @if(isSidebarOpened){
           <p
             class="font-body-large white-space-nowrap text-overflow-ellipsis overflow-hidden"
@@ -60,13 +114,13 @@
             {{
               homologateText(
                 userLocalService?.user?.type_company!,
-                item.label | lowercase
+                itemMenu.name | lowercase
               ) | titlecase
             }}
           </p>
           }
         </li>
-        } }
+        }
       </ul>
     </div>
     <div class="sidebar-footer">
@@ -93,15 +147,7 @@
           <p
             class="font-body-medium white-space-nowrap text-overflow-ellipsis overflow-hidden"
           >
-            {{
-              userLocalService?.user?.id_rol === 1
-                ? "Super administrador"
-                : userLocalService?.user?.id_rol === 2
-                ? "Administrador"
-                : userLocalService?.user?.id_rol === 3
-                ? "Médico"
-                : "Cargador archivos"
-            }}
+            {{ userLocalService?.user?.name_rol }}
           </p>
         </section>
         }
@@ -133,13 +179,12 @@
     </div>
   </div>
 </div>
-
-@if(listStatus.showModalProfile){
+} @if(listStatus.showModalProfile){
 <app-modal
   (eventButtonClick)="!$event ? closeModalProfile() : null"
   [secondaryButton]="{ text: 'Cerrar' }"
   [primaryButton]="{ hidden: true }"
-  size="sm"
+  size="md"
 >
   <h3 class="font-title-large mb-150-rem">Datos personales</h3>
   <form [formGroup]="userForm">

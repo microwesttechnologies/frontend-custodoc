@@ -9,107 +9,116 @@
       'Gestión de ' +
       homologateText(userLocalService?.user?.type_company!, 'empleados')
     "
-    [(textFilter)]="textFilter"
+    [searchControl]="searchControl"
+    codeModule="USER"
     module="user"
   ></app-navbar>
-  <div class="secondary-card">
-    <app-table
-      [selectedItem]="['identification', idUserSelected]"
-      [loadingTable]="listStatus.loadingTable"
-      (eventRowClick)="setUpdateUser($event)"
-      [gridHeaderColumns]="gridHeaderColumns"
-      [totalItems]="users.length"
-      [textFilter]="textFilter"
-      [withPager]="true"
-      [list]="users"
-      [fieldsToFilter]="fieldsToFilter"
-    >
-      <ng-container tableHeader>
-        <p class="font-subtitle-large">Identificación</p>
-        <p class="font-subtitle-large">Tipo documento</p>
-        <p class="font-subtitle-large">Nombre</p>
-        <p class="font-subtitle-large">Email</p>
-        <p class="font-subtitle-large">Teléfono</p>
-        <p class="font-subtitle-large">Rol</p>
-        <p
-          [ngClass]="{ 'display-none': userLocalService?.user?.id_rol !== 1 }"
-          class="font-subtitle-large"
-        >
-          Compañía
-        </p>
-      </ng-container>
-      <ng-template let-item>
-        <p class="font-body-medium">{{ item?.identification }}</p>
-        <p class="font-body-medium">{{ item?.name_type_document }}</p>
-        <p
-          class="font-body-medium white-space-nowrap text-overflow-ellipsis overflow-hidden"
-          [appTooltip]="validateLimitText(nameUser) ? item?.name : ''"
-          #nameUser
-        >
-          {{ item?.name }}
-        </p>
-        <p
-          class="font-body-medium white-space-nowrap text-overflow-ellipsis overflow-hidden"
-          [appTooltip]="validateLimitText(emailUser) ? item?.email : ''"
-          #emailUser
-        >
-          {{ item?.email }}
-        </p>
-        <p class="font-body-medium">{{ item?.phone }}</p>
-        <p class="font-body-medium">{{ item?.name_rol }}</p>
-        @if(userLocalService?.user?.id_rol === 1){
-        <p
-          class="font-body-medium white-space-nowrap text-overflow-ellipsis overflow-hidden"
-          [appTooltip]="
-            validateLimitText(nameCompany) ? item?.name_company : ''
-          "
-          #nameCompany
-        >
-          {{ item?.name_company }}
-        </p>
-        } @if((userLocalService?.user?.id_rol === 1 ||
-        userLocalService?.user?.id_rol === 2) &&
-        userLocalService?.user?.identification !== item.identification){
-        <button
-          class="primary-button bg-danger button-md width-fit-content"
-          [configTooltip]="{ position: 'left' }"
-          (click)="$event.stopPropagation(); userToDelete = item"
-          [appTooltip]="
-            'Eliminar ' +
-            homologateText(userLocalService?.user?.type_company!, 'empleado')
-          "
-          type="button"
-        >
-          <i
-            class="fa-solid fa-trash-can fa-lg cl-secondary-background-theme-important"
+  <div class="container-general-panel overflow-hidden">
+    <div class="secondary-card">
+      <app-table
+        [selectedItem]="['identification', idUserSelected]"
+        [loadingTable]="listStatus.loadingTable"
+        (eventRowClick)="setUpdateUser($event)"
+        [gridHeaderColumns]="gridHeaderColumns"
+        [fieldsToFilter]="fieldsToFilter"
+        [searchControl]="searchControl"
+        [totalItems]="users.length"
+        [withPager]="true"
+        [list]="users"
+      >
+        <ng-container tableHeader>
+          <p class="font-subtitle-large">Identificación</p>
+          <p class="font-subtitle-large">Tipo documento</p>
+          <p class="font-subtitle-large">Nombre</p>
+          <p class="font-subtitle-large">Email</p>
+          <p class="font-subtitle-large">Teléfono</p>
+          <p class="font-subtitle-large">Rol</p>
+          <p
+            [ngClass]="{ 'display-none': userLocalService?.user?.id_rol !== 1 }"
+            class="font-subtitle-large"
           >
-          </i>
-        </button>
-        }
-      </ng-template>
-    </app-table>
+            Compañía
+          </p>
+        </ng-container>
+        <ng-template let-item>
+          <p class="font-caption-large">{{ item?.identification }}</p>
+          <p class="font-caption-large">{{ item?.name_type_document }}</p>
+          <p
+            class="font-caption-large white-space-nowrap text-overflow-ellipsis overflow-hidden"
+            [appTooltip]="validateLimitText(nameUser) ? item?.name : ''"
+            #nameUser
+          >
+            {{ item?.name }}
+          </p>
+          <p
+            class="font-caption-large white-space-nowrap text-overflow-ellipsis overflow-hidden"
+            [appTooltip]="validateLimitText(emailUser) ? item?.email : ''"
+            #emailUser
+          >
+            {{ item?.email }}
+          </p>
+          <p class="font-caption-large">{{ item?.phone }}</p>
+          <p class="font-caption-large">{{ item?.name_rol }}</p>
+          @if(userLocalService?.user?.id_rol === 1){
+          <p
+            class="font-caption-large white-space-nowrap text-overflow-ellipsis overflow-hidden"
+            [appTooltip]="
+              validateLimitText(nameCompany) ? item?.name_company : ''
+            "
+            #nameCompany
+          >
+            {{ item?.name_company }}
+          </p>
+          } @if(withDeletePermission && userLocalService?.user?.identification
+          !== item.identification){
+          <button
+            [appTooltip]="
+              'Eliminar ' +
+              homologateText(userLocalService?.user?.type_company!, 'empleado')
+            "
+            class="primary-button bg-danger button-sm width-fit-content"
+            (click)="$event.stopPropagation(); userToDelete = item"
+            [configTooltip]="{ position: 'left' }"
+            appDisabledByPermission="USER"
+            permission="DELETE"
+            type="button"
+          >
+            <i
+              class="fa-solid fa-trash-can cl-secondary-background-theme-important"
+            >
+            </i>
+          </button>
+          }
+        </ng-template>
+      </app-table>
+    </div>
   </div>
 </div>
 
 @if(listStatus.showModal){
 <app-modal
-  [primaryButton]="{ text: !!idUserSelected ? 'Guardar cambios' : 'Guardar' }"
+  [primaryButton]="{ text: !!idUserSelected ? 'Guardar' : 'Guardar' }"
   [title]="
     (!!idUserSelected ? 'Actualizar ' : 'Crear ') +
     homologateText(userLocalService?.user?.type_company!, 'empleado')
   "
   (eventButtonClick)="$event ? createOrUpdateUser() : closeModal()"
   [loadingButtons]="listStatus.savingUser"
-  size="sm"
+  [isUpdate]="!!idUserSelected"
+  codeModule="USER"
+  size="md"
 >
   <form [formGroup]="userForm">
     <div class="row">
       <!-- Name -->
       <div class="col col-xs-12 col-md-6 mb-150-rem">
         <app-input
+          [permission]="!!idUserSelected ? 'UPDATE' : 'CREATE'"
+          appDisabledByPermission="USER"
           placeholder="Escribir nombre"
           [defaultLabelError]="true"
           formControlName="name"
+          [maxlength]="200"
           id="name"
         >
           <label labelInput for="name">
@@ -120,29 +129,37 @@
       <!-- Type document -->
       <div class="col col-xs-12 col-md-6 mb-150-rem">
         <app-select
-          formControlName="id_document"
           [configSelect]="{
-            placeholder:'Seleccionar tipo de documento',
-            assignOnlyFieldId: true,
-            defaultLabelError: true,
-            fieldId: 'id_document',
-            id: 'id_document',
-            fieldText: 'name',
-          }"
-          [appDisabledElement]="!!idUserSelected"
+          placeholder:'Seleccionar tipo de documento',
+          assignOnlyFieldId: true,
+          defaultLabelError: true,
+          fieldId: 'id_document',
+          id: 'id_document',
+          fieldText: 'name',
+        }"
+          [permission]="!!idUserSelected ? 'UPDATE' : 'CREATE'"
+          [disabledAnyWay]="!!idUserSelected"
+          appDisabledByPermission="USER"
+          formControlName="id_document"
           [options]="typesDocument"
         >
-          <label for="id_document" labelSelect>Tipo de documento</label>
+          <label for="id_document" labelSelect
+            >Tipo de documento
+            <span class="cl-danger-background-status">*</span>
+          </label>
         </app-select>
       </div>
       <!-- Identification -->
       <div class="col col-xs-12 col-md-6 mb-150-rem">
         <app-input
+          [permission]="!!idUserSelected ? 'UPDATE' : 'CREATE'"
           placeholder="Escribir identificación"
-          [appDisabledElement]="!!idUserSelected"
+          [disabledAnyWay]="!!idUserSelected"
           formControlName="identification"
+          appDisabledByPermission="USER"
           [defaultLabelError]="true"
           id="identification"
+          [maxlength]="20"
           type="number"
         >
           <label labelInput for="identification">
@@ -153,7 +170,9 @@
       <!-- Phone -->
       <div class="col col-xs-12 col-md-6 mb-150-rem">
         <app-input
+          [permission]="!!idUserSelected ? 'UPDATE' : 'CREATE'"
           placeholder="Escribir teléfono"
+          appDisabledByPermission="USER"
           [defaultLabelError]="true"
           formControlName="phone"
           type="number"
@@ -167,9 +186,12 @@
       <!-- Email -->
       <div class="col col-xs-12 mb-150-rem">
         <app-input
+          [permission]="!!idUserSelected ? 'UPDATE' : 'CREATE'"
           placeholder="Escribir correo electrónico"
+          appDisabledByPermission="USER"
           [defaultLabelError]="true"
           formControlName="email"
+          [maxlength]="100"
           type="email"
           id="email"
         >
@@ -185,11 +207,16 @@
       <div class="col col-xs-12 col-md-6 mb-150-rem">
         <app-input
           placeholder="Escribir contraseña"
+          appDisabledByPermission="USER"
           formControlName="password"
+          [maxlength]="32"
           type="password"
           id="password"
         >
-          <label for="password" labelInput>Contraseña</label>
+          <label for="password" labelInput>
+            Contraseña
+            <span class="cl-danger-background-status">*</span>
+          </label>
           <label for="confirmPassword" labelInputError>
             {{userForm?.get('password')?.errors?.['minlength'] ? 'La contraseña debe tener al menos 8 caracteres.' :
             'Este campo es obligatorio'}}
@@ -201,37 +228,31 @@
         <app-input
           placeholder="Escribir confirmación de contraseña"
           formControlName="confirmPassword"
+          appDisabledByPermission="USER"
           id="confirmPassword"
+          [maxlength]="32"
           type="password"
         >
-          <label for="confirmPassword" labelInput>Confirmar contraseña</label>
+          <label for="confirmPassword" labelInput>
+            Confirmar contraseña
+            <span class="cl-danger-background-status">*</span>
+          </label>
           <label for="confirmPassword" labelInputError>
             {{userForm?.errors?.['passwordMismatch'] ? 'Las contraseñas no coinciden' : 'Este campo es obligatorio'}}
           </label>
         </app-input>
       </div>
       } @if(userLocalService?.user?.id_rol === 1){
-      <!-- Rol -->
-      <div class="col col-xs-12 col-md-6 mb-150-rem">
-        <app-select
-          formControlName="id_rol"
-          [configSelect]="{
-            placeholder: 'Seleccionar rol',
-            assignOnlyFieldId: true,
-            defaultLabelError: true,
-            fieldId: 'id_rol',
-            fieldText: 'name',
-            id: 'id_rol'
-          }"
-          [options]="roles"
-        >
-          <label for="id_rol" labelSelect>Rol</label>
-        </app-select>
-      </div>
-      @if(+userForm?.get('id_rol')?.value !== 4){
       <!-- Company -->
-      <div class="col col-xs-12 col-md-6">
+      <div class="col col-xs-12 col-md-6 mb-150-rem">
         <app-autocomplete
+          (selectionChange)="
+            userForm.get('id_rol')?.reset();
+            getRolesByCompany(
+              $event.type_company === 'IPS' ? null : $event.id_company
+            )
+          "
+          [permission]="!!idUserSelected ? 'UPDATE' : 'CREATE'"
           [configAutoComplete]="{
             placeholder: 'Buscar compañia por nombre',
             assignOnlyFieldId: true,
@@ -240,25 +261,49 @@
             fieldText: 'name',
             id: 'id_company'
           }"
+          appDisabledByPermission="USER"
           formControlName="id_company"
           [options]="companies"
         >
-          <label for="id_company" labelAutoComplete> Compañía</label>
+          <label for="id_company" labelAutoComplete>
+            Compañía <span class="cl-danger-background-status">*</span>
+          </label>
         </app-autocomplete>
       </div>
-      } }
+      }
+      <!-- Rol -->
+      <div class="col col-xs-12 col-md-6">
+        <app-select
+          [permission]="!!idUserSelected ? 'UPDATE' : 'CREATE'"
+          [configSelect]="{
+            placeholder: 'Seleccionar rol',
+            assignOnlyFieldId: true,
+            defaultLabelError: true,
+            fieldId: 'id_rol',
+            fieldText: 'name',
+            id: 'id_rol'
+          }"
+          appDisabledByPermission="USER"
+          formControlName="id_rol"
+          [options]="roles"
+        >
+          <label for="id_rol" labelSelect>
+            Rol <span class="cl-danger-background-status">*</span>
+          </label>
+        </app-select>
+      </div>
     </div>
   </form>
 </app-modal>
 } @if(userToDelete){
 <app-modal-confirmation-delete
-  [nameToValidate]="userToDelete?.name!"
+  (eventButtonClick)="$event ? deleteUser() : (userToDelete = undefined)"
   [title]="
     'Eliminar ' +
     homologateText(userLocalService?.user?.type_company!, 'empleado')
   "
-  [primaryButton]="{ text: 'Eliminar' }"
-  (eventButtonClick)="$event ? deleteUser() : (userToDelete = undefined)"
+  [primaryButton]="{ text: 'Aceptar' }"
+  [nameToValidate]="userToDelete?.name!"
 >
   <p class="font-body-large text-align-center mb-100-rem">
     Recuerda que si eliminas el

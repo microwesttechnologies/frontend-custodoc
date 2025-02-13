@@ -1,0 +1,119 @@
+<div class="container-module-roles">
+  <app-navbar
+    description="En este modulo podrás gestionar los roles"
+    (eventClickButton)="openModalCreateRol()"
+    [searchControl]="searchControl"
+    title="Gestión de roles"
+    codeModule="ROLES"
+    module="rol"
+  ></app-navbar>
+  <div class="container-list-collapsables container-general-panel">
+    @if(rolesAndPermissions.length){ @if(rolesAndPermissionsFilter.length){
+    @for(rol of rolesAndPermissionsFilter; track i; let i = $index){
+    <div class="item-collapsable mb-50-rem" @slideEnterAndLeaveRight>
+      <div class="item-collapsable-header">
+        <section>
+          <h3 class="font-subtitle-xlarge">
+            {{ rol.name }}
+          </h3>
+
+          @if(rol.isDefault){
+          <h3 class="font-subtitle-large cl-secondary-color-theme-important">
+            (Por defecto)
+          </h3>
+          }
+
+          <p class="font-caption-large cl-secondary-color-theme-important">
+            Fecha creación: {{ rol.created_at | date : "medium" }}
+          </p>
+        </section>
+
+        <section class="display-flex">
+          @if(!rol.isDefault){
+          <button
+            class="primary-badge badge-gray-hover border-radius-100 mr-50-rem"
+            (click)="
+              listStatus.showModal = true; rolAndPermissionSelected = rol
+            "
+            appDisabledByPermission="ROLES"
+            permission="UPDATE"
+          >
+            <i class="fa-solid fa-pencil fa-lg"> </i>
+          </button>
+          }
+          <button
+            class="primary-badge badge-gray-hover border-radius-100"
+            (click)="rol.showModules = !rol?.showModules"
+          >
+            <i
+              class="fa-solid fa-chevron-down rotate-icon fa-lg"
+              [ngClass]="{ 'fa-rotate-180': rol?.showModules }"
+            >
+            </i>
+          </button>
+        </section>
+      </div>
+      @if(rol?.showModules){
+      <div class="item-collapsable-body mt-50-rem" @collapse>
+        <app-table
+          gridHeaderColumns="minmax(10rem, 1fr) 5rem 5rem 5rem 5rem 5rem"
+          [isNotSelectable]="true"
+          [list]="rol.modules"
+        >
+          <ng-container tableHeader>
+            <p class="font-subtitle-large">Modulo</p>
+            <p class="font-subtitle-large text-align-center">Ver</p>
+            <p class="font-subtitle-large text-align-center">Crear</p>
+            <p class="font-subtitle-large text-align-center">Editar</p>
+            <p class="font-subtitle-large text-align-center">Eliminar</p>
+            <p class="font-subtitle-large text-align-center">Exportar</p>
+          </ng-container>
+          <ng-template let-item>
+            <p class="font-caption-large">
+              {{ item.name }}
+            </p>
+            <i
+              class="fa-solid fa-sm cl-success-background-status text-align-center"
+              [ngClass]="{ 'fa-circle': item.ACCESS }"
+            ></i>
+            <i
+              class="fa-solid fa-sm cl-success-background-status text-align-center"
+              [ngClass]="{ 'fa-circle': item.CREATE }"
+            ></i>
+            <i
+              class="fa-solid fa-sm cl-success-background-status text-align-center"
+              [ngClass]="{ 'fa-circle': item.UPDATE }"
+            ></i>
+            <i
+              class="fa-solid fa-sm cl-success-background-status text-align-center"
+              [ngClass]="{ 'fa-circle': item.DELETE }"
+            ></i>
+            <i
+              class="fa-solid fa-sm cl-success-background-status text-align-center"
+              [ngClass]="{ 'fa-circle': item.EXPORT }"
+            ></i>
+          </ng-template>
+        </app-table>
+      </div>
+      }
+    </div>
+    } }@else { } }@else { @for(item of createArrayByNumber(3);track i; let i =
+    $index){
+    <app-item-skeleton
+      [customStyles]="{
+        'margin-bottom': '0.5rem',
+        height: '4.5rem'
+      }"
+    ></app-item-skeleton>
+    } }
+  </div>
+</div>
+
+@if(listStatus.showModal){
+<app-modal-create-and-update-rol
+  [rolAndPermissionSelected]="rolAndPermissionSelected"
+  [routesAndPermissions]="routesAndPermissions"
+  (eventRefresh)="getRolesAndPermissions()"
+  (eventCloseModal)="closeModal()"
+></app-modal-create-and-update-rol>
+}

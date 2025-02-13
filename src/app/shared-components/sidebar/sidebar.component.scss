@@ -4,6 +4,8 @@
 @include generate-styles("mb", "margin-bottom", rem, 150, 150);
 @include generate-styles("mb", "margin-bottom", rem, 100, 100);
 
+@include generate-styles("mr", "margin-right", rem, 100, 100);
+
 .logo {
   display: block;
   margin: auto;
@@ -24,11 +26,11 @@
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
   transition: width 0.3s ease-in-out;
   position: fixed;
-  height: 100vh;
+  height: 100%;
   width: 6rem;
   z-index: 2;
+  bottom: 0;
   left: 0;
-  top: 0;
 
   & .sidebar-action {
     background-color: get-theme-value(palette, primary, background);
@@ -106,6 +108,57 @@
       border-top: 1px solid get-theme-value(theme, primary, border);
       overflow: hidden auto;
       padding: 1rem;
+    }
+  }
+}
+
+.primary-navbar {
+  background-color: get-theme-value(theme, secondary, background);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  position: fixed;
+  display: flex;
+  height: 4rem;
+  width: 100%;
+  z-index: 2;
+  left: 0;
+  top: 0;
+
+  & img {
+    width: 3rem;
+  }
+}
+
+.content-list-routes {
+  background-color: get-theme-value(theme, secondary, background);
+  height: calc(100% - 4rem);
+  position: fixed;
+  width: 100%;
+  z-index: 2;
+  padding: 0;
+  top: 4rem;
+  left: 0;
+
+  & .item-route {
+    transition: background-color 0.3s ease-in-out;
+    border-radius: 0.375rem;
+    margin-bottom: 0.3rem;
+    align-items: center;
+    cursor: pointer;
+    padding: 0 2rem;
+    display: flex;
+    height: 3rem;
+
+    & p {
+      margin-left: 0.5rem;
+    }
+
+    &:hover,
+    &:focus,
+    &-activate {
+      background-color: get-theme-value(palette, primary, transparent);
     }
   }
 }

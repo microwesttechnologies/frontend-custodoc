@@ -49,13 +49,6 @@ export class UserService {
     );
   }
 
-  getRoutesByRole(): Observable<User[]> {
-    return this.http.get<User[]>(
-      `${environment.apiUrl}getRoutesByRole`,
-      headerAuthorization()
-    );
-  }
-
   logout(): Observable<GenericResponse> {
     return this.http.get<GenericResponse>(
       `${environment.apiUrl}logout`,
@@ -70,8 +63,11 @@ export class UserService {
     );
   }
 
-  getAllUsers(): Observable<User[]> {
-    return this.http.get<User[]>(this.apiUrl, headerAuthorization());
+  getAllUsers(id_company?: number): Observable<User[]> {
+    return this.http.get<User[]>(
+      `${this.apiUrl}${id_company ? `/${id_company}` : ''}`,
+      headerAuthorization()
+    );
   }
 
   getAllRankingUsers(rangeDates: string): Observable<any[]> {
