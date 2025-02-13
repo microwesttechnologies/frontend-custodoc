@@ -36,16 +36,8 @@ export class DocumentService {
     );
   }
 
-  createDocument(document: FormData): Observable<GenericResponse> {
+  createOrUpdateDocument(document: FormData): Observable<GenericResponse> {
     return this.http.post<GenericResponse>(
-      this.apiUrl,
-      document,
-      headerAuthorization()
-    );
-  }
-
-  updateDocument(document: FormData): Observable<GenericResponse> {
-    return this.http.put<GenericResponse>(
       this.apiUrl,
       document,
       headerAuthorization()

@@ -44,6 +44,7 @@ import { SharedModule } from 'src/app/shared-components/shared.module';
 })
 export class ModalCreateAndUpdateDocumentComponent implements OnInit {
   @Output() eventRefresh = new EventEmitter<void>();
+  @Output() eventClose = new EventEmitter<void>();
 
   @Input() id_folder: number | null = null;
   @Input() documentToUpdate?: Document;
@@ -88,6 +89,11 @@ export class ModalCreateAndUpdateDocumentComponent implements OnInit {
       );
 
     if (this.documentToUpdate) {
+      this.documentForm.addControl(
+        'path',
+        new FormControl(this.documentToUpdate?.path)
+      );
+
       this.documentForm.markAllAsTouched();
       this.previewFile(this.documentToUpdate?.id_history!);
     }
@@ -128,11 +134,7 @@ export class ModalCreateAndUpdateDocumentComponent implements OnInit {
         formData.append('file', this.selectedFilePdf!);
       }
 
-      const endpointToExecute = this.documentToUpdate
-        ? this.documentService.updateDocument(formData)
-        : this.documentService.createDocument(formData);
-
-      endpointToExecute.subscribe({
+      this.documentService.createOrUpdateDocument(formData).subscribe({
         next: (response) => {
           if (response.status) {
             this.eventRefresh.emit();
@@ -143,7 +145,7 @@ export class ModalCreateAndUpdateDocumentComponent implements OnInit {
               )} se agrego exitosamente`,
               'success'
             );
-            this.listStatus.showModalDocument = false;
+            this.closeModal();
           } else {
             this.notificationService.showNotification(
               response.message!,
@@ -155,7 +157,9 @@ export class ModalCreateAndUpdateDocumentComponent implements OnInit {
         error: (error) => {
           this.listStatus.savingDocument = false;
           this.notificationService.showNotification(
-            `Lo sentimos, no se pudo crear ${homologateText(
+            `Lo sentimos, no se pudo ${
+              this.documentToUpdate ? 'actualizar ' : 'crear '
+            } ${homologateText(
               this.userLocalService?.user?.type_company!,
               'documento'
             )}`,
@@ -182,6 +186,6 @@ export class ModalCreateAndUpdateDocumentComponent implements OnInit {
 
   public closeModal(): void {
     this.listStatus.showModalDocument = false;
-    this.documentToUpdate = undefined;
+    this.eventClose.emit();
   }
 }

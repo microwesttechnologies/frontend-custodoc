@@ -402,6 +402,7 @@
 
 @if(listStatus.showModalDocument){
 <app-modal-create-and-update-document
+  (eventClose)="documentToUpdate = undefined"
   (eventRefresh)="getDocumentsByFolder()"
   [documentToUpdate]="documentToUpdate"
   [id_folder]="lastIdFolder"

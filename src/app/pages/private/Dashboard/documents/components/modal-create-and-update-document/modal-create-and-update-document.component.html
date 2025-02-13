@@ -1,14 +1,14 @@
 <app-modal
+  [primaryButton]="{
+    disabled: documentForm.invalid || (!selectedFilePdf && !documentToUpdate),
+    text: documentToUpdate ? 'Actualizar ' : 'Crear',
+    hidden: listStatus?.disabledPrimaryButton
+  }"
   [title]="
     (documentToUpdate ? 'Actualizar ' : 'Crear ') +
     homologateText(userLocalService?.user?.type_company!, 'documento')
   "
   (eventButtonClick)="$event ? createOrUpdateDocument() : closeModal()"
-  [primaryButton]="{
-    disabled: documentForm.invalid || !selectedFilePdf,
-    text: documentToUpdate ? 'Actualizar ' : 'Crear',
-    hidden: listStatus?.disabledPrimaryButton
-  }"
   [loadingButtons]="listStatus?.savingDocument"
   [customStyles]="{
     height: '95vh'

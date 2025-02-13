@@ -55,7 +55,10 @@ export class CompanyModuleComponent {
     height: '100%',
   };
 
-  public companyTypes: { name: string }[] = [];
+  public companyTypes: { name: string }[] = [
+    { name: 'IPS' },
+    { name: 'Otras' },
+  ];
   public customersByCompany: Customer[] = [];
   public usersByCompany: User[] = [];
   public companies: Company[] = [];
@@ -118,17 +121,10 @@ export class CompanyModuleComponent {
 
   private getAllCompanies(): void {
     this.listStatus.loadingTable = true;
-    this.companyTypes = [];
     this.companyService.getAllCompanies().subscribe({
       next: (companies) => {
         this.listStatus.loadingTable = false;
         this.companies = companies;
-
-        this.companies.forEach((company, index) =>
-          this.companyTypes.push({ name: company.type! })
-        );
-
-        this.companyTypes.push({ name: 'Otro' });
       },
       error: (error: HttpErrorResponse) => {
         this.listStatus.loadingTable = false;

@@ -116,9 +116,10 @@
       </div>
       <!-- Type -->
       <div class="col col-xs-12 col-md-6 mb-150-rem">
-        <!-- <app-select
+        <app-select
           [configSelect]="{
             defaultLabelError: true,
+            assignOnlyFieldId: true,
             fieldText: 'name',
             id: 'selectType',
             fieldId: 'name'
@@ -129,18 +130,7 @@
           <label for="type" labelSelect>
             Tipo <span class="cl-danger-background-status">*</span>
           </label>
-        </app-select> -->
-        <app-input
-          placeholder="Escribir tipo"
-          [defaultLabelError]="true"
-          formControlName="type"
-          [maxlength]="50"
-          id="type"
-        >
-          <label for="type" labelInput>
-            Tipo <span class="cl-danger-background-status">*</span>
-          </label>
-        </app-input>
+        </app-select>
       </div>
       <!-- Country -->
       <div class="col col-xs-12 col-md-6 mb-150-rem">
