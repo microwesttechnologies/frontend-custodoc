@@ -95,10 +95,13 @@ export class UserService {
     );
   }
 
-  updatePassword(password: string): Observable<GenericResponse> {
+  updatePassword(passwords: {
+    currentPassword: string;
+    password: string;
+  }): Observable<GenericResponse> {
     return this.http.put<GenericResponse>(
       `${this.apiUrl}/updatePassword`,
-      password,
+      passwords,
       headerAuthorization()
     );
   }

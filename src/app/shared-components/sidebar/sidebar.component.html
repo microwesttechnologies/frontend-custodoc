@@ -207,7 +207,6 @@
         <div
           class="primary-form-field valid-form-field"
           [appDisabledElement]="true"
-          [opacityElement]="1"
         >
           <label>Tipo de documento</label>
           <div class="container-input display-flex align-items-center">
@@ -220,7 +219,6 @@
         <div
           class="primary-form-field valid-form-field"
           [appDisabledElement]="true"
-          [opacityElement]="1"
         >
           <label>Identificación</label>
           <div class="container-input display-flex align-items-center">
@@ -247,7 +245,6 @@
         <div
           class="primary-form-field valid-form-field"
           [appDisabledElement]="true"
-          [opacityElement]="1"
         >
           <label>Correo electrónico</label>
           <div class="container-input display-flex align-items-center">
@@ -270,22 +267,43 @@
   <h3 class="font-title-large mb-150-rem">Seguridad</h3>
   <form [formGroup]="passwordForm">
     <div class="row">
-      <!-- Password -->
+      <!-- Old password -->
+      <div class="col col-xs-12 mb-150-rem">
+        <app-input
+          placeholder="Escribir contraseña actual"
+          formControlName="currentPassword"
+          id="currentPassword"
+          type="password"
+        >
+          <label for="currentPassword" labelInput>Contraseña actual</label>
+          <label for="currentPassword" labelInputError>
+            {{
+              userForm?.get("currentPassword")?.getError("incorrect")
+                ? "La contraseña es incorrecta"
+                : "Este campo es obligatorio"
+            }}
+          </label>
+        </app-input>
+      </div>
+      <!-- New password -->
       <div class="col col-xs-12 col-md-6 mb-150-rem">
         <app-input
-          placeholder="Escribir contraseña"
+          placeholder="Escribir nueva contraseña"
           formControlName="password"
           type="password"
           id="password"
         >
           <label for="password" labelInput>Contraseña</label>
-          <label for="confirmPassword" labelInputError>
-            {{userForm?.get('password')?.errors?.['minlength'] ? 'La contraseña debe tener al menos 8 caracteres.' :
-              'Este campo es obligatorio'}}
+          <label for="password" labelInputError>
+            {{
+              userForm?.get("password")?.getError("minlength")
+                ? "La contraseña debe tener al menos 8 caracteres"
+                : "Este campo es obligatorio"
+            }}
           </label>
         </app-input>
       </div>
-      <!-- Confirmar contraseña -->
+      <!-- Comfirm new password -->
       <div class="col col-xs-12 col-md-6 mb-150-rem">
         <app-input
           placeholder="Escribir confirmación de contraseña"
@@ -293,9 +311,15 @@
           id="confirmPassword"
           type="password"
         >
-          <label for="confirmPassword" labelInput>Confirmar contraseña</label>
+          <label for="confirmPassword" labelInput>
+            Confirmar nueva contraseña
+          </label>
           <label for="confirmPassword" labelInputError>
-            {{userForm?.errors?.['passwordMismatch'] ? 'Las contraseñas no coinciden' : 'Este campo es obligatorio'}}
+            {{
+              userForm?.getError("passwordMismatch")
+                ? "Las contraseñas no coinciden"
+                : "Este campo es obligatorio"
+            }}
           </label>
         </app-input>
       </div>

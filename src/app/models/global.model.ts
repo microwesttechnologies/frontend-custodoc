@@ -1,7 +1,8 @@
 export interface GenericResponse {
-  status: boolean;
   message?: string;
+  status: boolean;
   token?: string;
+  code?: string;
 }
 
 export interface DetailCompany {

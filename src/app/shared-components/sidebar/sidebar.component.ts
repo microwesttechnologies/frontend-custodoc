@@ -106,6 +106,7 @@ export class SidebarComponent extends DestroyObs implements OnInit {
 
     this.passwordForm = this.formBuilder.group(
       {
+        currentPassword: new FormControl('', [Validators.required]),
         password: new FormControl('', [
           Validators.required,
           Validators.minLength(8),
@@ -186,7 +187,10 @@ export class SidebarComponent extends DestroyObs implements OnInit {
     if (this.passwordForm.valid) {
       this.listStatus.updatingPassword = true;
       this.userService
-        .updatePassword(this.passwordForm.value?.password)
+        .updatePassword({
+          currentPassword: this.passwordForm.value?.currentPassword,
+          password: this.passwordForm.value?.password,
+        })
         .subscribe({
           next: (response) => {
             if (response.status) {
@@ -196,6 +200,12 @@ export class SidebarComponent extends DestroyObs implements OnInit {
               );
               this.passwordForm.reset();
             } else {
+              if (response.code === 'INCORRECT_CURRENT_PASSWORD') {
+                this.passwordForm
+                  .get('currentPassword')
+                  ?.setErrors({ incorrect: true });
+              }
+
               this.notificationService.showNotification(
                 response.message!,
                 'danger'
