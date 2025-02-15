@@ -25,7 +25,6 @@
     height: 100%;
 
     & .content-item-document-and-folder {
-      grid-template-columns: minmax(10rem, 1fr) minmax(10rem, 1fr) 5rem;
       background-color: get-theme-value(theme, primary, transparent);
       border-radius: 0.325rem;
       padding: 0.8rem 1.2rem;
@@ -44,6 +43,17 @@
           color: get-theme-value(palette, secondary, background);
           text-decoration: underline;
         }
+      }
+
+      @media (width > 768px) {
+        grid-template-columns: minmax(10rem, 1fr) minmax(10rem, 1fr) minmax(
+            10rem,
+            1fr
+          );
+      }
+
+      @media (width <= 768px) {
+        grid-template-columns: minmax(10rem, 1fr) auto;
       }
     }
   }

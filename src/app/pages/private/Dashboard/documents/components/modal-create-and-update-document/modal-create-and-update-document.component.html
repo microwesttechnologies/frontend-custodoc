@@ -33,6 +33,7 @@
         </app-input>
       </div>
       <!-- Identification -->
+      @if(documentForm?.get('identification')){
       <div class="col col-xs-12 col-md-6 mb-150-rem">
         <app-autocomplete
           [configAutoComplete]="{
@@ -50,6 +51,7 @@
           <label for="identification" labelAutoComplete>Cliente</label>
         </app-autocomplete>
       </div>
+      }
       <!-- Description -->
       <div class="col col-xs-12 mb-150-rem">
         <div class="primary-form-field">

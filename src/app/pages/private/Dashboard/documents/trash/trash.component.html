@@ -149,21 +149,20 @@
         {{ item.name }}
       </p>
     </section>
-    <p
-      [ngClass]="{
-        'cl-secondary-color-theme-important': param === 'id_folder'
-      }"
-      class="font-caption-large"
-    >
-      @if(param === 'id_history'){
-      {{ item.identification }} - {{ item.name_customer }}
-      }@else {
+    <p class="font-caption-large cl-secondary-color-theme-important">
       {{ item.deleted_at | date : "medium" }}
-      }
     </p>
     <div class="display-flex align-items-center justify-content-flex-end">
+      @if(param === 'id_folder'){
+      <p
+        class="font-caption-large cl-secondary-color-theme-important mr-50-rem hidden-xs hidden-sm"
+      >
+        ({{ item?.fileCount }}
+        {{ item?.fileCount === 1 ? "archivo" : "archivos" }})
+      </p>
+      }
       <button
-        class="primary-badge badge-gray-hover border-radius-100 mr-50-rem center-all"
+        class="primary-badge badge-gray-hover border-radius-100 center-all"
         [overlayContext]="{param,item,index}"
         overlayPosition="bottom-right"
         [appOverlay]="overlayOptions"

@@ -75,12 +75,14 @@ export class ModalCreateAndUpdateDocumentComponent implements OnInit {
       name: new FormControl(this.documentToUpdate?.name ?? null, [
         Validators.required,
       ]),
-      identification: new FormControl(
-        this.documentToUpdate?.identification ?? null,
-        [Validators.required]
-      ),
       description: new FormControl(this.documentToUpdate?.description ?? null),
     });
+
+    if (this.userLocalService.user?.type_company !== 'Otras')
+      this.documentForm.addControl(
+        'identification',
+        new FormControl('', [Validators.required])
+      );
 
     if (this.id_folder)
       this.documentForm.addControl(

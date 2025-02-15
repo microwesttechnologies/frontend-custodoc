@@ -317,9 +317,6 @@ export class UsersModuleComponent {
               } exitosamente`,
               'success'
             );
-            // if (!this.idUserSelected)
-            //   this.globalService.detailCompany.users.amount =
-            //     this.globalService.detailCompany.users.amount + 1;
             this.closeModal();
           } else {
             this.notificationService.showNotification(
@@ -348,6 +345,8 @@ export class UsersModuleComponent {
   public closeModal(): void {
     this.listStatus.showModal = false;
     this.idUserSelected = undefined;
+
+    if (this.userLocalService.user?.id_rol === 1) this.roles = [];
   }
 
   public setUpdateUser(user: User) {
