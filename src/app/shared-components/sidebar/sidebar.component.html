@@ -35,7 +35,7 @@
   @for ( itemMenu of userLocalService.menuSidebar; track indexMenu; let
   indexMenu = $index){
   <li
-    routerLinkActive="sidebar-item-activate"
+    routerLinkActive="item-route-activate"
     (click)="openAndCloseSidebar()"
     [routerLink]="[itemMenu.path]"
     class="item-route"
