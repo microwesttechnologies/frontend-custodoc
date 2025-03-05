@@ -1,8 +1,9 @@
-export interface GenericResponse {
+export interface GenericResponse<T = undefined> {
   message?: string;
   status: boolean;
   token?: string;
   code?: string;
+  record?: T;
 }
 
 export interface DetailCompany {

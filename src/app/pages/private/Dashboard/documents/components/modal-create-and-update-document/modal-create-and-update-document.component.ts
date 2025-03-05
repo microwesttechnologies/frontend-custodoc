@@ -15,6 +15,7 @@ import {
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { DisabledElementDirective } from 'src/app/directives/disabled-element.directive';
 import { homologateText } from 'src/app/globals/homologate-text';
+import { Area } from 'src/app/models/area.model';
 import { Customer } from 'src/app/models/customer.model';
 import { Document } from 'src/app/models/document.model';
 import { SafeUrlPipe } from 'src/app/pipes/safe-url.pipe';
@@ -23,6 +24,7 @@ import { DocumentService } from 'src/app/services/external/document.service';
 import { UserLocalService } from 'src/app/services/local/user.service';
 import { AutoCompleteComponent } from 'src/app/shared-components/form/autocomplete/autocomplete.component';
 import { InputComponent } from 'src/app/shared-components/form/input/input.component';
+import { SelectComponent } from 'src/app/shared-components/form/select/select.component';
 import { ModalComponent } from 'src/app/shared-components/modal/modal.component';
 import { NotificationService } from 'src/app/shared-components/notification/notification.service';
 import { SharedModule } from 'src/app/shared-components/shared.module';
@@ -33,6 +35,7 @@ import { SharedModule } from 'src/app/shared-components/shared.module';
   imports: [
     DisabledElementDirective,
     AutoCompleteComponent,
+    SelectComponent,
     ModalComponent,
     InputComponent,
     SplitTextPipe,
@@ -47,8 +50,10 @@ export class ModalCreateAndUpdateDocumentComponent implements OnInit {
   @Output() eventClose = new EventEmitter<void>();
 
   @Input() id_folder: number | null = null;
+  @Input() id_area: number | null = null;
   @Input() documentToUpdate?: Document;
   @Input() customers: Customer[] = [];
+  @Input() areas: Area[] = [];
   @Input() listStatus?: any;
 
   public documentForm!: FormGroup;
@@ -78,11 +83,19 @@ export class ModalCreateAndUpdateDocumentComponent implements OnInit {
       description: new FormControl(this.documentToUpdate?.description ?? null),
     });
 
-    if (this.userLocalService.user?.type_company !== 'Otras')
+    if (this.userLocalService.user?.type_company !== 'Otras') {
       this.documentForm.addControl(
         'identification',
         new FormControl('', [Validators.required])
       );
+    } else {
+      this.documentForm.addControl(
+        'id_area',
+        new FormControl(this.documentToUpdate?.id_area || this.id_area, [
+          Validators.required,
+        ])
+      );
+    }
 
     if (this.id_folder)
       this.documentForm.addControl(
@@ -126,7 +139,11 @@ export class ModalCreateAndUpdateDocumentComponent implements OnInit {
   public createOrUpdateDocument(): void {
     this.documentForm.markAllAsTouched();
 
-    if (this.documentForm.valid && (this.selectedFilePdf || this.fileUrl)) {
+    if (
+      this.documentForm.valid &&
+      (this.selectedFilePdf || this.fileUrl) &&
+      !this.listStatus.savingDocument
+    ) {
       const formData = new FormData();
 
       Object.entries(this.documentForm.value).forEach((elm: any[]) => {
@@ -136,6 +153,7 @@ export class ModalCreateAndUpdateDocumentComponent implements OnInit {
         formData.append('file', this.selectedFilePdf!);
       }
 
+      this.listStatus.savingDocument = true;
       this.documentService.createOrUpdateDocument(formData).subscribe({
         next: (response) => {
           if (response.status) {

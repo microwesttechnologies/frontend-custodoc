@@ -1,0 +1,78 @@
+<app-modal
+  (eventButtonClick)="$event ? null : (listStatus.showModalArea = false)"
+  [primaryButton]="{ hidden: true }"
+  size="md"
+>
+  <h3 class="font-title-large mb-100-rem">Crear area</h3>
+  <div class="display-flex align-items-center width-100 mb-150-rem cg-50-rem">
+    <app-input
+      placeholder="Escribir nombre del area"
+      [ngStyle]="{ width: '100%' }"
+      [formControl]="nameArea"
+      [maxlength]="100"
+    ></app-input>
+    <app-button
+      (eventButtonClick)="createOrUpdateArea()"
+      [appDisabledElement]="!nameArea?.value"
+      classes="primary-button button-md"
+      [loading]="listStatus?.savingArea"
+      appTooltip="Crear"
+    >
+      <i class="fa-solid fa-check cl-secondary-background-theme"></i>
+    </app-button>
+    <app-button
+      classes="primary-button bg-transparent button-md"
+      (eventButtonClick)="nameArea.reset()"
+      [loading]="listStatus?.savingArea"
+      appTooltip="Cancelar"
+    >
+      <i class="fa-solid fa-close"></i>
+    </app-button>
+  </div>
+  <div class="separator-areas mb-150-rem"></div>
+  <h3 class="font-title-large mb-100-rem">Lista de areas</h3>
+  @for(area of areasForm.controls; track area?.value?.id_area; let i = $index){
+  <div class="display-flex align-items-center width-100 mb-50-rem cg-50-rem">
+    <app-input
+      placeholder="Escribir nombre del area"
+      [formControl]="getFieldNameForm(area)"
+      [ngStyle]="{ width: '100%' }"
+      [maxlength]="100"
+    ></app-input>
+    <app-button
+      (eventButtonClick)="createOrUpdateArea(area, i)"
+      [appDisabledElement]="!area.get('name')?.value"
+      classes="primary-button button-md"
+      [loading]="listStatus?.savingArea"
+      appTooltip="Actualizar"
+    >
+      <i class="fa-solid fa-check cl-secondary-background-theme"></i>
+    </app-button>
+    <app-button
+      (eventButtonClick)="
+        area.get('name')?.setValue(area.get('nameBackup')?.value)
+      "
+      classes="primary-button bg-transparent button-md"
+      [loading]="listStatus?.savingArea"
+      appTooltip="Revertir cambios"
+    >
+      <i class="fa-solid fa-close"></i>
+    </app-button>
+  </div>
+  } @if(!areasForm?.length){
+  <div
+    class="center-all flex-direction-column"
+    [ngStyle]="{ padding: '1rem' }"
+    @fadeIn
+  >
+    <img
+      src="/assets/img/NoResults.png"
+      [ngStyle]="{ width: '8rem' }"
+      alt="NoReults"
+    />
+    <h3 class="font-title-medium text-align-center">
+      No se encontraron areas registradas
+    </h3>
+  </div>
+  }
+</app-modal>

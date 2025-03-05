@@ -14,6 +14,40 @@
       <!-- Breadcumb -->
       @if(listDocuments.length || listFolders.length || levelFolders.length > 1
       || listStatus.loadingDocuments){
+
+      <div
+        class="display-flex align-items-center justify-content-space-between mb-100-rem"
+      >
+        <section class="display-flex align-items-center">
+          <p class="font-body-medium mr-50-rem">Seleccionar todos</p>
+          <button
+            [ngClass]="{ 'item-checkbox-checked': selectedAll.value }"
+            class="item-checkbox cursor-pointer center-all"
+            (click)="selectAll(!selectedAll.value)"
+          >
+            @if(selectedAll.value){
+            <i
+              class="fa-solid fa-check cl-secondary-background-theme-important"
+              @fadeInOut
+            ></i>
+            }
+          </button>
+        </section>
+
+        @if(withSelecteds){
+        <button
+          class="primary-badge badge-gray-hover border-radius-100 center-all"
+          [appOverlay]="overlayGeneralOptions"
+          overlayPosition="bottom-right"
+          [closeInsideOverlay]="true"
+          overlayActivateBy="click"
+          overlayWidth="12rem"
+        >
+          <i class="fa-solid fa-ellipsis-vertical fa-lg"></i>
+        </button>
+        }
+      </div>
+
       <app-breadcumb-folders
         (eventGoSpecificFolder)="previousAndNextFolder(undefined, $event)"
         [levelFolders]="levelFolders"
@@ -22,15 +56,12 @@
       }
       <!-- Acción volver anterior -->
       @if(levelFolders.length > 1){
-      <div class="content-item-document-and-folder" @fadeIn>
-        <p
-          class="font-caption-large name-document-and-folder cursor-pointer width-fit-content"
-          [configTooltip]="{ position: 'right' }"
-          (click)="previousAndNextFolder()"
-          appTooltip="Volver"
-        >
-          ...
-        </p>
+      <div
+        class="content-item-document-and-folder cursor-pointer"
+        (click)="previousAndNextFolder()"
+        @fadeIn
+      >
+        <p class="font-caption-large">...</p>
       </div>
       }
       <!-- Skeleton loading -->
@@ -46,8 +77,7 @@
       <!-- Validación carpetas y documentos -->
       @if(listDocuments.length || listFolders.length){
       <!-- Recorrer carpetas -->
-      @for(folder of listFoldersFiltered; track folder.id_folder; let i =
-      $index){
+      @for(folder of listFolders; track folder.id_folder; let i = $index){
       <ng-container
         *ngTemplateOutlet="
           contentItem;
@@ -60,7 +90,7 @@
       ></ng-container>
       }
       <!-- Recorrer documentos -->
-      @for(document of listDocumentsFiltered; track document.id_history; let i =
+      @for(document of listDocuments; track document.id_history; let i =
       $index){
       <ng-container
         *ngTemplateOutlet="
@@ -73,7 +103,7 @@
         "
       ></ng-container>
 
-      } @if(!listDocumentsFiltered.length && !listFoldersFiltered.length){
+      } @if(!listDocuments.length && !listFolders.length){
       <div class="center-all flex-direction-column height-100" @fadeIn>
         <img
           src="/assets/img/NoResults.png"
@@ -125,7 +155,20 @@
 
 <!-- Contenedor de los items -->
 <ng-template #contentItem let-param="param" let-item="item" let-index="index">
-  <div class="content-item-document-and-folder" @slideEnterRight>
+  <div
+    [ngClass]="{ 'content-item-document-and-folder-selected': item?.selected }"
+    class="content-item-document-and-folder cursor-pointer"
+    (click)="selectDocumentOrFolder(item)"
+    (dblclick)="
+      param === 'id_history'
+        ? previewFile(item[param])
+        : previousAndNextFolder({
+            id_folder: item[param],
+            name: item.name
+          })
+    "
+    @slideEnterRight
+  >
     <section class="display-flex align-items-center">
       <i
         [ngStyle]="{ color: param === 'id_history' ? '#ef5350' : null }"
@@ -137,19 +180,16 @@
       ></i>
 
       <p
-        class="font-caption-large name-document-and-folder cursor-pointer white-space-nowrap text-overflow-ellipsis overflow-hidden"
-        (click)="
-          param === 'id_history'
-            ? previewFile(item[param])
-            : previousAndNextFolder({ id_folder: item[param], name: item.name })
-        "
+        class="font-caption-large white-space-nowrap text-overflow-ellipsis overflow-hidden"
         [appTooltip]="validateLimitText(name) ? item.name : ''"
         #name
       >
         {{ item.name }}
       </p>
     </section>
-    <p class="font-caption-large cl-secondary-color-theme-important hidden-xs hidden-sm">
+    <p
+      class="font-caption-large cl-secondary-color-theme-important hidden-xs hidden-sm"
+    >
       {{ item.deleted_at | date : "medium" }}
     </p>
     <div class="display-flex align-items-center justify-content-flex-end">
@@ -164,6 +204,7 @@
       <button
         class="primary-badge badge-gray-hover border-radius-100 center-all"
         [overlayContext]="{param,item,index}"
+        (click)="$event.stopPropagation()"
         overlayPosition="bottom-right"
         [appOverlay]="overlayOptions"
         [closeInsideOverlay]="true"
@@ -186,7 +227,11 @@
             ? restoreDocument(context?.item?.id_history)
             : restoreFolder(context?.item?.id_folder)
         "
-        [disabledAnyWay]="levelFolders.length > 1"
+        [disabledAnyWay]="
+          context?.param === 'id_history'
+            ? context?.item?.id_folder
+            : context?.item?.parent
+        "
         appDisabledByPermission="TRASH"
         permission="UPDATE"
         class="item-list"
@@ -200,11 +245,28 @@
             ? (this.documentToDelete = context.item)
             : (this.folderToDelete = context.item)
         "
+        [disabledAnyWay]="!context.item?.deleted_at"
         appDisabledByPermission="TRASH"
         permission="DELETE"
         class="item-list"
       >
         <p class="font-caption-large">Eliminar definitivamente</p>
+      </li>
+    </ul>
+  </div>
+</ng-template>
+
+<!-- Overlay opciones generales -->
+<ng-template #overlayGeneralOptions let-context>
+  <div class="primary-overlay" @fadeIn>
+    <ul class="primary-list">
+      <li
+        (click)="listStatus.showModalMultipleDelete = true"
+        appDisabledByPermission="DOCUMENT"
+        permission="DELETE"
+        class="item-list"
+      >
+        <p class="font-caption-large">Eliminar seleccionados</p>
       </li>
     </ul>
   </div>
@@ -229,4 +291,20 @@
     {{ documentToDelete ? "el documento" : "la carpeta" }}?
   </p>
 </app-modal-confirmation-delete>
+} @if(listStatus.showModalMultipleDelete){
+<app-modal
+  [customStyles]="{ height: '16rem', width: '37rem' }"
+  (eventButtonClick)="
+    $event
+      ? deleteFoldersAndDocumentsById()
+      : (listStatus.showModalMultipleDelete = false)
+  "
+  title="Eliminar documentos y carpetas"
+  [primaryButton]="{ text: 'Aceptar' }"
+  size="xs"
+>
+  <p class="font-body-large text-align-center">
+    ¿Estas seguro que quieres eliminar los documentos y carpetas seleccionadas?
+  </p>
+</app-modal>
 }

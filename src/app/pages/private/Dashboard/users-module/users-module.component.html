@@ -14,7 +14,17 @@
     module="user"
   ></app-navbar>
   <div class="container-general-panel overflow-hidden">
-    <div class="secondary-card">
+    <div class="secondary-card display-flex flex-direction-column">
+      @if(userLocalService?.user?.type_company === 'Otras'){
+      <div class="display-flex justify-content-flex-end mb-100-rem">
+        <app-button
+          (eventButtonClick)="listStatus.showModalArea = true"
+          classes="primary-button button-md"
+        >
+          Lista de areas
+        </app-button>
+      </div>
+      }
       <app-table
         [selectedItem]="['identification', idUserSelected]"
         [loadingTable]="listStatus.loadingTable"
@@ -22,6 +32,7 @@
         [gridHeaderColumns]="gridHeaderColumns"
         [fieldsToFilter]="fieldsToFilter"
         [searchControl]="searchControl"
+        [ngStyle]="{ height: '100%' }"
         [totalItems]="users.length"
         [withPager]="true"
         [list]="users"
@@ -38,6 +49,16 @@
             class="font-subtitle-large"
           >
             Compañía
+          </p>
+          <p
+            [ngClass]="{
+              'display-none':
+                userLocalService?.user?.id_rol !== 1 &&
+                userLocalService?.user?.type_company !== 'Otras'
+            }"
+            class="font-subtitle-large"
+          >
+            Area
           </p>
         </ng-container>
         <ng-template let-item>
@@ -69,6 +90,15 @@
           >
             {{ item?.name_company }}
           </p>
+          } @if(userLocalService?.user?.id_rol === 1 ||
+          userLocalService?.user?.type_company === 'Otras'){
+          <p
+            class="font-caption-large white-space-nowrap text-overflow-ellipsis overflow-hidden"
+            [appTooltip]="validateLimitText(nameArea) ? item?.name_area : ''"
+            #nameArea
+          >
+            {{ item?.name_area }}
+          </p>
           } @if(withDeletePermission && userLocalService?.user?.identification
           !== item.identification){
           <button
@@ -97,7 +127,7 @@
 
 @if(listStatus.showModal){
 <app-modal
-  [primaryButton]="{ text: !!idUserSelected ? 'Guardar' : 'Guardar' }"
+  [primaryButton]="{ text: !!idUserSelected ? 'Guardar' : 'Crear' }"
   [title]="
     (!!idUserSelected ? 'Actualizar ' : 'Crear ') +
     homologateText(userLocalService?.user?.type_company!, 'empleado')
@@ -246,12 +276,6 @@
       <!-- Company -->
       <div class="col col-xs-12 col-md-6 mb-150-rem">
         <app-autocomplete
-          (selectionChange)="
-            userForm.get('id_rol')?.reset();
-            getRolesByCompany(
-              $event.type_company === 'IPS' ? null : $event.id_company
-            )
-          "
           [permission]="!!idUserSelected ? 'UPDATE' : 'CREATE'"
           [configAutoComplete]="{
             placeholder: 'Buscar compañia por nombre',
@@ -261,6 +285,7 @@
             fieldText: 'name',
             id: 'id_company'
           }"
+          (selectionChange)="changeCompany($event)"
           appDisabledByPermission="USER"
           formControlName="id_company"
           [options]="companies"
@@ -272,7 +297,7 @@
       </div>
       }
       <!-- Rol -->
-      <div class="col col-xs-12 col-md-6">
+      <div class="col col-xs-12 col-md-6 mb-150-rem">
         <app-select
           [permission]="!!idUserSelected ? 'UPDATE' : 'CREATE'"
           [configSelect]="{
@@ -292,6 +317,30 @@
           </label>
         </app-select>
       </div>
+
+      <!-- Area -->
+      @if(userForm?.get('id_area')){
+      <div class="col col-xs-12 col-md-6">
+        <app-select
+          [permission]="!!idUserSelected ? 'UPDATE' : 'CREATE'"
+          [configSelect]="{
+            placeholder: 'Seleccionar area',
+            assignOnlyFieldId: true,
+            defaultLabelError: true,
+            fieldId: 'id_area',
+            fieldText: 'name',
+            id: 'id_area'
+          }"
+          appDisabledByPermission="USER"
+          formControlName="id_area"
+          [options]="areas"
+        >
+          <label for="id_rol" labelSelect>
+            Area <span class="cl-danger-background-status">*</span>
+          </label>
+        </app-select>
+      </div>
+      }
     </div>
   </form>
 </app-modal>
@@ -311,4 +360,9 @@
     se podrá recuperar la información.
   </p>
 </app-modal-confirmation-delete>
+}@if(listStatus.showModalArea){
+<app-modal-create-and-update-area
+  [listStatus]="listStatus"
+  [areas]="areas"
+></app-modal-create-and-update-area>
 }

@@ -23,4 +23,6 @@ export interface User {
   name_rol?: string;
   type_company?: string;
   disabled?: boolean;
+  id_area?: number;
+  name_area?: number;
 }

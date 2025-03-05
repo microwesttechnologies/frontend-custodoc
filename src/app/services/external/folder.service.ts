@@ -31,6 +31,7 @@ export class FolderService {
 
   createFolder(folder: {
     name: string;
+    id_area: number;
     parent: number | null;
   }): Observable<GenericResponse> {
     return this.http.post<GenericResponse>(
@@ -64,6 +65,22 @@ export class FolderService {
   restoreFolder(id_folder: number): Observable<GenericResponse> {
     return this.http.get<GenericResponse>(
       `${this.apiUrl}/restoreFolder/${id_folder}`,
+      headerAuthorization()
+    );
+  }
+
+  deleteFoldersAndDocumentsById(
+    body: {
+      documents: number[];
+      folders: number[];
+    },
+    temporal?: boolean
+  ): Observable<GenericResponse> {
+    return this.http.post<GenericResponse>(
+      `${this.apiUrl}/deleteFoldersAndDocumentsById${
+        temporal ? '?temporal=true' : ''
+      }`,
+      body,
       headerAuthorization()
     );
   }

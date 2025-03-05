@@ -37,21 +37,36 @@
       min-width: 100%;
       display: grid;
 
-      & .name-document-and-folder {
-        transition: text-decoration 0.3s ease-in-out, color 0.3s ease-in-out;
-
-        &:hover {
-          color: get-theme-value(palette, secondary, background);
-          text-decoration: underline;
-        }
+      &-selected {
+        background-color: get-theme-value(palette, primary, transparent);
       }
 
-      @media (width > 768px) {
-        grid-template-columns: minmax(10rem, 1fr) minmax(10rem, 1fr) minmax(10rem, 1fr);
+      @media (width >= 768px) {
+        grid-template-columns: minmax(10rem, 1fr) minmax(10rem, 1fr) minmax(
+            10rem,
+            1fr
+          );
       }
 
-      @media (width <= 768px) {
-        grid-template-columns: minmax(10rem,1fr) auto;
+      @media (width < 768px) {
+        grid-template-columns: minmax(10rem, 1fr) auto;
+      }
+    }
+
+    & .item-checkbox {
+      transition: background-color 0.3s ease-in-out;
+      border-radius: 0.325rem;
+      height: 1.3rem;
+      width: 1.3rem;
+
+      &:not(.item-checkbox-checked) {
+        border: 1px solid get-theme-value(theme, secondary, color);
+        background-color: transparent;
+      }
+
+      &-checked {
+        border: 1px solid get-theme-value(palette, tertiary, background);
+        background-color: get-theme-value(palette, tertiary, background);
       }
     }
   }

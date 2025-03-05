@@ -60,7 +60,7 @@
     }
 
     &-selected {
-      background-color: get-theme-value(theme, primary, transparent);
+      background-color: get-theme-value(palette, primary, transparent);
     }
   }
 }

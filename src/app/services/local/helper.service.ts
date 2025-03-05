@@ -62,37 +62,37 @@ export const arrayFilter = <T>(
 
   return list.filter((item: any) =>
     fields.some((field) =>
-      item[field]?.toString().toLowerCase().includes(lowerCaseValue),
-    ),
+      item[field]?.toString().toLowerCase().includes(lowerCaseValue)
+    )
   );
 };
 
 export const passwordMatchValidator =
   (password: string, confirmPassword: string): ValidatorFn =>
-    (formGroup: AbstractControl): ValidationErrors | null => {
-      const passwordControl = formGroup.get(password);
-      const confirmPasswordControl = formGroup.get(confirmPassword);
+  (formGroup: AbstractControl): ValidationErrors | null => {
+    const passwordControl = formGroup.get(password);
+    const confirmPasswordControl = formGroup.get(confirmPassword);
 
-      if (!passwordControl || !confirmPasswordControl) {
-        return null; // Salir si los controles no existen
-      }
+    if (!passwordControl || !confirmPasswordControl) {
+      return null; // Salir si los controles no existen
+    }
 
-      if (
-        confirmPasswordControl.errors &&
-        !confirmPasswordControl.errors['passwordMismatch']
-      ) {
-        return null; // Salir si ya tiene otros errores
-      }
+    if (
+      confirmPasswordControl.errors &&
+      !confirmPasswordControl.errors['passwordMismatch']
+    ) {
+      return null; // Salir si ya tiene otros errores
+    }
 
-      // Validar que las contraseñas coincidan
-      if (passwordControl.value !== confirmPasswordControl.value) {
-        confirmPasswordControl.setErrors({ passwordMismatch: true });
-        return { passwordMismatch: true };
-      } else {
-        confirmPasswordControl.setErrors(null); // Limpiar error si coincide
-        return null;
-      }
-    };
+    // Validar que las contraseñas coincidan
+    if (passwordControl.value !== confirmPasswordControl.value) {
+      confirmPasswordControl.setErrors({ passwordMismatch: true });
+      return { passwordMismatch: true };
+    } else {
+      confirmPasswordControl.setErrors(null); // Limpiar error si coincide
+      return null;
+    }
+  };
 
 // Función para convertir archivos a Base64
 export const fileToBase64 = (
@@ -104,4 +104,28 @@ export const fileToBase64 = (
     reader.onerror = (error) => reject(error);
     reader.readAsDataURL(file);
   });
+};
+
+export const downloadFile = (title: string, blob: Blob, ext: string) => {
+  let date = new Date();
+  let timestamp =
+    date.getFullYear() +
+    '_' +
+    (date.getMonth() + 1) +
+    '_' +
+    date.getDate() +
+    '_' +
+    date.getHours() +
+    '_' +
+    date.getMinutes();
+
+  const link = document.createElement('a');
+  // ↓ Agrega la url del archivo al link
+  link.href = window.URL.createObjectURL(blob);
+  // ↓ Asigna el nombre del archivo
+  link.download = `${title}_${timestamp}.${ext}`;
+  // ↓ Ejecuta la descarga
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
 };

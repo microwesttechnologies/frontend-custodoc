@@ -52,6 +52,26 @@
         </app-autocomplete>
       </div>
       }
+      <!-- Area -->
+      @if(documentForm?.get('id_area') && !id_area){
+      <div class="col col-xs-12 col-md-6 mb-150-rem">
+        <app-select
+          [appDisabledElement]="!!documentToUpdate"
+          [configSelect]="{
+            placeholder: 'Seleccionar area',
+            assignOnlyFieldId: true,
+            defaultLabelError: true,
+            fieldId: 'id_area',
+            fieldText: 'name',
+            id: 'id_area'
+          }"
+          formControlName="id_area"
+          [options]="areas"
+        >
+          <label for="id_area" labelSelect>Area</label>
+        </app-select>
+      </div>
+      }
       <!-- Description -->
       <div class="col col-xs-12 mb-150-rem">
         <div class="primary-form-field">

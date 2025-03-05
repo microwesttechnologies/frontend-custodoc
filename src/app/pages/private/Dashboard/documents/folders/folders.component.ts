@@ -8,8 +8,8 @@ import { FolderService } from 'src/app/services/external/folder.service';
 import { debounceTime, forkJoin } from 'rxjs';
 import { ButtonComponent } from 'src/app/shared-components/form/button/button.component';
 import {
-  arrayFilter,
   createArrayByNumber,
+  downloadFile,
   validateLimitText,
 } from 'src/app/services/local/helper.service';
 import { Folder, LevelFolders } from 'src/app/models/folder.model';
@@ -31,6 +31,12 @@ import { DisabledElementDirective } from 'src/app/directives/disabled-element.di
 import { ModalConfirmationDeleteComponent } from 'src/app/shared-components/modal-confirmation-delete/modal-confirmation-delete.component';
 import { BreadcumbFoldersComponent } from '../components/breadcumb-folders/breadcumb-folders.component';
 import { ActivatedRoute } from '@angular/router';
+import { AreaService } from 'src/app/services/external/area.service';
+import { Area } from 'src/app/models/area.model';
+import { UserLocalService } from 'src/app/services/local/user.service';
+import { SelectComponent } from 'src/app/shared-components/form/select/select.component';
+import { ModalComponent } from 'src/app/shared-components/modal/modal.component';
+import { environment } from 'src/environments/environment';
 
 interface FolderForm extends Folder {
   nameControl: FormControl;
@@ -51,6 +57,8 @@ interface FolderForm extends Folder {
     OverlayDirective,
     TooltipDirective,
     ButtonComponent,
+    ModalComponent,
+    SelectComponent,
     NavbarComponent,
     InputComponent,
     SharedModule,
@@ -75,6 +83,7 @@ export class FoldersComponent implements OnInit {
 
   @Input() customers: Customer[] = [];
 
+  public storageUrl = environment.storageUrl;
   public filter?: 'isFavorite' | 'isViewed';
   public searchControl = new FormControl();
   private queryParams = new HttpParams();
@@ -82,23 +91,24 @@ export class FoldersComponent implements OnInit {
   public levelFolders: LevelFolders[] = [{ id_folder: null, name: 'Inicio' }];
   public listDocuments: Document[] = [];
   public listFolders: FolderForm[] = [];
+  public areas: Area[] = [];
 
-  public listDocumentsFiltered: Document[] = [];
-  public listFoldersFiltered: FolderForm[] = [];
-
+  public idAreaSelected!: number | null;
   public documentToUpdate?: Document;
   public documentToDelete?: Document;
   public folderToDelete?: FolderForm;
 
   public nameFolderControl = new FormControl<string>('', Validators.required);
-
-  private idHistoryByUrl?: number;
-  public fileUrl?: string;
+  public idAreaControl = new FormControl<number | null>(
+    null,
+    Validators.required
+  );
+  public selectedAll = new FormControl<boolean>(false);
 
   public listStatus = {
+    showModalMultipleDelete: false,
     showModalDocument: false,
     loadingDocuments: false,
-    showModalPreview: false,
     showModalDelete: false,
     creatingFolder: false,
   };
@@ -110,6 +120,8 @@ export class FoldersComponent implements OnInit {
   private readonly documentService = inject(DocumentService);
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly folderService = inject(FolderService);
+  public userLocalService = inject(UserLocalService);
+  private readonly areaService = inject(AreaService);
 
   public get editingFolder(): boolean {
     return this.listFolders.some((folder) => folder.isEditing);
@@ -119,14 +131,25 @@ export class FoldersComponent implements OnInit {
     return this.levelFolders[this.levelFolders.length - 1]?.id_folder;
   }
 
+  public get withSelecteds(): boolean {
+    return (
+      this.listDocuments.some((document) => document.selected) ||
+      this.listFolders.some((folder) => folder.selected)
+    );
+  }
+
   ngOnInit(): void {
-    this.idHistoryByUrl =
-      this.activatedRoute.snapshot.queryParams['id_history'];
     this.getDocumentsAndFoldersByFolder();
 
     this.searchControl?.valueChanges
       ?.pipe(debounceTime(300))
       .subscribe(() => this.executeFilterBySearch());
+
+    if (this.userLocalService.user?.id_area === 1) this.getAllAreas();
+    else {
+      this.idAreaSelected = this.userLocalService.user?.id_area!;
+      this.idAreaControl.setValue(this.idAreaSelected);
+    }
   }
 
   private getDocumentsAndFoldersByFolder(): void {
@@ -151,39 +174,28 @@ export class FoldersComponent implements OnInit {
           );
           return folder as FolderForm;
         });
-        this.executeFilterBySearch();
         this.listStatus.loadingDocuments = false;
-
-        if (this.idHistoryByUrl) {
-          this.previewFile(+this.idHistoryByUrl);
-          this.idHistoryByUrl = undefined;
-        }
       }
     );
   }
 
-  private executeFilterBySearch(
-    filter: 'documents' | 'folders' | 'both' = 'both'
-  ): void {
-    if (['both', 'documents'].includes(filter)) {
-      this.listDocumentsFiltered = arrayFilter(
-        this.listDocuments,
-        this.searchControl.value,
-        ['name', 'name_customer', 'identification']
-      );
+  private executeFilterBySearch(): void {
+    this.queryParams = this.queryParams.set('search', this.searchControl.value);
+
+    if (this.filter === 'isViewed') {
+      this.levelFolders = this.levelFolders.slice(0, 1);
+      this.listFolders = [];
+    } else {
+      this.getFoldersByParent();
     }
-    if (['both', 'folders'].includes(filter)) {
-      this.listFoldersFiltered = arrayFilter(
-        this.listFolders,
-        this.searchControl.value,
-        ['name', 'name_customer', 'identification']
-      );
-    }
+
+    this.getDocumentsByFolder();
   }
 
   public executeFilterFavoriteOrViewed(
     filter: 'isFavorite' | 'isViewed'
   ): void {
+    this.selectedAll.setValue(false);
     this.listStatus.loadingDocuments = true;
     this.filter = this.filter === filter ? undefined : filter;
     this.queryParams = new HttpParams();
@@ -191,7 +203,6 @@ export class FoldersComponent implements OnInit {
 
     if (this.filter === 'isViewed') {
       this.levelFolders = this.levelFolders.slice(0, 1);
-      this.listFoldersFiltered = [];
       this.listFolders = [];
     } else {
       this.getFoldersByParent();
@@ -206,7 +217,6 @@ export class FoldersComponent implements OnInit {
       .subscribe({
         next: (documents) => {
           this.listDocuments = documents;
-          this.executeFilterBySearch('documents');
           this.listStatus.loadingDocuments = false;
         },
       });
@@ -224,17 +234,25 @@ export class FoldersComponent implements OnInit {
             );
             return folder as FolderForm;
           });
-          this.executeFilterBySearch('folders');
           this.listStatus.loadingDocuments = false;
         },
       });
   }
 
-  public previewFile(id_history: number) {
-    this.documentService.getFile(id_history).subscribe({
+  public getAllAreas(): void {
+    this.areaService.getAllAreas().subscribe({
+      next: (areas) => (this.areas = areas),
+    });
+  }
+
+  public previewFile(document: Document, download: boolean = false) {
+    this.documentService.getFile(document.id_history).subscribe({
       next: (file) => {
-        this.listStatus.showModalPreview = true;
-        this.fileUrl = `${URL.createObjectURL(file)}#toolbar=0&navpanes=0`;
+        if (download) {
+          downloadFile(document.name, file, 'pdf');
+        } else {
+          this.goToSeeDocument(document);
+        }
       },
       error: (err) => {
         console.error(err);
@@ -251,9 +269,25 @@ export class FoldersComponent implements OnInit {
     levelFolders?: LevelFolders[]
   ) {
     if (levelFolders) this.levelFolders = levelFolders;
-    else if (folder) this.levelFolders.push(folder);
-    else this.levelFolders.pop();
+    else if (folder) {
+      this.levelFolders.push(folder);
+      if (this.userLocalService.user.id_area === 1) {
+        this.idAreaSelected = folder?.id_area!;
+        this.idAreaControl.setValue(this.idAreaSelected);
+      }
+    } else this.levelFolders.pop();
 
+    if (
+      this.levelFolders.length === 1 &&
+      this.userLocalService.user.id_area === 1
+    )
+      this.idAreaSelected = null;
+
+    this.cancelCreateOrUpdateFolder('create', this.nameFolderControl);
+
+    this.searchControl.setValue('');
+    this.queryParams = this.queryParams.delete('search');
+    this.selectedAll.setValue(false);
     this.listDocuments = [];
     this.listFolders = [];
     this.getDocumentsAndFoldersByFolder();
@@ -274,7 +308,6 @@ export class FoldersComponent implements OnInit {
                 (document) =>
                   document.id_history !== this.documentToDelete?.id_history
               );
-              this.executeFilterBySearch('documents');
               this.documentToDelete = undefined;
             } else {
               this.notificationService.showNotification(
@@ -309,19 +342,19 @@ export class FoldersComponent implements OnInit {
           );
 
           if (param === 'id_history') {
-            this.listDocumentsFiltered[index]!.isFavorite = this
-              .listDocumentsFiltered[index]!.isFavorite
+            this.listDocuments[index]!.isFavorite = this.listDocuments[index]!
+              .isFavorite
               ? 0
               : 1;
           } else {
-            this.listFoldersFiltered[index]!.isFavorite = this
-              .listFoldersFiltered[index]!.isFavorite
+            this.listFolders[index]!.isFavorite = this.listFolders[index]!
+              .isFavorite
               ? 0
               : 1;
           }
           if (this.filter === 'isFavorite') {
-            this.listDocumentsFiltered = [];
-            this.listFoldersFiltered = [];
+            this.listDocuments = [];
+            this.listFolders = [];
             this.getDocumentsAndFoldersByFolder();
           }
         } else {
@@ -353,10 +386,11 @@ export class FoldersComponent implements OnInit {
       type === 'create'
         ? this.folderService.createFolder({
             name: control.value,
+            id_area: +this.idAreaControl?.value!,
             parent: this.lastIdFolder,
           })
         : this.folderService.updateFolder({
-            id_folder: this.listFoldersFiltered[index].id_folder!,
+            id_folder: this.listFolders[index].id_folder!,
             name: control.value,
           });
 
@@ -370,9 +404,10 @@ export class FoldersComponent implements OnInit {
           if (type === 'create') {
             this.getFoldersByParent();
             this.cancelCreateOrUpdateFolder(type, control, index);
+            this.selectAll(false);
           } else {
-            this.listFoldersFiltered[index].name = control.value;
-            this.listFoldersFiltered[index].isEditing = false;
+            this.listFolders[index].name = control.value;
+            this.listFolders[index].isEditing = false;
           }
         } else {
           this.notificationService.showNotification(
@@ -409,7 +444,6 @@ export class FoldersComponent implements OnInit {
                 (folder) => folder.id_folder !== this.folderToDelete?.id_folder
               );
               this.folderToDelete = undefined;
-              this.executeFilterBySearch('folders');
             } else {
               this.notificationService.showNotification(
                 `Lo sentimos, no se pudo eliminar la carpeta`,
@@ -437,8 +471,13 @@ export class FoldersComponent implements OnInit {
     if (type === 'create') {
       this.listStatus.creatingFolder = false;
       control.reset();
+      if (
+        this.userLocalService.user.id_area === 1 &&
+        this.levelFolders.length === 1
+      )
+        this.idAreaControl.reset();
     } else if (index !== undefined) {
-      this.listFoldersFiltered[index].isEditing = false;
+      this.listFolders[index].isEditing = false;
       control.reset(this.listFolders[index].name);
     }
   }
@@ -454,5 +493,70 @@ export class FoldersComponent implements OnInit {
       this.listStatus.showModalDocument = true;
       this.documentToUpdate = documentOrFolder as Document;
     }
+  }
+
+  public selectAll(status: boolean): void {
+    this.selectedAll.setValue(status);
+
+    this.listDocuments.forEach((document) => (document.selected = status));
+    this.listFolders.forEach((folder) => (folder.selected = status));
+  }
+
+  public selectDocumentOrFolder(documentOrFolder: any): void {
+    documentOrFolder.selected = !documentOrFolder?.selected;
+
+    const allDocumentsSelected = this.listDocuments.every(
+      (document) => document.selected
+    );
+    const allFoldersSelected = this.listFolders.every(
+      (folder) => folder.selected
+    );
+
+    this.selectedAll.setValue(allDocumentsSelected && allFoldersSelected);
+  }
+
+  public deleteFoldersAndDocumentsById(): void {
+    const documents = this.listDocuments
+      .filter((document) => document.selected)
+      .map((document) => document.id_history);
+    const folders = this.listFolders
+      .filter((folder) => folder.selected)
+      .map((folder) => folder.id_folder as number);
+    this.folderService
+      .deleteFoldersAndDocumentsById(
+        {
+          documents,
+          folders,
+        },
+        true
+      )
+      .subscribe({
+        next: (response) => {
+          this.notificationService.showNotification(
+            response.message!,
+            response.status ? 'success' : 'danger'
+          );
+
+          if (response.status) {
+            this.getDocumentsAndFoldersByFolder();
+            this.listStatus.showModalMultipleDelete = false;
+          }
+        },
+        error: (error: HttpErrorResponse) => {
+          this.notificationService.showNotification(
+            `Lo sentimos, no se pudo eliminar los documentos y carpetas seleccionadas`,
+            'danger'
+          );
+        },
+      });
+  }
+
+  private goToSeeDocument(doc: Document): void {
+    const link = document.createElement('a');
+    link.href = this.storageUrl + doc.path;
+    link.target = '_blank';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   }
 }

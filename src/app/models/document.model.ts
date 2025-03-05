@@ -11,4 +11,6 @@ export interface Document {
   name_customer?: string;
   user_identification?: string;
   isFavorite: number;
+  selected?: boolean;
+  id_area?: number;
 }

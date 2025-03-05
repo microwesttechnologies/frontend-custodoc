@@ -30,22 +30,26 @@ import { NotificationService } from 'src/app/shared-components/notification/noti
 import { HttpErrorResponse } from '@angular/common/http';
 import { TableComponent } from 'src/app/shared-components/table/table.component';
 import { homologateText } from 'src/app/globals/homologate-text';
-import { DisabledElementDirective } from 'src/app/directives/disabled-element.directive';
 import { ModalConfirmationDeleteComponent } from 'src/app/shared-components/modal-confirmation-delete/modal-confirmation-delete.component';
 import { ActivatedRoute } from '@angular/router';
 import { DisabledByPermissionDirective } from 'src/app/directives/disabled-by-permissions.directive';
 import { RolService } from 'src/app/services/external/rol.service';
+import { ModalCreateAndUpdateAreaComponent } from './modal-create-and-update-area/modal-create-and-update-area.component';
+import { Area } from 'src/app/models/area.model';
+import { AreaService } from 'src/app/services/external/area.service';
+import { ButtonComponent } from 'src/app/shared-components/form/button/button.component';
 
 @Component({
   selector: 'app-users-module',
   standalone: true,
   imports: [
+    ModalCreateAndUpdateAreaComponent,
     ModalConfirmationDeleteComponent,
     DisabledByPermissionDirective,
-    DisabledElementDirective,
     AutoCompleteComponent,
     TooltipDirective,
     NavbarComponent,
+    ButtonComponent,
     SelectComponent,
     ModalComponent,
     InputComponent,
@@ -62,8 +66,8 @@ export class UsersModuleComponent {
 
   public typesDocument: TypesDocument[] = [];
   public companies: Company[] = [];
+  public areas: Area[] = [];
   public users: User[] = [];
-
   public roles: Rol[] = [];
 
   public identificationByUrl?: number;
@@ -78,17 +82,19 @@ export class UsersModuleComponent {
 
   public searchControl = new FormControl();
   public fieldsToFilter = [
-    'email',
-    'name',
     'name_type_document',
-    'name_rol',
-    'phone',
     'identification',
     'name_company',
+    'name_rol',
+    'email',
+    'phone',
+    'name',
   ];
 
   public listStatus = {
+    showModalArea: false,
     loadingTable: true,
+    savingArea: false,
     savingUser: false,
     showModal: false,
   };
@@ -105,6 +111,7 @@ export class UsersModuleComponent {
   private readonly userService = inject(UserService);
   private readonly formBuilder = inject(FormBuilder);
   public userLocalService = inject(UserLocalService);
+  private readonly areaService = inject(AreaService);
   private readonly rolService = inject(RolService);
 
   ngOnInit(): void {
@@ -149,14 +156,31 @@ export class UsersModuleComponent {
       (module) => module.code === 'USER' && module.DELETE
     );
 
-    if (this.withDeletePermission) this.gridHeaderColumns += ' 1.9rem';
-
     if (this.userLocalService?.user?.id_company)
       this.getRolesByCompany(
         this.userLocalService?.user?.type_company === 'IPS'
           ? null
           : this.userLocalService?.user?.id_company
       );
+
+    if (this.userLocalService?.user?.type_company === 'Otras')
+      this.addAreaControl();
+
+    if (
+      this.userLocalService?.user?.type_company === 'Otras' ||
+      this.userLocalService?.user?.id_rol === 1
+    )
+      this.gridHeaderColumns += ' 10rem';
+
+    if (this.withDeletePermission) this.gridHeaderColumns += ' 1.9rem';
+  }
+
+  private addAreaControl(id_company?: number, id_area?: number): void {
+    this.getAllAreas(id_company);
+    this.userForm.addControl(
+      'id_area',
+      new FormControl(id_area, [Validators.required])
+    );
   }
 
   private setFormMode(isCreating: boolean): void {
@@ -271,7 +295,7 @@ export class UsersModuleComponent {
       next: (companies) => {
         this.companies = companies;
         this.companies.unshift({
-          name: 'Compañías IPS',
+          name: 'Custodocs',
           id_company: 'IPS',
         });
       },
@@ -285,10 +309,34 @@ export class UsersModuleComponent {
     });
   }
 
+  private getAllAreas(id_company?: number): void {
+    this.areaService.getAllAreas(id_company).subscribe({
+      next: (areas) => (this.areas = areas),
+      error: (error: HttpErrorResponse) => {
+        this.notificationService.showNotification(
+          'Lo sentimos, ha ocurrido un error al consultar las areas',
+          'danger',
+          10000
+        );
+      },
+    });
+  }
+
+  public changeCompany(company: Company): void {
+    this.userForm.get('id_rol')?.reset();
+    this.getRolesByCompany(company.type === 'IPS' ? null : company.id_company);
+    if (company.type === 'Otras')
+      this.addAreaControl(company.id_company as number);
+    else this.userForm.removeControl('id_area');
+  }
+
   public openModalCreateUser() {
     this.listStatus.showModal = true;
     this.setFormMode(true);
     this.userForm.reset();
+
+    if (this.userLocalService?.user?.type_company !== 'Otras')
+      this.userForm.removeControl('id_area');
   }
 
   public createOrUpdateUser() {
@@ -359,10 +407,17 @@ export class UsersModuleComponent {
         ?.setValue(user[key as keyof typeof user], { emitEvent: false })
     );
 
-    if (this.userLocalService?.user?.id_rol === 1)
+    if (this.userLocalService?.user?.id_rol === 1) {
       this.getRolesByCompany(
         user.type_company === 'IPS' ? null : user.id_company
       );
+      if (user.type_company === 'Otras') {
+        this.addAreaControl(user.id_company, user.id_area);
+      } else {
+        this.userForm.removeControl('id_area');
+      }
+    }
+
     this.userForm.markAllAsTouched();
     this.listStatus.showModal = true;
   }
