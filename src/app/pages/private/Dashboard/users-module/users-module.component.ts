@@ -277,11 +277,15 @@ export class UsersModuleComponent {
     if (id_company === 'IPS' && this.userLocalService?.user?.id_rol === 1) {
       this.roles = [
         {
-          name: 'Cargador de archivos',
           id_rol: 4,
+          name: 'Cargador de archivos',
         },
       ];
+
+      this.userForm.get('id_rol')?.setValue(this.roles[0].id_rol);
+      this.userForm.get('id_rol')?.markAsTouched();
     } else {
+      this.userForm.get('id_rol')?.reset();
       this.rolService
         .getRolesByCompany(id_company === 'null' ? undefined : id_company)
         .subscribe({
@@ -323,7 +327,6 @@ export class UsersModuleComponent {
   }
 
   public changeCompany(company: Company): void {
-    this.userForm.get('id_rol')?.reset();
     this.getRolesByCompany(company.type === 'IPS' ? null : company.id_company);
     if (company.type === 'Otras')
       this.addAreaControl(company.id_company as number);

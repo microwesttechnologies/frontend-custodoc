@@ -1,6 +1,6 @@
 @if(userLocalService.user?.type_company === 'IPS' ||
-userLocalService.user?.id_rol === 4){
-<app-history-module [customers]="customers"></app-history-module>
+userLocalService.companySelected?.type_company === 'IPS'){
+<app-history-module></app-history-module>
 }@else {
-<app-folders [customers]="customers"></app-folders>
+<app-folders></app-folders>
 }

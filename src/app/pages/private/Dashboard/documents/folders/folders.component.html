@@ -10,6 +10,17 @@
     <div class="secondary-card">
       <!-- Vista documentos y carpetas -->
       @defer (when !listStatus.loadingDocuments) {
+      @if(userLocalService?.companySelected?.id_company){
+      <section class="mb-100-rem">
+        <p class="font-body-medium">
+          Nit compañía: <b>{{ userLocalService?.companySelected?.nit }}</b>
+        </p>
+        <p class="font-body-medium">
+          Nombre compañía: <b>{{ userLocalService?.companySelected?.name }}</b>
+        </p>
+      </section>
+      }
+
       <!-- Botón agregar -->
       @if(listDocuments.length || listFolders.length || levelFolders.length > 1
       || listStatus.loadingDocuments || filter){
@@ -105,7 +116,9 @@
           creatingOrUpdatingFolder;
           context: {
             area:
-              levelFolders.length === 1 && userLocalService?.user?.id_area === 1
+              levelFolders.length === 1 &&
+              (userLocalService?.user?.id_area === 1 ||
+                userLocalService?.user?.id_rol === 4)
                 ? idAreaControl
                 : null,
             control: nameFolderControl,
@@ -321,11 +334,11 @@
   let-type="type"
 >
   <div
-    class="display-flex align-items-center width-100 cg-100-rem"
+    class="display-flex align-items-center width-100 cg-100-rem mb-30-rem"
     @slideEnterRight
   >
-    <div class="row width-100 mb-30-rem">
-      <div class="col col-xs-12 mb-30-rem" [ngClass]="{ 'col-md-6': !!area }">
+    <div class="row width-100 rg-50-rem">
+      <div class="col col-xs-12" [ngClass]="{ 'col-md-6': !!area }">
         <app-input
           placeholder="Escribir nombre de la carpeta"
           [ngStyle]="{ width: '100%' }"
@@ -335,13 +348,12 @@
       </div>
 
       @if(area){
-      <div class="col col-xs-12 col-md-6 mb-30-rem">
+      <div class="col col-xs-12 col-md-6">
         <app-select
           [appDisabledElement]="!!documentToUpdate"
           [configSelect]="{
             placeholder: 'Seleccionar area',
             assignOnlyFieldId: true,
-            defaultLabelError: true,
             fieldId: 'id_area',
             fieldText: 'name',
             id: 'id_area'

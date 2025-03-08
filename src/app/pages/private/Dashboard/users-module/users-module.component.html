@@ -299,6 +299,9 @@
       <!-- Rol -->
       <div class="col col-xs-12 col-md-6 mb-150-rem">
         <app-select
+          [disabledAnyWay]="
+            ['IPS'].includes(userForm?.get('id_company')?.value)
+          "
           [permission]="!!idUserSelected ? 'UPDATE' : 'CREATE'"
           [configSelect]="{
             placeholder: 'Seleccionar rol',

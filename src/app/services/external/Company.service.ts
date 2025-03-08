@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { Company } from 'src/app/models/company.model';
@@ -12,10 +12,10 @@ import { GenericResponse } from 'src/app/models/global.model';
 export class CompanyService {
   private readonly apiUrl = `${environment.apiUrl}company`;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
-  getAllCompanies(): Observable<Company[]> {
-    return this.http.get<Company[]>(this.apiUrl, headerAuthorization());
+  getAllCompanies(params?: HttpParams): Observable<Company[]> {
+    return this.http.get<Company[]>(this.apiUrl, headerAuthorization(params));
   }
 
   createCompany(company: Company): Observable<GenericResponse> {

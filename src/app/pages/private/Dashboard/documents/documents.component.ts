@@ -20,31 +20,7 @@ export class DocumentsComponent implements OnInit {
     height: '100%',
   };
 
-  @Input() customers: Customer[] = [];
-
-  private readonly notificationService = inject(NotificationService);
-  private readonly customerService = inject(CustomerService);
   public userLocalService = inject(UserLocalService);
 
-  ngOnInit(): void {
-    this.getAllCustomers();
-  }
-
-  private getAllCustomers(): void {
-    this.customerService.getAllCustomers().subscribe({
-      next: (customers) => {
-        this.customers = customers;
-      },
-      error: (error: HttpErrorResponse) => {
-        this.notificationService.showNotification(
-          `Lo sentimos, ha ocurrido un error al consultar los ${homologateText(
-            this.userLocalService?.user?.type_company!,
-            'clientes'
-          )}`,
-          'danger',
-          10000
-        );
-      },
-    });
-  }
+  ngOnInit(): void {}
 }

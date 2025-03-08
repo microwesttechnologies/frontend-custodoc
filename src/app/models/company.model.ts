@@ -1,7 +1,7 @@
 export interface Company {
   id_company: number | string;
   name: string;
-  type?: string;
+  type?: 'IPS'|'Otras';
   address?: string;
   city?: string;
   country?: string;

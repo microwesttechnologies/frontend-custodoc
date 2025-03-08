@@ -14,6 +14,8 @@
 @include generate-styles("cg", "column-gap", rem, 100, 100);
 @include generate-styles("cg", "column-gap", rem, 50, 50);
 
+@include generate-styles("rg", "row-gap", rem, 50, 50);
+
 .container-module-folders {
   flex-direction: column;
   height: 100%;

@@ -228,7 +228,7 @@ export class SidebarComponent extends DestroyObs implements OnInit {
     this.userService.logout().subscribe({
       next: (response) => {
         if (response.status) {
-          window.localStorage.removeItem('access_token');
+          window.localStorage.clear();
           window.location.reload();
         }
       },

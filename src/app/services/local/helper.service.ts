@@ -4,7 +4,7 @@ import {
   ValidationErrors,
   ValidatorFn,
 } from '@angular/forms';
-import { HttpHeaders } from '@angular/common/http';
+import { HttpHeaders, HttpParams } from '@angular/common/http';
 
 export function isTokenExpired(token: any): boolean {
   try {
@@ -33,10 +33,11 @@ export function isObjectValidator(
   return { notObject: true }; // Si no es un objeto, retorna un error
 }
 
-export const headerAuthorization = () => ({
+export const headerAuthorization = (params?: HttpParams) => ({
   headers: new HttpHeaders({
     Authorization: 'Bearer ' + localStorage.getItem('access_token'),
   }),
+  params,
 });
 
 export const validateFormField = (

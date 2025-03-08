@@ -12,7 +12,7 @@ import {
   validateLimitText,
 } from 'src/app/services/local/helper.service';
 import { NotificationService } from 'src/app/shared-components/notification/notification.service';
-import { HttpErrorResponse } from '@angular/common/http';
+import { HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Document } from 'src/app/models/document.model';
 import { TooltipDirective } from 'src/app/directives/tooltip.directive';
 import { ModalBulkloadComponent } from './components/modal-bulkload/modal-bulkload.component';
@@ -24,6 +24,7 @@ import { ActivatedRoute } from '@angular/router';
 import { ModalCreateAndUpdateDocumentComponent } from '../components/modal-create-and-update-document/modal-create-and-update-document.component';
 import { ModalPreviewDocumentComponent } from '../components/modal-preview-document/modal-preview-document.component';
 import { homologateText } from 'src/app/globals/homologate-text';
+import { CustomerService } from 'src/app/services/external/customer.service';
 
 @Component({
   selector: 'app-history-module',
@@ -49,10 +50,9 @@ export class HistoryModuleComponent {
     height: '100%',
   };
 
-  @Input() customers: Customer[] = [];
-
   public storageUrl = environment.storageUrl;
 
+  public customers: Customer[] = [];
   public documents: Document[] = [];
 
   public rangeDatesControl = new FormControl();
@@ -87,6 +87,7 @@ export class HistoryModuleComponent {
 
   private readonly notificationService = inject(NotificationService);
   private readonly documentService = inject(DocumentService);
+  private readonly customerService = inject(CustomerService);
   private readonly activatedRoute = inject(ActivatedRoute);
   public userLocalService = inject(UserLocalService);
 
@@ -100,14 +101,23 @@ export class HistoryModuleComponent {
     );
 
     this.getAllDocuments();
+    this.getAllCustomers();
   }
 
   public getAllDocuments(): void {
     let rangeDates = this.rangeDatesControl?.value?.split(' to ');
     if (rangeDates?.length !== 2) rangeDates = '';
 
+    let params = new HttpParams().append('rangeDates', rangeDates);
+
+    if (this.userLocalService?.companySelected?.id_company)
+      params = params.append(
+        'id_company',
+        this.userLocalService?.companySelected?.id_company
+      );
+
     this.listStatus.loadingTable = true;
-    this.documentService.getAllDocuments(rangeDates).subscribe({
+    this.documentService.getAllDocuments(params).subscribe({
       next: (documents) => {
         this.listStatus.loadingTable = false;
         this.documents = documents;
@@ -125,6 +135,24 @@ export class HistoryModuleComponent {
         );
       },
     });
+  }
+
+  private getAllCustomers(): void {
+    this.customerService
+      .getAllCustomers(this.userLocalService?.companySelected?.id_company)
+      .subscribe({
+        next: (customers) => (this.customers = customers),
+        error: (error: HttpErrorResponse) => {
+          this.notificationService.showNotification(
+            `Lo sentimos, ha ocurrido un error al consultar los ${homologateText(
+              this.userLocalService?.user?.type_company!,
+              'clientes'
+            )}`,
+            'danger',
+            10000
+          );
+        },
+      });
   }
 
   public openModalCreateDocument() {

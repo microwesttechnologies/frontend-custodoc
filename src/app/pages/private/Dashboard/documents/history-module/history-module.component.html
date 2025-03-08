@@ -36,12 +36,23 @@
       </app-button>
     </div>
     <div class="secondary-card">
+      @if(userLocalService?.companySelected?.id_company){
+      <section>
+        <p class="font-body-medium">
+          Nit compañía: <b>{{ userLocalService?.companySelected?.nit }}</b>
+        </p>
+        <p class="font-body-medium">
+          Nombre compañía: <b>{{ userLocalService?.companySelected?.name }}</b>
+        </p>
+      </section>
+      }
       <app-table
         gridHeaderColumns="minmax(10rem, 1fr) minmax(10rem, 1fr) 10rem minmax(10rem, 1fr) 11rem 7rem"
         [loadingTable]="listStatus.loadingTable"
         [fieldsToFilter]="fieldsToFilter"
         [totalItems]="documents.length"
         [searchControl]="searchControl"
+        [ngStyle]="{ height: '100%' }"
         [list]="documents"
         [withPager]="true"
       >

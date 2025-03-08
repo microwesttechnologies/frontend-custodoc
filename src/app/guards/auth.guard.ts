@@ -10,11 +10,13 @@ import { isTokenExpired } from '../services/local/helper.service';
 import { UserService } from '../services/external/user.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { RoutesService } from '../services/external/routes.service';
+import { NotificationService } from '../shared-components/notification/notification.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthGuard {
+  private readonly notificationService = inject(NotificationService);
   private readonly userLocalService = inject(UserLocalService);
   private readonly routesService = inject(RoutesService);
   private readonly userService = inject(UserService);
@@ -63,6 +65,22 @@ export class AuthGuard {
           const moduleId = route.data['id'];
 
           if (allowedRouteIds.includes(moduleId)) {
+            if (this.userLocalService?.user?.id_rol === 4) {
+              this.userLocalService.companySelected = JSON.parse(
+                window.localStorage.getItem('company')!
+              );
+              if (
+                moduleId === 4 &&
+                !this.userLocalService.companySelected?.id_company
+              ) {
+                this.router.navigate(['/chose-company']);
+                this.notificationService.showNotification(
+                  'No puedes ingresar al modulo de documentos hasta seleccionar una compañía',
+                  'danger'
+                );
+              }
+            }
+
             return resolve(true);
           }
 

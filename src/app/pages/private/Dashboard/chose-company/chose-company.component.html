@@ -1,0 +1,72 @@
+<div class="container-module-chose-company">
+  <app-navbar
+    description="En este modulo debes seleccionar la compañía que vas a gestionar"
+    [hiddenPrimaryButton]="true"
+    [searchControl]="searchControl"
+    title="Seleccionar compañía"
+    module="company"
+  ></app-navbar>
+  <div class="container-general-panel overflow-hidden">
+    <div class="secondary-card">
+      @if(!userLocalService.companySelected?.id_company){
+      <div
+        class="container-note-no-selected-companies display-flex align-items-center"
+      >
+        <i class="fa-solid fa-circle-exclamation fa-xl"></i>
+        <p class="font-subtitle-large">
+          Debes seleccionar una compañía para acceder al modulo de documentos
+        </p>
+      </div>
+      }
+      <app-table
+        gridHeaderColumns="10rem minmax(10rem, 1fr) 10rem 10rem 10rem 10rem 10rem"
+        [selectedItem]="[
+          'id_company',
+          userLocalService.companySelected?.id_company
+        ]"
+        (eventRowClick)="initWithCompany($event)"
+        [loadingTable]="listStatus.loadingTable"
+        [fieldsToFilter]="fieldsToFilter"
+        [totalItems]="companies.length"
+        [searchControl]="searchControl"
+        [list]="companies"
+        [withPager]="true"
+      >
+        <ng-container tableHeader>
+          <p class="font-subtitle-large">Nit</p>
+          <p class="font-subtitle-large">Nombre</p>
+          <p class="font-subtitle-large">Tipo</p>
+          <p class="font-subtitle-large">País</p>
+          <p class="font-subtitle-large">Ciudad</p>
+          <p class="font-subtitle-large">Dirección</p>
+          <p class="font-subtitle-large">Teléfono</p>
+        </ng-container>
+        <ng-template let-item>
+          <p class="font-caption-large">{{ item?.nit }}</p>
+          <p
+            class="font-caption-large white-space-nowrap text-overflow-ellipsis overflow-hidden"
+            [appTooltip]="validateLimitText(nameCompany) ? item?.name : ''"
+            #nameCompany
+          >
+            {{ item?.name }}
+          </p>
+          <p class="font-caption-large">
+            {{ item?.type }}
+          </p>
+          <p class="font-caption-large">{{ item?.country }}</p>
+          <p class="font-caption-large">{{ item?.city }}</p>
+          <p
+            class="font-caption-large white-space-nowrap text-overflow-ellipsis overflow-hidden"
+            [appTooltip]="
+              validateLimitText(addressCompany) ? item?.address : ''
+            "
+            #addressCompany
+          >
+            {{ item?.address }}
+          </p>
+          <p class="font-caption-large">{{ item?.phone }}</p>
+        </ng-template>
+      </app-table>
+    </div>
+  </div>
+</div>

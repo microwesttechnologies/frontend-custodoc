@@ -23,7 +23,7 @@ import {
   validateLimitText,
 } from 'src/app/services/local/helper.service';
 import { NotificationService } from 'src/app/shared-components/notification/notification.service';
-import { HttpErrorResponse } from '@angular/common/http';
+import { HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { InputComponent } from 'src/app/shared-components/form/input/input.component';
 import { SelectComponent } from 'src/app/shared-components/form/select/select.component';
 import { AutoCompleteComponent } from 'src/app/shared-components/form/autocomplete/autocomplete.component';
@@ -103,7 +103,6 @@ export class CustomersModuleComponent {
   private readonly documentService = inject(DocumentService);
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly companyService = inject(CompanyService);
-  private readonly globalService = inject(GlobalService);
   private readonly formBuilder = inject(FormBuilder);
   public userLocalService = inject(UserLocalService);
   public router = inject(Router);
@@ -116,11 +115,8 @@ export class CustomersModuleComponent {
     this.getAllTypesDocument();
     this.getAllCustomers();
 
-    if (
-      this.userLocalService?.user?.id_rol === 1 ||
-      this.userLocalService?.user?.id_rol === 4
-    ) {
-      this.gridHeaderColumns += ` minmax(10rem, 1fr)`;
+    if (this.userLocalService?.user?.id_rol === 1) {
+      this.gridHeaderColumns = `minmax(10rem, 1fr) ${this.gridHeaderColumns}`;
 
       this.getAllCompanies();
 
@@ -143,9 +139,15 @@ export class CustomersModuleComponent {
     this.customerForm = this.formBuilder.group({
       name: new FormControl('', [Validators.required]),
       id_document: new FormControl('', [Validators.required]),
-      identification: new FormControl('', [Validators.required,Validators.maxLength(20)]),
+      identification: new FormControl('', [
+        Validators.required,
+        Validators.maxLength(20),
+      ]),
       email: new FormControl('', [Validators.required]),
-      phone: new FormControl('', [Validators.required,Validators.maxLength(30)]),
+      phone: new FormControl('', [
+        Validators.required,
+        Validators.maxLength(30),
+      ]),
     });
   }
 
@@ -205,7 +207,8 @@ export class CustomersModuleComponent {
   }
 
   private getAllCompanies(): void {
-    this.companyService.getAllCompanies().subscribe({
+    const params = new HttpParams().append('type_company', 'IPS');
+    this.companyService.getAllCompanies(params).subscribe({
       next: (companies) => {
         this.companies = companies;
       },

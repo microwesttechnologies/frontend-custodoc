@@ -83,7 +83,10 @@ export class ModalCreateAndUpdateDocumentComponent implements OnInit {
       description: new FormControl(this.documentToUpdate?.description ?? null),
     });
 
-    if (this.userLocalService.user?.type_company !== 'Otras') {
+    if (
+      this.userLocalService.user?.type_company === 'IPS' ||
+      this.userLocalService?.companySelected?.type_company === 'IPS'
+    ) {
       this.documentForm.addControl(
         'identification',
         new FormControl('', [Validators.required])
@@ -101,6 +104,12 @@ export class ModalCreateAndUpdateDocumentComponent implements OnInit {
       this.documentForm.addControl(
         'id_folder',
         new FormControl(this.id_folder)
+      );
+
+    if (this.userLocalService?.companySelected?.id_company)
+      this.documentForm.addControl(
+        'id_company',
+        new FormControl(this.userLocalService?.companySelected?.id_company)
       );
 
     if (this.documentToUpdate) {

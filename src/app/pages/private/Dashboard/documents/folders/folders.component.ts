@@ -21,7 +21,6 @@ import {
 } from 'src/app/animations/global.animations';
 import { Customer } from 'src/app/models/customer.model';
 import { ModalCreateAndUpdateDocumentComponent } from '../components/modal-create-and-update-document/modal-create-and-update-document.component';
-import { ModalPreviewDocumentComponent } from '../components/modal-preview-document/modal-preview-document.component';
 import { NotificationService } from 'src/app/shared-components/notification/notification.service';
 import { TooltipDirective } from 'src/app/directives/tooltip.directive';
 import { HttpErrorResponse, HttpParams } from '@angular/common/http';
@@ -30,13 +29,14 @@ import { FormControl, Validators } from '@angular/forms';
 import { DisabledElementDirective } from 'src/app/directives/disabled-element.directive';
 import { ModalConfirmationDeleteComponent } from 'src/app/shared-components/modal-confirmation-delete/modal-confirmation-delete.component';
 import { BreadcumbFoldersComponent } from '../components/breadcumb-folders/breadcumb-folders.component';
-import { ActivatedRoute } from '@angular/router';
 import { AreaService } from 'src/app/services/external/area.service';
 import { Area } from 'src/app/models/area.model';
 import { UserLocalService } from 'src/app/services/local/user.service';
 import { SelectComponent } from 'src/app/shared-components/form/select/select.component';
 import { ModalComponent } from 'src/app/shared-components/modal/modal.component';
 import { environment } from 'src/environments/environment';
+import { CompanyService } from 'src/app/services/external/company.service';
+import { Company } from 'src/app/models/company.model';
 
 interface FolderForm extends Folder {
   nameControl: FormControl;
@@ -49,7 +49,6 @@ interface FolderForm extends Folder {
   imports: [
     ModalCreateAndUpdateDocumentComponent,
     ModalConfirmationDeleteComponent,
-    ModalPreviewDocumentComponent,
     DisabledByPermissionDirective,
     BreadcumbFoldersComponent,
     DisabledElementDirective,
@@ -86,11 +85,12 @@ export class FoldersComponent implements OnInit {
   public storageUrl = environment.storageUrl;
   public filter?: 'isFavorite' | 'isViewed';
   public searchControl = new FormControl();
-  private queryParams = new HttpParams();
+  public queryParams = new HttpParams();
 
   public levelFolders: LevelFolders[] = [{ id_folder: null, name: 'Inicio' }];
   public listDocuments: Document[] = [];
   public listFolders: FolderForm[] = [];
+  public companies: Company[] = [];
   public areas: Area[] = [];
 
   public idAreaSelected!: number | null;
@@ -118,7 +118,7 @@ export class FoldersComponent implements OnInit {
 
   private readonly notificationService = inject(NotificationService);
   private readonly documentService = inject(DocumentService);
-  private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly companyService = inject(CompanyService);
   private readonly folderService = inject(FolderService);
   public userLocalService = inject(UserLocalService);
   private readonly areaService = inject(AreaService);
@@ -139,13 +139,23 @@ export class FoldersComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    if (this.userLocalService?.companySelected?.id_company)
+      this.queryParams = this.queryParams.set(
+        'id_company',
+        this.userLocalService?.companySelected?.id_company
+      );
+
     this.getDocumentsAndFoldersByFolder();
 
     this.searchControl?.valueChanges
       ?.pipe(debounceTime(300))
       .subscribe(() => this.executeFilterBySearch());
 
-    if (this.userLocalService.user?.id_area === 1) this.getAllAreas();
+    if (
+      this.userLocalService.user?.id_area === 1 ||
+      this.userLocalService?.user?.id_rol === 4
+    )
+      this.getAllAreas();
     else {
       this.idAreaSelected = this.userLocalService.user?.id_area!;
       this.idAreaControl.setValue(this.idAreaSelected);
@@ -222,7 +232,7 @@ export class FoldersComponent implements OnInit {
       });
   }
 
-  public getFoldersByParent() {
+  private getFoldersByParent() {
     this.folderService
       .getFoldersByParent(this.lastIdFolder, this.queryParams)
       .subscribe({
@@ -239,9 +249,16 @@ export class FoldersComponent implements OnInit {
       });
   }
 
-  public getAllAreas(): void {
+  private getAllAreas(): void {
     this.areaService.getAllAreas().subscribe({
       next: (areas) => (this.areas = areas),
+    });
+  }
+
+  public getAllCompanies(): void {
+    const params = new HttpParams().append('type_company', 'Otras');
+    this.companyService.getAllCompanies(params).subscribe({
+      next: (companies) => (this.companies = companies),
     });
   }
 
@@ -271,7 +288,10 @@ export class FoldersComponent implements OnInit {
     if (levelFolders) this.levelFolders = levelFolders;
     else if (folder) {
       this.levelFolders.push(folder);
-      if (this.userLocalService.user.id_area === 1) {
+      if (
+        this.userLocalService.user.id_area === 1 ||
+        this.userLocalService?.user?.id_rol === 4
+      ) {
         this.idAreaSelected = folder?.id_area!;
         this.idAreaControl.setValue(this.idAreaSelected);
       }
@@ -279,13 +299,14 @@ export class FoldersComponent implements OnInit {
 
     if (
       this.levelFolders.length === 1 &&
-      this.userLocalService.user.id_area === 1
+      (this.userLocalService.user.id_area === 1 ||
+        this.userLocalService?.user?.id_rol === 4)
     )
       this.idAreaSelected = null;
 
     this.cancelCreateOrUpdateFolder('create', this.nameFolderControl);
 
-    this.searchControl.setValue('');
+    this.searchControl.setValue('', { emitEvent: false });
     this.queryParams = this.queryParams.delete('search');
     this.selectedAll.setValue(false);
     this.listDocuments = [];
@@ -386,8 +407,9 @@ export class FoldersComponent implements OnInit {
       type === 'create'
         ? this.folderService.createFolder({
             name: control.value,
-            id_area: +this.idAreaControl?.value!,
+            id_area: +this.idAreaControl?.value! || 1,
             parent: this.lastIdFolder,
+            id_company: this.userLocalService?.companySelected?.id_company,
           })
         : this.folderService.updateFolder({
             id_folder: this.listFolders[index].id_folder!,
@@ -472,7 +494,8 @@ export class FoldersComponent implements OnInit {
       this.listStatus.creatingFolder = false;
       control.reset();
       if (
-        this.userLocalService.user.id_area === 1 &&
+        (this.userLocalService.user.id_area === 1 ||
+          this.userLocalService?.user?.id_rol === 4) &&
         this.levelFolders.length === 1
       )
         this.idAreaControl.reset();

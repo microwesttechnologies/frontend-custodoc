@@ -72,36 +72,67 @@ export class DisabledByPermissionDirective
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if ('codeModule' in changes && changes['codeModule']?.currentValue) {
-      this.disabled = this.disabledAnyWay || this.userLocalService.menuSidebar?.find(
-        (module) => module.code === this.codeModule && !module[this.permission]
-      );
+    if (
+      ('codeModule' in changes && changes['codeModule']?.currentValue) ||
+      ('permission' in changes &&
+        changes['permission']?.currentValue &&
+        this.codeModule)
+    ) {
+      this.disabled =
+        this.disabledAnyWay ||
+        !this.userLocalService.menuSidebar?.find(
+          (module) => module.code === this.codeModule && module[this.permission]
+        );
 
-      if (this.disabled) {
-        if (this.hidden) {
-          this.el.nativeElement.remove();
-        } else {
-          this.updateStateElement();
-        }
+      if (this.hidden) {
+        this.el.nativeElement.remove();
+      } else {
+        this.updateStateElement();
       }
+    }
+
+    if (
+      'disabledAnyWay' in changes &&
+      (!changes['disabledAnyWay']?.firstChange ||
+        changes['disabledAnyWay']?.currentValue)
+    ) {
+      this.disabled =
+        this.disabledAnyWay ||
+        (this.codeModule &&
+          !this.userLocalService.menuSidebar?.find(
+            (module) =>
+              module.code === this.codeModule && module[this.permission]
+          ));
+      this.updateStateElement();
     }
   }
 
   private updateStateElement(): void {
     this.modifyingInProgress = true;
-    this.renderer.setAttribute(
-      this.el.nativeElement,
-      'elementIsDisabledByPermission',
-      'true'
-    );
-    this.renderer.setStyle(
-      this.el.nativeElement,
-      'opacity',
-      this.opacityPermission
-    );
-    this.modifyingInProgress = false;
-    this.disableElement(this.el.nativeElement);
-    this.disableChildren(this.el.nativeElement);
+    if (this.disabled) {
+      this.renderer.setAttribute(
+        this.el.nativeElement,
+        'elementIsDisabledByPermission',
+        'true'
+      );
+      this.renderer.setStyle(
+        this.el.nativeElement,
+        'opacity',
+        this.opacityPermission
+      );
+      this.modifyingInProgress = false;
+      this.disableElement(this.el.nativeElement);
+      this.disableChildren(this.el.nativeElement);
+    } else {
+      this.renderer.removeAttribute(
+        this.el.nativeElement,
+        'elementIsDisabledByPermission'
+      );
+      this.renderer.removeStyle(this.el.nativeElement, 'opacity');
+      this.modifyingInProgress = false;
+      this.enableElement(this.el.nativeElement, true);
+      this.enableChildren(this.el.nativeElement);
+    }
   }
 
   private disableElement(element: HTMLElement): void {
@@ -141,6 +172,33 @@ export class DisabledByPermissionDirective
 
       this.disableElement(child);
       if (child?.children?.length) this.disableChildren(child);
+    }
+  }
+
+  private enableElement(element: HTMLElement, withDirective = false): void {
+    if (this.isInteractiveElement(element) || withDirective) {
+      this.modifyingInProgress = true;
+      if (element.hasAttribute('contentEditable')) {
+        if (!element.hasAttribute('notChangeContentEditable')) {
+          this.renderer.setAttribute(element, 'contentEditable', 'true');
+        }
+      } else {
+        this.renderer.removeStyle(element, 'pointer-events');
+        this.renderer.removeAttribute(element, 'disabled');
+        this.modifyingInProgress = false;
+      }
+    }
+  }
+
+  private enableChildren(element: HTMLElement): void {
+    const children = element.children;
+    for (let i = 0; i < children.length; i++) {
+      const child = children[i] as HTMLElement;
+
+      if (this.attributeElementIsDisabledByPermission(child)) break;
+
+      this.enableElement(child);
+      if (child?.children?.length) this.enableChildren(child);
     }
   }
 

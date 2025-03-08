@@ -64,7 +64,18 @@ export const DASHBOARD_ROUTES: Routes = [
         data: { id: 8 },
         canActivate: [AuthGuard],
         loadComponent: () =>
-          import('./documents/trash/trash.component').then((c) => c.TrashComponent),
+          import('./documents/trash/trash.component').then(
+            (c) => c.TrashComponent
+          ),
+      },
+      {
+        path: 'chose-company',
+        data: { id: 9 },
+        canActivate: [AuthGuard],
+        loadComponent: () =>
+          import('./chose-company/chose-company.component').then(
+            (c) => c.ChoseCompanyComponent
+          ),
       },
       { path: '**', redirectTo: 'companies', pathMatch: 'full' },
     ],

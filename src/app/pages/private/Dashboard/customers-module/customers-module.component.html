@@ -27,23 +27,32 @@
         [withPager]="true"
       >
         <ng-container tableHeader>
-          <p class="font-subtitle-large">Identificación</p>
-          <p class="font-subtitle-large">Tipo documento</p>
-          <p class="font-subtitle-large">Nombre</p>
-          <p class="font-subtitle-large">Email</p>
-          <p class="font-subtitle-large">Teléfono</p>
           <p
             [ngClass]="{
-              'display-none':
-                userLocalService?.user?.id_rol !== 1 &&
-                userLocalService?.user?.id_rol !== 4
+              'display-none': userLocalService?.user?.id_rol !== 1
             }"
             class="font-subtitle-large"
           >
             Compañía
           </p>
+          <p class="font-subtitle-large">Identificación</p>
+          <p class="font-subtitle-large">Tipo documento</p>
+          <p class="font-subtitle-large">Nombre</p>
+          <p class="font-subtitle-large">Email</p>
+          <p class="font-subtitle-large">Teléfono</p>
         </ng-container>
         <ng-template let-item>
+          @if(userLocalService?.user?.id_rol === 1){
+          <p
+            class="font-caption-large white-space-nowrap text-overflow-ellipsis overflow-hidden"
+            [appTooltip]="
+              validateLimitText(nameCompany) ? item?.name_company : ''
+            "
+            #nameCompany
+          >
+            {{ item?.name_company }}
+          </p>
+          }
           <p class="font-caption-large">{{ item?.identification }}</p>
           <p class="font-caption-large">{{ item?.name_type_document }}</p>
           <p
@@ -61,18 +70,7 @@
             {{ item?.email }}
           </p>
           <p class="font-caption-large">{{ item?.phone }}</p>
-          @if(userLocalService?.user?.id_rol === 1 ||
-          userLocalService?.user?.id_rol === 4){
-          <p
-            class="font-caption-large white-space-nowrap text-overflow-ellipsis overflow-hidden"
-            [appTooltip]="
-              validateLimitText(nameCompany) ? item?.name_company : ''
-            "
-            #nameCompany
-          >
-            {{ item?.name_company }}
-          </p>
-          } @if(withDeletePermission){
+          @if(withDeletePermission){
           <button
             [appTooltip]="
               'Eliminar ' +
@@ -210,8 +208,7 @@
         </app-input>
       </div>
       <!-- Company -->
-      @if(userLocalService.user?.id_rol === 1 || userLocalService.user?.id_rol
-      === 4){
+      @if(userLocalService.user?.id_rol === 1){
       <div class="col col-xs-12 col-md-6 mb-150-rem">
         <app-autocomplete
           [permission]="!!idCustomerSelected ? 'UPDATE' : 'CREATE'"

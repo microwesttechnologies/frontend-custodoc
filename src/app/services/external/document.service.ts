@@ -14,10 +14,10 @@ export class DocumentService {
 
   constructor(private http: HttpClient) {}
 
-  getAllDocuments(rangeDates: string): Observable<Document[]> {
+  getAllDocuments(params?: HttpParams): Observable<Document[]> {
     return this.http.get<Document[]>(
-      `${this.apiUrl}${rangeDates ? '?rangeDates=' + rangeDates : ''}`,
-      headerAuthorization()
+      `${this.apiUrl}`,
+      headerAuthorization(params)
     );
   }
 
@@ -27,12 +27,7 @@ export class DocumentService {
   ): Observable<Document[]> {
     return this.http.get<Document[]>(
       `${this.apiUrl}/getDocumentsByFolder/${id_folder}`,
-      {
-        headers: new HttpHeaders({
-          Authorization: 'Bearer ' + localStorage.getItem('access_token'),
-        }),
-        params,
-      }
+      headerAuthorization(params)
     );
   }
 

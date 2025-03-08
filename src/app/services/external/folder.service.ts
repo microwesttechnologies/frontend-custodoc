@@ -33,6 +33,7 @@ export class FolderService {
     name: string;
     id_area: number;
     parent: number | null;
+    id_company: number | null;
   }): Observable<GenericResponse> {
     return this.http.post<GenericResponse>(
       this.apiUrl,
