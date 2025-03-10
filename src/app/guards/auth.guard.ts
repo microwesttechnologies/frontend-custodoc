@@ -61,7 +61,7 @@ export class AuthGuard {
       this.routesService.getRoutesByRole().subscribe({
         next: (menu: any) => {
           this.userLocalService.menuSidebar = menu;
-          const allowedRouteIds = menu.map((item: any) => item.id_route);
+          const allowedRouteIds = this.userLocalService.menuSidebar.map((item: any) => item.id_route);
           const moduleId = route.data['id'];
 
           if (allowedRouteIds.includes(moduleId)) {
@@ -78,6 +78,11 @@ export class AuthGuard {
                   'No puedes ingresar al modulo de documentos hasta seleccionar una compañía',
                   'danger'
                 );
+              }
+
+              if (this.userLocalService?.companySelected?.type_company === 'Otras') {
+                const module = this.userLocalService.menuSidebar?.find(module=>module.code === 'CUSTOMER');
+                if(module) module.hidden = true;
               }
             }
 

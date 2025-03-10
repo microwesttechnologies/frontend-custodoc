@@ -153,42 +153,45 @@ export class CustomersModuleComponent {
 
   private getAllCustomers(): void {
     this.listStatus.loadingTable = true;
-    this.customerService.getAllCustomers().subscribe({
-      next: (customers) => {
-        this.customers = customers;
+    this.customerService
+      .getAllCustomers(this.userLocalService?.companySelected?.id_company)
+      .subscribe({
+        next: (customers) => {
+          this.customers = customers;
 
-        if (this.identificationByUrl) {
-          const customer = this.customers.find(
-            (customer) => +customer.identification! === this.identificationByUrl
-          );
-          if (customer) {
-            this.setUpdateCustomer(customer);
-          } else {
-            this.notificationService.showNotification(
-              `Lo sentimos, el ${homologateText(
-                this.userLocalService?.user?.type_company!,
-                'cliente'
-              )} no existe`,
-              'danger'
+          if (this.identificationByUrl) {
+            const customer = this.customers.find(
+              (customer) =>
+                +customer.identification! === this.identificationByUrl
             );
+            if (customer) {
+              this.setUpdateCustomer(customer);
+            } else {
+              this.notificationService.showNotification(
+                `Lo sentimos, el ${homologateText(
+                  this.userLocalService?.user?.type_company!,
+                  'cliente'
+                )} no existe`,
+                'danger'
+              );
+            }
+            this.identificationByUrl = undefined;
           }
-          this.identificationByUrl = undefined;
-        }
 
-        this.listStatus.loadingTable = false;
-      },
-      error: (error: HttpErrorResponse) => {
-        this.notificationService.showNotification(
-          `Lo sentimos, ha ocurrido un error al consultar los ${homologateText(
-            this.userLocalService?.user?.type_company!,
-            'clientes'
-          )}`,
-          'danger',
-          10000
-        );
-        this.listStatus.loadingTable = false;
-      },
-    });
+          this.listStatus.loadingTable = false;
+        },
+        error: (error: HttpErrorResponse) => {
+          this.notificationService.showNotification(
+            `Lo sentimos, ha ocurrido un error al consultar los ${homologateText(
+              this.userLocalService?.user?.type_company!,
+              'clientes'
+            )}`,
+            'danger',
+            10000
+          );
+          this.listStatus.loadingTable = false;
+        },
+      });
   }
 
   private getAllTypesDocument(): void {

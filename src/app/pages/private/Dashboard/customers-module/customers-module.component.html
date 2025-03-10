@@ -255,6 +255,7 @@
 
         <app-button
           (eventButtonClick)="getAllDocumentsByCustomer(idCustomerSelected)"
+          [appDisabledElement]="!rangeDatesControl?.value"
           classes="primary-button button-md"
         >
           <i class="fa-solid fa-search fa-lg cl-secondary-background-theme"></i>

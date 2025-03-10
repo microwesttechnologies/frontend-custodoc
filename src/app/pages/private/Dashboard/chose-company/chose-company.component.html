@@ -24,8 +24,8 @@
           'id_company',
           userLocalService.companySelected?.id_company
         ]"
-        (eventRowClick)="initWithCompany($event)"
         [loadingTable]="listStatus.loadingTable"
+        (eventRowClick)="selectCompany($event)"
         [fieldsToFilter]="fieldsToFilter"
         [totalItems]="companies.length"
         [searchControl]="searchControl"

@@ -33,7 +33,7 @@
 @if(isSidebarOpened){
 <ul class="content-list-routes" @slideEnterAndLeaveRight>
   @for ( itemMenu of userLocalService.menuSidebar; track indexMenu; let
-  indexMenu = $index){
+  indexMenu = $index){ @if(!itemMenu.hidden){
   <li
     routerLinkActive="item-route-activate"
     (click)="openAndCloseSidebar()"
@@ -50,7 +50,7 @@
       }}
     </p>
   </li>
-  }
+  } }
 </ul>
 } }@else {
 <div [ngClass]="{ 'sidebar-opened': isSidebarOpened }" class="primary-sidebar">
@@ -86,7 +86,7 @@
     <div class="sidebar-body">
       <ul>
         @for ( itemMenu of userLocalService.menuSidebar; track indexMenu; let
-        indexMenu = $index){
+        indexMenu = $index){ @if(!itemMenu.hidden){
         <li
           [appTooltip]="
             isSidebarOpened
@@ -120,7 +120,7 @@
           </p>
           }
         </li>
-        }
+        } }
       </ul>
     </div>
     <div class="sidebar-footer">

@@ -69,7 +69,11 @@ export class ChoseCompanyComponent {
     });
   }
 
-  public initWithCompany(company: Company): void {
+  public selectCompany(company: Company): void {
+    if (
+      company.id_company === this.userLocalService.companySelected?.id_company
+    )
+      return;
     this.userLocalService.companySelected = {
       id_company: company.id_company as number,
       type_company: company.type!,
@@ -84,5 +88,10 @@ export class ChoseCompanyComponent {
       `Has iniciado sesión con la compañía ${company.name}`,
       'success'
     );
+
+    const module = this.userLocalService.menuSidebar?.find(
+      (module) => module.code === 'CUSTOMER'
+    );
+    if (module) module.hidden = company.type === 'Otras';
   }
 }
