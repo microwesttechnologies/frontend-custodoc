@@ -273,7 +273,7 @@ export class UsersModuleComponent {
     });
   }
 
-  public getRolesByCompany(id_company?: any): void {
+  public getRolesByCompany(id_company?: any, init = false): void {
     if (id_company === 'IPS' && this.userLocalService?.user?.id_rol === 1) {
       this.roles = [
         {
@@ -285,7 +285,7 @@ export class UsersModuleComponent {
       this.userForm.get('id_rol')?.setValue(this.roles[0].id_rol);
       this.userForm.get('id_rol')?.markAsTouched();
     } else {
-      this.userForm.get('id_rol')?.reset();
+      if (!init) this.userForm.get('id_rol')?.reset();
       this.rolService
         .getRolesByCompany(id_company === 'null' ? undefined : id_company)
         .subscribe({
@@ -412,7 +412,8 @@ export class UsersModuleComponent {
 
     if (this.userLocalService?.user?.id_rol === 1) {
       this.getRolesByCompany(
-        user.type_company === 'IPS' ? null : user.id_company
+        user.type_company === 'IPS' ? null : user.id_company,
+        true
       );
       if (user.type_company === 'Otras') {
         this.addAreaControl(user.id_company, user.id_area);
