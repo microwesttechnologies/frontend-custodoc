@@ -1,7 +1,8 @@
-import { Routes } from '@angular/router';
+import { PreviewFileComponent } from './pages/private/Dashboard/documents/preview-file/preview-file.component';
+import { ResetPasswordComponent } from './pages/public/reset-password/reset-password.component';
 import { LoginComponent } from './pages/public/login/login.component';
 import { LoginGuard } from './guards/login.guard';
-import { ResetPasswordComponent } from './pages/public/reset-password/reset-password.component';
+import { Routes } from '@angular/router';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent, canActivate: [LoginGuard] },
@@ -9,6 +10,10 @@ export const routes: Routes = [
     component: ResetPasswordComponent,
     canActivate: [LoginGuard],
     path: 'reset-password',
+  },
+  {
+    component: PreviewFileComponent,
+    path: 'preview-file/:id',
   },
   {
     path: '',

@@ -13,6 +13,8 @@
 
 @include generate-styles("cg", "column-gap", rem, 100, 100);
 
+@include generate-styles("w", "width", rem, 120, 120);
+
 .container-module-trash {
   flex-direction: column;
   height: 100%;

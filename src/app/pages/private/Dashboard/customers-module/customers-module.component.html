@@ -15,6 +15,16 @@
   ></app-navbar>
   <div class="container-general-panel overflow-hidden">
     <div class="secondary-card">
+      @if(userLocalService?.companySelected?.id_company){
+      <section>
+        <p class="font-body-medium">
+          Nit compañía: <b>{{ userLocalService?.companySelected?.nit }}</b>
+        </p>
+        <p class="font-body-medium">
+          Nombre compañía: <b>{{ userLocalService?.companySelected?.name }}</b>
+        </p>
+      </section>
+      }
       <app-table
         [selectedItem]="['identification', idCustomerSelected]"
         (eventRowClick)="setUpdateCustomer($event)"

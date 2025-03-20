@@ -1,4 +1,8 @@
-<div class="container-module-folders">
+<div
+  (filesDropped)="onFilesDropped($event)"
+  class="container-module-folders"
+  appDragAndDropFile
+>
   <app-navbar
     description="En este modulo podrás gestionar documentos"
     [searchControl]="searchControl"
@@ -270,14 +274,11 @@
     @slideEnterRight
   >
     <section class="display-flex align-items-center">
-      <i
-        [ngStyle]="{ color: param === 'id_history' ? '#ef5350' : null }"
-        [ngClass]="{
-          'fa-folder cl-secondary-background-palette': param === 'id_folder',
-          ' fa-file-pdf': param === 'id_history'
-        }"
-        class="fa-lg fa-solid mr-50-rem"
-      ></i>
+      <img
+        src="/assets/img/{{ param === 'id_history' ? 'PDF' : 'Folder' }}.png"
+        class="w-120-rem mr-50-rem"
+        alt="Folder"
+      />
 
       <p
         class="font-caption-large white-space-nowrap text-overflow-ellipsis overflow-hidden"
@@ -417,7 +418,7 @@
         (click)="listStatus.creatingFolder = true"
         appDisabledByPermission="DOCUMENT"
       >
-        <i class="fa-solid fa-folder cl-secondary-background-palette"></i>
+        <img src="/assets/img/Folder.png" alt="Folder" class="w-120-rem" />
         <p class="font-caption-large">Carpeta</p>
       </li>
       <li
@@ -425,9 +426,19 @@
         (click)="listStatus.showModalDocument = true"
         appDisabledByPermission="DOCUMENT"
       >
-        <i class="fa-solid fa-file-pdf" [ngStyle]="{ color: '#ef5350' }"></i>
+        <img src="/assets/img/PDF.png" alt="PDF" class="w-120-rem" />
         <p class="font-caption-large">Documento</p>
       </li>
+      @if(userLocalService?.user?.id_rol === 4){
+      <li
+        class="item-list display-flex align-items-center cg-50-rem"
+        (click)="inputFile?.click()"
+      >
+        <img src="/assets/img/MassiveFiles.png" alt="PDF" class="w-120-rem" />
+        <p class="font-caption-large">Carga masiva</p>
+      </li>
+
+      }
     </ul>
   </div>
 </ng-template>
@@ -546,4 +557,35 @@
     ¿Estas seguro que quieres eliminar los documentos y carpetas seleccionadas?
   </p>
 </app-modal>
+}
+
+<input
+  (change)="onFileSelected($event)"
+  accept="application/pdf"
+  type="file"
+  #inputFile
+  multiple
+  hidden
+/>
+
+@if(listStatus.showProgressBar){
+<div class="container-upload-file-progress" @slideEnterRight @slideLeaveLeft>
+  @if(listStatus.finishedUploadFiles){
+  <p class="font-body-medium">
+    Se ha cargado {{ droppedFiles().length }} archivo{{
+      droppedFiles().length === 1 ? "" : "s"
+    }}
+    exitosamente
+  </p>
+  }@else {
+  <p class="font-caption-large mb-100-rem">
+    Cargando {{ droppedFiles().length }} archivo{{
+      droppedFiles().length === 1 ? "" : "s"
+    }}
+  </p>
+  <div class="progress-bar">
+    <div class="progress" [ngStyle]="{ width: uploadProgress() + 'px' }"></div>
+  </div>
+  }
+</div>
 }

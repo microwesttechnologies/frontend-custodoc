@@ -1,4 +1,13 @@
-import { Component, HostBinding, inject, Input, OnInit } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  HostBinding,
+  inject,
+  Input,
+  OnInit,
+  signal,
+  ViewChild,
+} from '@angular/core';
 import { DisabledByPermissionDirective } from 'src/app/directives/disabled-by-permissions.directive';
 import { ItemSkeletonComponent } from 'src/app/shared-components/item-skeleton/item-skeleton.component';
 import { NavbarComponent } from 'src/app/shared-components/navbar/navbar.component';
@@ -10,6 +19,7 @@ import { ButtonComponent } from 'src/app/shared-components/form/button/button.co
 import {
   createArrayByNumber,
   downloadFile,
+  redirect,
   validateLimitText,
 } from 'src/app/services/local/helper.service';
 import { Folder, LevelFolders } from 'src/app/models/folder.model';
@@ -23,7 +33,11 @@ import { Customer } from 'src/app/models/customer.model';
 import { ModalCreateAndUpdateDocumentComponent } from '../components/modal-create-and-update-document/modal-create-and-update-document.component';
 import { NotificationService } from 'src/app/shared-components/notification/notification.service';
 import { TooltipDirective } from 'src/app/directives/tooltip.directive';
-import { HttpErrorResponse, HttpParams } from '@angular/common/http';
+import {
+  HttpErrorResponse,
+  HttpEventType,
+  HttpParams,
+} from '@angular/common/http';
 import { InputComponent } from 'src/app/shared-components/form/input/input.component';
 import { FormControl, Validators } from '@angular/forms';
 import { DisabledElementDirective } from 'src/app/directives/disabled-element.directive';
@@ -37,6 +51,8 @@ import { ModalComponent } from 'src/app/shared-components/modal/modal.component'
 import { environment } from 'src/environments/environment';
 import { CompanyService } from 'src/app/services/external/company.service';
 import { Company } from 'src/app/models/company.model';
+import { DragAndDropFileDirective } from 'src/app/directives/drag-and-drop-file.directive';
+import { Router } from '@angular/router';
 
 interface FolderForm extends Folder {
   nameControl: FormControl;
@@ -52,6 +68,7 @@ interface FolderForm extends Folder {
     DisabledByPermissionDirective,
     BreadcumbFoldersComponent,
     DisabledElementDirective,
+    DragAndDropFileDirective,
     ItemSkeletonComponent,
     OverlayDirective,
     TooltipDirective,
@@ -80,6 +97,8 @@ export class FoldersComponent implements OnInit {
     height: '100%',
   };
 
+  @ViewChild('inputFile') inputFile!: ElementRef<HTMLInputElement>;
+
   @Input() customers: Customer[] = [];
 
   public storageUrl = environment.storageUrl;
@@ -105,11 +124,16 @@ export class FoldersComponent implements OnInit {
   );
   public selectedAll = new FormControl<boolean>(false);
 
+  public uploadProgress = signal<number>(0);
+  public droppedFiles = signal<File[]>([]);
+
   public listStatus = {
     showModalMultipleDelete: false,
+    finishedUploadFiles: false,
     showModalDocument: false,
     loadingDocuments: false,
     showModalDelete: false,
+    showProgressBar: false,
     creatingFolder: false,
   };
 
@@ -122,6 +146,7 @@ export class FoldersComponent implements OnInit {
   private readonly folderService = inject(FolderService);
   public userLocalService = inject(UserLocalService);
   private readonly areaService = inject(AreaService);
+  private readonly router = inject(Router);
 
   public get editingFolder(): boolean {
     return this.listFolders.some((folder) => folder.isEditing);
@@ -250,9 +275,11 @@ export class FoldersComponent implements OnInit {
   }
 
   private getAllAreas(): void {
-    this.areaService.getAllAreas().subscribe({
-      next: (areas) => (this.areas = areas),
-    });
+    this.areaService
+      .getAllAreas(this.userLocalService?.companySelected?.id_company)
+      .subscribe({
+        next: (areas) => (this.areas = areas),
+      });
   }
 
   public getAllCompanies(): void {
@@ -263,22 +290,21 @@ export class FoldersComponent implements OnInit {
   }
 
   public previewFile(document: Document, download: boolean = false) {
-    this.documentService.getFile(document.id_history).subscribe({
-      next: (file) => {
-        if (download) {
-          downloadFile(document.name, file, 'pdf');
-        } else {
-          this.goToSeeDocument(document);
-        }
-      },
-      error: (err) => {
-        console.error(err);
-        this.notificationService.showNotification(
-          'Lo sentimos, no se pudo mostrar el archivo',
-          'danger'
-        );
-      },
-    });
+    if (download) {
+      let params = new HttpParams()
+        .append('id_history', document.id_history)
+        .append('download', true);
+      this.documentService.getFile(params).subscribe({
+        next: (file) => downloadFile(document.name, file, 'pdf'),
+        error: (err) => {
+          console.error(err);
+          this.notificationService.showNotification(
+            'Lo sentimos, no se pudo descargar el archivo',
+            'danger'
+          );
+        },
+      });
+    } else redirect(`preview-file/${document.id_history}`, true);
   }
 
   public previousAndNextFolder(
@@ -581,5 +607,73 @@ export class FoldersComponent implements OnInit {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  }
+
+  public onFilesDropped(files: File[]) {
+    this.droppedFiles.set(files);
+    this.bulkUploadDocumentsOtherCompanies();
+  }
+
+  public onFileSelected(event: any) {
+    console.log(event);
+    if (event.target.files.length) {
+      const files = Array.from(event.target.files).filter(
+        (file: any) => file.type === 'application/pdf'
+      ) as File[];
+
+      if (files.length) {
+        this.droppedFiles.set(files);
+        this.bulkUploadDocumentsOtherCompanies();
+      } else {
+        this.notificationService.showNotification(
+          'Solo se pueden cargar archivos de tipo PDF',
+          'danger'
+        );
+      }
+    }
+  }
+
+  private bulkUploadDocumentsOtherCompanies(): void {
+    const formData = new FormData();
+
+    formData.append('id_area', `${this.idAreaSelected ?? 1}`);
+    formData.append('id_folder', `${this.lastIdFolder}`);
+    formData.append(
+      'id_company',
+      `${this.userLocalService?.companySelected?.id_company}`
+    );
+
+    this.droppedFiles().forEach((file, index) => {
+      formData.append(`documents[${index}][name]`, file.name);
+      formData.append(`documents[${index}][file]`, file);
+    });
+
+    this.listStatus.showProgressBar = true;
+    this.documentService.bulkUploadDocumentsOtherCompanies(formData).subscribe(
+      (event: any) => {
+        if (event.type === HttpEventType.UploadProgress && event.total) {
+          const percentDone = Math.round((100 * event.loaded) / event.total);
+          this.uploadProgress.set(percentDone);
+        } else if (event.type === HttpEventType.Response) {
+          this.uploadProgress.set(0);
+          this.listStatus.finishedUploadFiles = true;
+          this.inputFile.nativeElement.value = '';
+          this.getDocumentsByFolder();
+
+          setTimeout(() => {
+            this.listStatus.finishedUploadFiles = false;
+            this.listStatus.showProgressBar = false;
+          }, 3000);
+        }
+      },
+      (error: HttpErrorResponse) => {
+        this.inputFile.nativeElement.value = '';
+        this.listStatus.showProgressBar = false;
+        this.notificationService.showNotification(
+          'Lo sentimos, ha ocurrido un error, comunicate con el administrador',
+          'danger'
+        );
+      }
+    );
   }
 }

@@ -16,6 +16,8 @@
 
 @include generate-styles("rg", "row-gap", rem, 50, 50);
 
+@include generate-styles("w", "width", rem, 120, 120);
+
 .container-module-folders {
   flex-direction: column;
   height: 100%;
@@ -70,6 +72,32 @@
         border: 1px solid get-theme-value(palette, tertiary, background);
         background-color: get-theme-value(palette, tertiary, background);
       }
+    }
+  }
+}
+
+.container-upload-file-progress {
+  box-shadow: 0px 4px 16px get-theme-value(theme, primary, transparent);
+  background-color: get-theme-value(theme, secondary, background);
+  border: 1px solid get-theme-value(theme, secondary, border);
+  border-radius: 0.625rem;
+  position: fixed;
+  padding: 1rem;
+  width: 15rem;
+  bottom: 1rem;
+  right: 1rem;
+
+  & .progress-bar {
+    background-color: get-theme-value(theme, secondary, border);
+    border-radius: 0.625rem;
+    height: 1rem;
+    width: 100%;
+
+    & .progress {
+      background-color: get-theme-value(palette, tertiary, background);
+      transition: width 0.3s ease-in-out;
+      border-radius: 0.625rem;
+      height: 1rem;
     }
   }
 }

@@ -1,3 +1,4 @@
+import { HttpParams } from '@angular/common/http';
 import {
   Component,
   inject,
@@ -85,7 +86,8 @@ export class ModalCreateAndUpdateDocumentComponent implements OnInit {
 
     if (
       this.userLocalService.user?.type_company === 'IPS' ||
-      this.userLocalService?.companySelected?.type_company === 'IPS'
+      this.userLocalService?.companySelected?.type_company === 'IPS' ||
+      this.userLocalService?.user?.id_rol === 1
     ) {
       this.documentForm.addControl(
         'identification',
@@ -200,17 +202,19 @@ export class ModalCreateAndUpdateDocumentComponent implements OnInit {
   }
 
   private previewFile(id_history: number) {
-    this.documentService.getFile(id_history).subscribe({
-      next: (file) =>
-        (this.fileUrl = `${URL.createObjectURL(file)}#toolbar=0&navpanes=0`),
-      error: (err) => {
-        console.error(err);
-        this.notificationService.showNotification(
-          'Lo sentimos, no se pudo mostrar el archivo',
-          'danger'
-        );
-      },
-    });
+    this.documentService
+      .getFile(new HttpParams().append('id_history', id_history))
+      .subscribe({
+        next: (file) =>
+          (this.fileUrl = `${URL.createObjectURL(file)}#toolbar=0&navpanes=0`),
+        error: (err) => {
+          console.error(err);
+          this.notificationService.showNotification(
+            'Lo sentimos, no se pudo mostrar el archivo',
+            'danger'
+          );
+        },
+      });
   }
 
   public closeModal(): void {

@@ -33,11 +33,15 @@ export function isObjectValidator(
   return { notObject: true }; // Si no es un objeto, retorna un error
 }
 
-export const headerAuthorization = (params?: HttpParams) => ({
+export const headerAuthorization = (
+  params?: HttpParams,
+  customHeaders?: Object
+) => ({
   headers: new HttpHeaders({
     Authorization: 'Bearer ' + localStorage.getItem('access_token'),
   }),
   params,
+  ...customHeaders,
 });
 
 export const validateFormField = (
@@ -129,4 +133,13 @@ export const downloadFile = (title: string, blob: Blob, ext: string) => {
   document.body.appendChild(link);
   link.click();
   link.remove();
+};
+
+export const redirect = (route: string, newPage?: boolean) => {
+  const protocol = window.location.protocol;
+  const domain = window.location.hostname;
+  const port = window.location.port;
+
+  if (newPage) window.open(`${protocol}//${domain}:${port}/${route}`);
+  else window.location.href = `${protocol}//${domain}:${port}/${route}`;
 };

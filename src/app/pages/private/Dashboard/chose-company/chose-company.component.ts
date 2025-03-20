@@ -9,7 +9,7 @@ import { NavbarComponent } from 'src/app/shared-components/navbar/navbar.compone
 import { NotificationService } from 'src/app/shared-components/notification/notification.service';
 import { SharedModule } from 'src/app/shared-components/shared.module';
 import { TableComponent } from 'src/app/shared-components/table/table.component';
-import { UserLocalService } from '../../../../services/local/user.service';
+import { UserLocalService } from 'src/app/services/local/user.service';
 
 @Component({
   selector: 'app-chose-company',

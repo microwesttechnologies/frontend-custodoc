@@ -170,14 +170,11 @@
     @slideEnterRight
   >
     <section class="display-flex align-items-center">
-      <i
-        [ngStyle]="{ color: param === 'id_history' ? '#ef5350' : null }"
-        [ngClass]="{
-          'fa-folder cl-secondary-background-palette': param === 'id_folder',
-          ' fa-file-pdf': param === 'id_history'
-        }"
-        class="fa-lg fa-solid mr-50-rem"
-      ></i>
+      <img
+        src="/assets/img/{{ param === 'id_history' ? 'PDF' : 'Folder' }}.png"
+        class="w-120-rem mr-50-rem"
+        alt="Folder"
+      />
 
       <p
         class="font-caption-large white-space-nowrap text-overflow-ellipsis overflow-hidden"
@@ -235,7 +232,7 @@
         appDisabledByPermission="TRASH"
         permission="UPDATE"
         class="item-list"
-        [hidden]="true"
+        [remove]="true"
       >
         <p class="font-caption-large">Restaurar</p>
       </li>

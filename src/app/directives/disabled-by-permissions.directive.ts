@@ -23,7 +23,7 @@ export class DisabledByPermissionDirective
   @Input() opacityPermission: string | number = 0.7;
   @Input() permission: PermissionsKeys = 'CREATE';
   @Input() disabledAnyWay!: boolean;
-  @Input() hidden!: boolean;
+  @Input() remove!: boolean;
 
   private mutationObserver!: MutationObserver;
   private modifyingInProgress!: boolean;
@@ -84,11 +84,7 @@ export class DisabledByPermissionDirective
           (module) => module.code === this.codeModule && module[this.permission]
         );
 
-      if (this.hidden) {
-        this.el.nativeElement.remove();
-      } else {
-        this.updateStateElement();
-      }
+      this.updateStateElement();
     }
 
     if (
@@ -110,19 +106,22 @@ export class DisabledByPermissionDirective
   private updateStateElement(): void {
     this.modifyingInProgress = true;
     if (this.disabled) {
-      this.renderer.setAttribute(
-        this.el.nativeElement,
-        'elementIsDisabledByPermission',
-        'true'
-      );
-      this.renderer.setStyle(
-        this.el.nativeElement,
-        'opacity',
-        this.opacityPermission
-      );
-      this.modifyingInProgress = false;
-      this.disableElement(this.el.nativeElement);
-      this.disableChildren(this.el.nativeElement);
+      if (this.remove) this.el.nativeElement.remove();
+      else {
+        this.renderer.setAttribute(
+          this.el.nativeElement,
+          'elementIsDisabledByPermission',
+          'true'
+        );
+        this.renderer.setStyle(
+          this.el.nativeElement,
+          'opacity',
+          this.opacityPermission
+        );
+        this.modifyingInProgress = false;
+        this.disableElement(this.el.nativeElement);
+        this.disableChildren(this.el.nativeElement);
+      }
     } else {
       this.renderer.removeAttribute(
         this.el.nativeElement,

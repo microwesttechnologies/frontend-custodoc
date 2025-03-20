@@ -8,6 +8,8 @@ import { TableComponent } from 'src/app/shared-components/table/table.component'
 import { InputComponent } from 'src/app/shared-components/form/input/input.component';
 import { NavbarComponent } from 'src/app/shared-components/navbar/navbar.component';
 import {
+  downloadFile,
+  redirect,
   validateFormField,
   validateLimitText,
 } from 'src/app/services/local/helper.service';
@@ -121,10 +123,6 @@ export class HistoryModuleComponent {
       next: (documents) => {
         this.listStatus.loadingTable = false;
         this.documents = documents;
-        if (this.idHistoryByUrl) {
-          this.previewFile(+this.idHistoryByUrl);
-          this.idHistoryByUrl = undefined;
-        }
       },
       error: (error: HttpErrorResponse) => {
         this.listStatus.loadingTable = false;
@@ -160,16 +158,20 @@ export class HistoryModuleComponent {
     this.listStatus.showModalDocument = true;
   }
 
-  public previewFile(id_history: number) {
-    this.documentService.getFile(id_history).subscribe({
-      next: (file) => {
-        this.listStatus.showModalPreview = true;
-        this.fileUrl = `${URL.createObjectURL(file)}#toolbar=0&navpanes=0`;
-      },
+  public previewFile(id_history: number): void {
+    redirect(`preview-file/${id_history}`, true);
+  }
+
+  public downloadFile(document: Document): void {
+    let params = new HttpParams()
+      .append('id_history', document.id_history)
+      .append('download', true);
+    this.documentService.getFile(params).subscribe({
+      next: (file) => downloadFile(document.name, file, 'pdf'),
       error: (err) => {
         console.error(err);
         this.notificationService.showNotification(
-          'Lo sentimos, no se pudo mostrar el archivo',
+          'Lo sentimos, no se pudo descargar el archivo',
           'danger'
         );
       },

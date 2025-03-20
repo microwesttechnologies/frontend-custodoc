@@ -47,13 +47,24 @@ export class DocumentService {
     );
   }
 
-  getFile(id_history: number): Observable<Blob> {
-    return this.http.get(`${this.apiUrl}/getFile/${id_history}`, {
-      headers: new HttpHeaders({
-        Authorization: 'Bearer ' + localStorage.getItem('access_token'),
-      }),
-      responseType: 'blob',
-    });
+  bulkUploadDocumentsOtherCompanies(
+    documents: FormData
+  ): Observable<GenericResponse> {
+    return this.http.post<GenericResponse>(
+      `${this.apiUrl}/bulkUploadDocumentsOtherCompanies`,
+      documents,
+      headerAuthorization(undefined, {
+        reportProgress: true,
+        observe: 'events',
+      })
+    );
+  }
+
+  getFile(params: HttpParams): Observable<Blob> {
+    return this.http.get<Blob>(
+      `${this.apiUrl}/getFile`,
+      headerAuthorization(params, { responseType: 'blob' })
+    );
   }
 
   getAllDocumentsByCustomer(

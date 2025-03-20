@@ -61,7 +61,9 @@ export class AuthGuard {
       this.routesService.getRoutesByRole().subscribe({
         next: (menu: any) => {
           this.userLocalService.menuSidebar = menu;
-          const allowedRouteIds = this.userLocalService.menuSidebar.map((item: any) => item.id_route);
+          const allowedRouteIds = this.userLocalService.menuSidebar.map(
+            (item: any) => item.id_route
+          );
           const moduleId = route.data['id'];
 
           if (allowedRouteIds.includes(moduleId)) {
@@ -80,9 +82,15 @@ export class AuthGuard {
                 );
               }
 
-              if (this.userLocalService?.companySelected?.type_company === 'Otras') {
-                const module = this.userLocalService.menuSidebar?.find(module=>module.code === 'CUSTOMER');
-                if(module) module.hidden = true;
+              if (
+                this.userLocalService?.companySelected?.type_company ===
+                  'Otras' ||
+                !this.userLocalService?.companySelected?.type_company
+              ) {
+                const module = this.userLocalService.menuSidebar?.find(
+                  (module) => module.code === 'CUSTOMER'
+                );
+                if (module) module.hidden = true;
               }
             }
 

@@ -47,7 +47,10 @@
       </section>
       }
       <app-table
-        gridHeaderColumns="minmax(10rem, 1fr) minmax(10rem, 1fr) 10rem minmax(10rem, 1fr) 11rem 7rem"
+        [gridHeaderColumns]="
+          (userLocalService?.user?.id_rol ? 'minmax(10rem, 1fr) ' : '') +
+          'minmax(10rem, 1fr) minmax(10rem, 1fr) 10rem minmax(10rem, 1fr) 11rem 7rem'
+        "
         [loadingTable]="listStatus.loadingTable"
         [fieldsToFilter]="fieldsToFilter"
         [totalItems]="documents.length"
@@ -57,6 +60,7 @@
         [withPager]="true"
       >
         <ng-container tableHeader>
+          <p class="font-subtitle-large">Compañía</p>
           <p class="font-subtitle-large">Nombre del paciente</p>
           <p class="font-subtitle-large">Nombre documento</p>
           <p class="font-subtitle-large">Identificación cliente</p>
@@ -64,6 +68,15 @@
           <p class="font-subtitle-large">Fecha creación</p>
         </ng-container>
         <ng-template let-item>
+          <p
+            class="font-caption-large white-space-nowrap text-overflow-ellipsis overflow-hidden"
+            [appTooltip]="
+              validateLimitText(nameCompany) ? item?.name_company : ''
+            "
+            #nameCompany
+          >
+            {{ item?.name_company }}
+          </p>
           <p
             class="font-caption-large white-space-nowrap text-overflow-ellipsis overflow-hidden"
             [appTooltip]="
@@ -110,19 +123,18 @@
             </button>
 
             @if(userLocalService?.user?.id_rol === 1){
-            <a
+            <button
               class="primary-button button-sm width-fit-content ml-50-rem"
               [configTooltip]="{ position: 'left' }"
-              [href]="storageUrl + item?.path"
               appTooltip="Descargar archivo"
-              target="_blank"
-              download
+              (click)="downloadFile(item)"
+              type="button"
             >
               <i
                 class="fa-solid fa-download cl-secondary-background-theme-important"
               >
               </i>
-            </a>
+            </button>
             } @if(withDeletePermission){
             <button
               class="primary-button bg-danger button-sm width-fit-content ml-50-rem"

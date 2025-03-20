@@ -8,6 +8,7 @@ import { FolderService } from 'src/app/services/external/folder.service';
 import { debounceTime, forkJoin } from 'rxjs';
 import {
   createArrayByNumber,
+  redirect,
   validateLimitText,
 } from 'src/app/services/local/helper.service';
 import { Folder, LevelFolders } from 'src/app/models/folder.model';
@@ -157,19 +158,7 @@ export class TrashComponent implements OnInit {
   }
 
   public previewFile(id_history: number) {
-    this.documentService.getFile(id_history).subscribe({
-      next: (file) => {
-        this.listStatus.showModalPreview = true;
-        this.fileUrl = `${URL.createObjectURL(file)}#toolbar=0&navpanes=0`;
-      },
-      error: (err) => {
-        console.error(err);
-        this.notificationService.showNotification(
-          'Lo sentimos, no se pudo mostrar el archivo',
-          'danger'
-        );
-      },
-    });
+    redirect(`preview-file/${id_history}`, true);
   }
 
   public previousAndNextFolder(
@@ -350,6 +339,8 @@ export class TrashComponent implements OnInit {
           );
 
           if (response.status) {
+            this.listDocuments = [];
+            this.listFolders = [];
             this.getDocumentsAndFoldersByFolder();
             this.listStatus.showModalMultipleDelete = false;
           }
