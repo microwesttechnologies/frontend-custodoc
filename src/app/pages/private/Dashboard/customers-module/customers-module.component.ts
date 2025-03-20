@@ -14,7 +14,6 @@ import {
 import { Customer } from 'src/app/models/customer.model';
 import { Company } from 'src/app/models/company.model';
 import { TypesDocument } from 'src/app/models/types-document.model';
-import { GlobalService } from 'src/app/services/external/global.service';
 import { TooltipDirective } from 'src/app/directives/tooltip.directive';
 import { NavbarComponent } from 'src/app/shared-components/navbar/navbar.component';
 import { TableComponent } from 'src/app/shared-components/table/table.component';
@@ -261,7 +260,13 @@ export class CustomersModuleComponent {
   public createOrUpdateCustomer() {
     this.customerForm.markAllAsTouched();
     if (this.customerForm.valid) {
-      const customer = { ...this.customerForm.value } as Customer;
+      const customer = {
+        ...this.customerForm.value,
+      } as Customer;
+
+      if (this.userLocalService?.user?.id_rol === 4)
+        customer.id_company =
+          this.userLocalService?.companySelected?.id_company;
 
       this.listStatus.savingCustomer = true;
 

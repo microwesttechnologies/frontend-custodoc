@@ -615,7 +615,6 @@ export class FoldersComponent implements OnInit {
   }
 
   public onFileSelected(event: any) {
-    console.log(event);
     if (event.target.files.length) {
       const files = Array.from(event.target.files).filter(
         (file: any) => file.type === 'application/pdf'

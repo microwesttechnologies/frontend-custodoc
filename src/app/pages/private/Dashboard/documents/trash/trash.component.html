@@ -269,12 +269,7 @@
   </div>
 </ng-template>
 
-@if(listStatus.showModalPreview){
-<app-modal-preview-document
-  [listStatus]="listStatus"
-  [fileUrl]="fileUrl"
-></app-modal-preview-document>
-}@if(documentToDelete || folderToDelete){
+@if(documentToDelete || folderToDelete){
 <app-modal-confirmation-delete
   [nameToValidate]="documentToDelete?.name! ?? folderToDelete?.name!"
   [title]="'Eliminar ' + (documentToDelete ? 'documento' : 'carpeta')"

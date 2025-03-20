@@ -69,6 +69,7 @@ export class HistoryModuleComponent {
     'description',
   ];
 
+  public idHistoryPreview?: number;
   private idHistoryByUrl?: number;
   public fileUrl?: string;
 
@@ -123,6 +124,11 @@ export class HistoryModuleComponent {
       next: (documents) => {
         this.listStatus.loadingTable = false;
         this.documents = documents;
+
+        if (this.idHistoryByUrl) {
+          this.idHistoryPreview = this.idHistoryByUrl;
+          this.idHistoryByUrl = undefined;
+        }
       },
       error: (error: HttpErrorResponse) => {
         this.listStatus.loadingTable = false;
@@ -156,10 +162,6 @@ export class HistoryModuleComponent {
   public openModalCreateDocument() {
     this.listStatus.disabledPrimaryButton = false;
     this.listStatus.showModalDocument = true;
-  }
-
-  public previewFile(id_history: number): void {
-    redirect(`preview-file/${id_history}`, true);
   }
 
   public downloadFile(document: Document): void {

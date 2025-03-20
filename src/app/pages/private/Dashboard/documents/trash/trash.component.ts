@@ -74,8 +74,6 @@ export class TrashComponent implements OnInit {
 
   public selectedAll = new FormControl<boolean>(false);
 
-  public fileUrl?: string;
-
   public listStatus = {
     showModalMultipleDelete: false,
     showModalDocument: false,

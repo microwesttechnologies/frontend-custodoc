@@ -5,6 +5,7 @@ import {
   Renderer2,
   inject,
   Output,
+  Input,
 } from '@angular/core';
 import { NotificationService } from '../shared-components/notification/notification.service';
 
@@ -14,6 +15,7 @@ import { NotificationService } from '../shared-components/notification/notificat
 })
 export class DragAndDropFileDirective {
   @Output() filesDropped = new EventEmitter<File[]>();
+  @Input() enabled!: boolean;
 
   private overlay: HTMLElement | null = null;
 
@@ -59,7 +61,7 @@ export class DragAndDropFileDirective {
   }
 
   private showOverlay() {
-    if (!this.overlay) {
+    if (!this.overlay && this.enabled) {
       this.overlay = this.renderer.createElement('div');
       this.renderer.setStyle(this.overlay, 'background', 'rgba(0, 0, 0, 0.5)');
       this.renderer.setStyle(this.overlay, 'justify-content', 'center');
@@ -81,7 +83,7 @@ export class DragAndDropFileDirective {
   }
 
   private hideOverlay() {
-    if (this.overlay) {
+    if (this.overlay && this.enabled) {
       this.renderer.removeChild(document.body, this.overlay);
       this.overlay = null;
     }

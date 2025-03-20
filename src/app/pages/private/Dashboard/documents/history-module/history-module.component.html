@@ -48,7 +48,7 @@
       }
       <app-table
         [gridHeaderColumns]="
-          (userLocalService?.user?.id_rol ? 'minmax(10rem, 1fr) ' : '') +
+          (userLocalService?.user?.id_rol === 1 ? 'minmax(10rem, 1fr) ' : '') +
           'minmax(10rem, 1fr) minmax(10rem, 1fr) 10rem minmax(10rem, 1fr) 11rem 7rem'
         "
         [loadingTable]="listStatus.loadingTable"
@@ -73,6 +73,7 @@
           <p class="font-subtitle-large">Fecha creación</p>
         </ng-container>
         <ng-template let-item>
+          @if(userLocalService?.user?.id_rol === 1){
           <p
             class="font-caption-large white-space-nowrap text-overflow-ellipsis overflow-hidden"
             [appTooltip]="
@@ -82,6 +83,7 @@
           >
             {{ item?.name_company }}
           </p>
+          }
           <p
             class="font-caption-large white-space-nowrap text-overflow-ellipsis overflow-hidden"
             [appTooltip]="
@@ -116,8 +118,8 @@
           <div class="center-all">
             <button
               class="primary-button button-sm width-fit-content"
+              (click)="idHistoryPreview = item.id_history"
               [configTooltip]="{ position: 'left' }"
-              (click)="previewFile(item.id_history)"
               appTooltip="Ver archivo"
               type="button"
             >
@@ -167,10 +169,10 @@
   [listStatus]="listStatus"
   [customers]="customers"
 ></app-modal-create-and-update-document>
-} @if(listStatus.showModalPreview){
+} @if(idHistoryPreview){
 <app-modal-preview-document
-  [listStatus]="listStatus"
-  [fileUrl]="fileUrl"
+  (eventClose)="idHistoryPreview = undefined"
+  [id_history]="idHistoryPreview"
 ></app-modal-preview-document>
 }@if(listStatus.showModalBulkload){
 <app-modal-bulkload

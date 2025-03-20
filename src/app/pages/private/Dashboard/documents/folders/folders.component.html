@@ -1,4 +1,5 @@
 <div
+  [enabled]="userLocalService?.user?.id_rol === 4"
   (filesDropped)="onFilesDropped($event)"
   class="container-module-folders"
   appDragAndDropFile
@@ -64,6 +65,7 @@
         </app-button>
       </div>
 
+      @if(userLocalService?.user?.id_rol !== 4){
       <div
         class="display-flex align-items-center justify-content-space-between mb-100-rem"
       >
@@ -96,6 +98,7 @@
         </button>
         }
       </div>
+      }
 
       <app-breadcumb-folders
         (eventGoSpecificFolder)="previousAndNextFolder(undefined, $event)"

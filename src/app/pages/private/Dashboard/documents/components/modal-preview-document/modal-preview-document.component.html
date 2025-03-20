@@ -1,6 +1,6 @@
 <app-modal
-  (eventButtonClick)="listStatus.showModalPreview = false"
   [customStylesBody]="{ padding: 0, overflow: 'hidden' }"
+  (eventButtonClick)="eventClose.emit()"
   [primaryButton]="{ text: 'Cerrar' }"
   [secondaryButton]="{ hidden: true }"
   [customStyles]="{ height: '95vh' }"
