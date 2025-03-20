@@ -60,7 +60,12 @@
         [withPager]="true"
       >
         <ng-container tableHeader>
-          <p class="font-subtitle-large">Compañía</p>
+          <p
+            [ngClass]="{ 'display-none': userLocalService?.user?.id_rol !== 1 }"
+            class="font-subtitle-large"
+          >
+            Compañía
+          </p>
           <p class="font-subtitle-large">Nombre del paciente</p>
           <p class="font-subtitle-large">Nombre documento</p>
           <p class="font-subtitle-large">Identificación cliente</p>

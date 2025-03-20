@@ -143,3 +143,13 @@ export const redirect = (route: string, newPage?: boolean) => {
   if (newPage) window.open(`${protocol}//${domain}:${port}/${route}`);
   else window.location.href = `${protocol}//${domain}:${port}/${route}`;
 };
+
+export const scrollToElement = (idElement: string, animation = true) => {
+  const element = document.getElementById(idElement) as HTMLDivElement;
+  if (element) {
+    element.scrollIntoView({
+      behavior: animation ? "smooth" : "instant",
+      block: "center",
+    });
+  }
+};

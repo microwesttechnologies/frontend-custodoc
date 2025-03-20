@@ -142,7 +142,7 @@ export class UsersModuleComponent {
     });
 
     if (this.userLocalService.user?.id_rol === 1) {
-      this.gridHeaderColumns += ' minmax(10rem, 1fr)';
+      this.gridHeaderColumns = `minmax(10rem, 1fr) ${this.gridHeaderColumns}`;
 
       this.getAllCompanies();
 

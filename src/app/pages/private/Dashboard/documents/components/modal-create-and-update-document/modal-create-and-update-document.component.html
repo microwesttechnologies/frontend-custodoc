@@ -36,6 +36,9 @@
       @if(documentForm?.get('identification')){
       <div class="col col-xs-12 col-md-6 mb-150-rem">
         <app-autocomplete
+          (selectionChange)="
+            documentForm?.get('id_company')?.setValue($event?.id_company)
+          "
           [configAutoComplete]="{
             placeholder: 'Buscar cliente por nombre',
             fieldText: ['identification', 'name'],

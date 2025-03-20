@@ -20,8 +20,10 @@
     (statusOverlayChange)="
       listStatus.showOptions = $event; !$event && onTouched()
     "
-    [appOverlay]="overlaySelect"
     overlayPosition="bottom-center"
+    [appOverlay]="overlaySelect"
+    [closeOnGlobalScroll]="true"
+    [closeInsideParent]="false"
     overlayActivateBy="click"
   >
     <p

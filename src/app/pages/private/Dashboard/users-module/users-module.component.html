@@ -38,18 +38,18 @@
         [list]="users"
       >
         <ng-container tableHeader>
-          <p class="font-subtitle-large">Identificación</p>
-          <p class="font-subtitle-large">Tipo documento</p>
-          <p class="font-subtitle-large">Nombre</p>
-          <p class="font-subtitle-large">Email</p>
-          <p class="font-subtitle-large">Teléfono</p>
-          <p class="font-subtitle-large">Rol</p>
           <p
             [ngClass]="{ 'display-none': userLocalService?.user?.id_rol !== 1 }"
             class="font-subtitle-large"
           >
             Compañía
           </p>
+          <p class="font-subtitle-large">Identificación</p>
+          <p class="font-subtitle-large">Tipo documento</p>
+          <p class="font-subtitle-large">Nombre</p>
+          <p class="font-subtitle-large">Email</p>
+          <p class="font-subtitle-large">Teléfono</p>
+          <p class="font-subtitle-large">Rol</p>
           <p
             [ngClass]="{
               'display-none':
@@ -62,6 +62,17 @@
           </p>
         </ng-container>
         <ng-template let-item>
+          @if(userLocalService?.user?.id_rol === 1){
+            <p
+              class="font-caption-large white-space-nowrap text-overflow-ellipsis overflow-hidden"
+              [appTooltip]="
+                validateLimitText(nameCompany) ? item?.name_company : ''
+              "
+              #nameCompany
+            >
+              {{ item?.name_company }}
+            </p>
+            }
           <p class="font-caption-large">{{ item?.identification }}</p>
           <p class="font-caption-large">{{ item?.name_type_document }}</p>
           <p
@@ -80,17 +91,7 @@
           </p>
           <p class="font-caption-large">{{ item?.phone }}</p>
           <p class="font-caption-large">{{ item?.name_rol }}</p>
-          @if(userLocalService?.user?.id_rol === 1){
-          <p
-            class="font-caption-large white-space-nowrap text-overflow-ellipsis overflow-hidden"
-            [appTooltip]="
-              validateLimitText(nameCompany) ? item?.name_company : ''
-            "
-            #nameCompany
-          >
-            {{ item?.name_company }}
-          </p>
-          } @if(userLocalService?.user?.id_rol === 1 ||
+          @if(userLocalService?.user?.id_rol === 1 ||
           userLocalService?.user?.type_company === 'Otras'){
           <p
             class="font-caption-large white-space-nowrap text-overflow-ellipsis overflow-hidden"

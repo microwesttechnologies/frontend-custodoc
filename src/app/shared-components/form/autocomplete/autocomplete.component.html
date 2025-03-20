@@ -18,9 +18,13 @@
     [closeOverlay]="!listStatus.openOverlay"
     [openOverlay]="listStatus.openOverlay"
     [appOverlay]="overlayAutoComplete"
+    [$actionOverlay]="$actionOverlay"
     overlayPosition="bottom-center"
+    [closeOnGlobalScroll]="true"
     [closeInsideOverlay]="true"
+    [closeInsideParent]="false"
     overlayActivateBy="click"
+    parent="autocomplete"
     #parentAutoComplete
   >
     <!-- @if(configAutoComplete?.withAvatar){
@@ -32,8 +36,9 @@
 
     <input
       [placeholder]="configAutoComplete?.placeholder"
-      (keyup)="filterOptions(); keyUpOrDown('up', $event)"
-      (keydown)="keyUpOrDown('down', $event)"
+      (keydown)="eventKey('down', $event)"
+      (ngModelChange)="filterOptions()"
+      (keyup)="eventKey('up', $event)"
       [id]="configAutoComplete?.id"
       [(ngModel)]="inputValue"
       autocomplete="off"

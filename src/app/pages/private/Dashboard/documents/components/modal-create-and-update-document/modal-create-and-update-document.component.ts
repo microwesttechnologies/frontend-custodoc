@@ -93,6 +93,7 @@ export class ModalCreateAndUpdateDocumentComponent implements OnInit {
         'identification',
         new FormControl('', [Validators.required])
       );
+      this.documentForm.addControl('id_company', new FormControl(''));
     } else {
       this.documentForm.addControl(
         'id_area',

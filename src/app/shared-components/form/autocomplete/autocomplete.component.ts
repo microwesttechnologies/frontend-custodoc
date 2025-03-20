@@ -21,6 +21,8 @@ import { collapseAnimation } from 'src/app/animations/global.animations';
 import { SharedModule } from '../../shared.module';
 import { OverlayDirective } from 'src/app/directives/overlay.directive';
 import { DisabledElementDirective } from 'src/app/directives/disabled-element.directive';
+import { Subject, Subscription, timer } from 'rxjs';
+import { scrollToElement } from 'src/app/services/local/helper.service';
 
 interface ConfigAutoComplete {
   defaultLabelError?: boolean; // Mostrar error por defecto
@@ -66,8 +68,10 @@ export class AutoCompleteComponent
 
   @Output() selectionChange = new EventEmitter<any>();
 
-  public setTimeoutKeyUpOrDown = undefined;
-  private setTimeoutFilter?: number | ReturnType<typeof setTimeout>;
+  public $actionOverlay = new Subject<'open' | 'close'>();
+
+  public setTimeoutKeyUpOrDown?: Subscription;
+  public setTimeoutFilter?: Subscription;
   public filteredOptions: any[] = [];
   public inputValue = '';
 
@@ -200,12 +204,15 @@ export class AutoCompleteComponent
 
   public filterOptions(): void {
     if (this.setTimeoutFilter) {
-      clearTimeout(this.setTimeoutFilter);
+      this.setTimeoutFilter?.unsubscribe();
       this.setTimeoutFilter = undefined;
     }
 
-    if (this.inputValue !== this.getDisplayValue(this.currentOption)) {
-      this.setTimeoutFilter = setTimeout(() => {
+    this.setTimeoutFilter = timer(150).subscribe(() => {
+      if (
+        this.inputValue !== this.getDisplayValue(this.currentOption) ||
+        this.inputValue === ''
+      ) {
         const query = this.inputValue.toLowerCase();
 
         if (this.configAutoComplete?.fieldGroup) {
@@ -213,35 +220,23 @@ export class AutoCompleteComponent
             .map((group) => ({
               group: group.group,
               options: group.options.filter((option: any) =>
-                this.doesOptionMatchQuery(option, query)
+                this.getDisplayValue(option).toLowerCase().includes(query)
               ),
             }))
             .filter((group) => group.options.length > 0);
         } else {
           this.filteredOptions = this.options.filter((option) =>
-            this.doesOptionMatchQuery(option, query)
+            this.getDisplayValue(option).toLowerCase().includes(query)
           );
         }
 
         const optionMatch = this.findExactOptionMatch(query);
         this.handleSelection(optionMatch);
         this.listStatus.openOverlay = true;
+        this.$actionOverlay.next('open');
         this.cdRef.detectChanges();
-      }, 150);
-    }
-  }
-
-  /**
-   * Verifica si una opción coincide con el query, buscando en una o varias propiedades.
-   */
-  private doesOptionMatchQuery(option: any, query: string): boolean {
-    const fields = Array.isArray(this.configAutoComplete.fieldText)
-      ? this.configAutoComplete.fieldText
-      : [this.configAutoComplete.fieldText];
-
-    return fields.some((field) =>
-      (option[field] || '').toString().toLowerCase().includes(query)
-    );
+      }
+    });
   }
 
   private findExactOptionMatch(query: string): any {
@@ -289,12 +284,12 @@ export class AutoCompleteComponent
     ) {
       this.inputValue = this.getDisplayValue(option);
       this.currentOption = option;
-      this.selectionChange.emit(option);
       this.onChange(
         this.configAutoComplete?.assignOnlyFieldId
           ? this.getIdValue(option)
           : option
       );
+      this.selectionChange.emit(option);
       this.cdRef.detectChanges();
     }
   }
@@ -307,33 +302,38 @@ export class AutoCompleteComponent
   }
 
   public statusOverlayChange(showOverlay: boolean): void {
-    if (!showOverlay) {
+    this.listStatus.openOverlay = showOverlay;
+    if (showOverlay) {
+      setTimeout(
+        () => scrollToElement(`option-autocomplete${this.valueControl}`, false),
+        0,
+      );
+    } else {
       if (!this.touched) this.onTouched();
       this.setupFilteredOptions();
     }
     this.cdRef.detectChanges();
   }
 
-  public keyUpOrDown(action: 'up' | 'down', event: KeyboardEvent): void {
+  public eventKey(action: 'up' | 'down', event: KeyboardEvent): void {
     if (this.setTimeoutKeyUpOrDown) {
-      clearTimeout(this.setTimeoutKeyUpOrDown);
+      this.setTimeoutKeyUpOrDown?.unsubscribe();
       this.setTimeoutKeyUpOrDown = undefined;
     }
 
-    setTimeout(() => {
+    this.setTimeoutKeyUpOrDown = timer(150).subscribe(() => {
       if (event.key === 'Tab') {
-        this.listStatus.openOverlay = action === 'up';
-        if (this.listStatus.openOverlay) {
+        if (action === 'up') {
+          this.$actionOverlay.next('open');
           const inputElement = event.target as HTMLInputElement;
           inputElement.setSelectionRange(
             this.inputValue.length,
-            this.inputValue.length
+            this.inputValue.length,
           );
+        } else {
+          this.$actionOverlay.next('close');
         }
-      } else if (event.key === 'Escape') {
-        this.listStatus.openOverlay = false;
       }
-      this.cdRef.detectChanges();
-    }, 150);
+    });
   }
 }
