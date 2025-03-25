@@ -16,6 +16,7 @@ import { validateLimitText } from 'src/app/services/local/helper.service';
 import { Customer } from 'src/app/models/customer.model';
 import { NotificationService } from 'src/app/shared-components/notification/notification.service';
 import { DocumentService } from 'src/app/services/external/document.service';
+import { UserLocalService } from 'src/app/services/local/user.service';
 import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
@@ -35,12 +36,12 @@ export class ModalBulkloadComponent {
   @ViewChild('inputPdfs') inputPdfs!: ElementRef<HTMLInputElement>;
   @ViewChild('inputCsv') inputCsv!: ElementRef<HTMLInputElement>;
 
-  @Input() customers: Customer[] = [];
-  @Input() showModalBulkload = false;
-
   @Output() showModalBulkloadChange = new EventEmitter<
     'close' | 'show' | 'refresh'
   >();
+
+  @Input() customers: Customer[] = [];
+  @Input() showModalBulkload = false;
 
   public selectedTabIndex = 0;
   public selectedStepIndex = 0;
@@ -57,6 +58,7 @@ export class ModalBulkloadComponent {
   public validateLimitText = validateLimitText;
 
   private readonly notificationService = inject(NotificationService);
+  private readonly userLocalService = inject(UserLocalService);
   private readonly documentService = inject(DocumentService);
 
   /**
@@ -259,6 +261,13 @@ export class ModalBulkloadComponent {
           this.selectedFilesPdf.find((file) => file.name === record[3])!
         );
       });
+
+      if (this.userLocalService?.user?.id_rol === 4) {
+        formData.append(
+          'id_company',
+          `${this.userLocalService?.companySelected?.id_company}`
+        );
+      }
 
       this.documentService.bulkUploadDocuments(formData).subscribe({
         next: (response) => {

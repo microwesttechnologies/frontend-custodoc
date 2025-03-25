@@ -33,8 +33,10 @@
         [fieldsToFilter]="fieldsToFilter"
         [totalItems]="customers.length"
         [searchControl]="searchControl"
+        [ngStyle]="{ height: '100%' }"
         [list]="customers"
         [withPager]="true"
+        height="100%"
       >
         <ng-container tableHeader>
           <p

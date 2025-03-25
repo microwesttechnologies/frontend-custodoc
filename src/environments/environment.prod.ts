@@ -1,5 +1,5 @@
 export const environment = {
-  storageUrl: 'https://custodocsb.microwesttechnologies.com/public/storage/',
-  apiUrl: 'https://custodocsb.microwesttechnologies.com/api/',
+  storageUrl: 'https://backend.custodocs.com/public/storage/',
+  apiUrl: 'https://backend.custodocs.com/api/',
   production: true,
 };

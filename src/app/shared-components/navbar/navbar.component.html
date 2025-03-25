@@ -71,6 +71,7 @@
               </li>
               } @if(actions.includes('import')){
               <li
+                [disabledAnyWay]="userLocalService?.user?.id_rol === 1"
                 [appDisabledByPermission]="codeModule"
                 (click)="eventImport.emit()"
                 class="item-list"

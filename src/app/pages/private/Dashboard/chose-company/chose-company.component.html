@@ -29,8 +29,10 @@
         [fieldsToFilter]="fieldsToFilter"
         [totalItems]="companies.length"
         [searchControl]="searchControl"
+        [ngStyle]="{ height: '100%' }"
         [list]="companies"
         [withPager]="true"
+        height="100%"
       >
         <ng-container tableHeader>
           <p class="font-subtitle-large">Nit</p>
